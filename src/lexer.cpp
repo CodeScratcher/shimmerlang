@@ -17,7 +17,6 @@ std::vector<DotToken> lex(std::string str) {
   bool in_identifier;
   for (int i = 0; i < str.length(); i++) {
     char ch = str.at(i);
-    // Write a style guide 
     if (in_string && !(ch == string_watch_out_for)) {
       current_token_contents.append(&ch);
     }
@@ -100,6 +99,7 @@ std::vector<DotToken> lex(std::string str) {
       toReturn.push_back(dToken);
     }
     else {
+    
     }
   }
   return toReturn;
