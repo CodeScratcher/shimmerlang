@@ -11,6 +11,8 @@ void foo(int bar) {
   return "Oh my gosh this is illegal!";
 }
 ```
+* Even if you can make 1 line blocks, like `if (foo == 5) bar();`,
+  only do that if you can keep it under one screen, and use braces
 ## Macros and typedefs
 * Only use them if it makes the code cleaner.
 ## Pointers
@@ -18,5 +20,3 @@ void foo(int bar) {
 * For pointers to function the ```*foo``` form is better, like ```void (*hello)()```
 ## Line length
 * Always keep lines shorter than a screen.
-* Even if you can make 1 line blocks, like `if (foo == 5) bar();`, only do that if you can keep it under one screen
-## 
