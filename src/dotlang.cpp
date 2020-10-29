@@ -7,13 +7,12 @@
 #include "parser.h"
 #include "eval.h"
 std::vector<DotToken> tokens;
-int DotEval(std::string str) {
+int dot_eval(std::string str) {
   eval(parse(lex(str)));
   return 0;
 }
 int main(int argc, char* argv[]) {
   if (argc > 1) {
-    
     std::ifstream file;
     file.open(argv[1]);
     if (!file) {
@@ -23,7 +22,8 @@ int main(int argc, char* argv[]) {
       std::stringstream buffer;
       buffer << file.rdbuf();
       tokens = lex(buffer.str());
-      DotEval(buffer.str());
+      //dot_eval(buffer.str());
+      std::cout << buffer.str(); // is this alright?
     }
   }
   else {
@@ -31,7 +31,8 @@ int main(int argc, char* argv[]) {
       std::string to_eval;
       std::cout << "shimmer % ";
       std::getline(std::cin, to_eval);
-      DotEval(to_eval);
+      //dot_eval(to_eval);
+      std::cout << buffer.str(); // is this alright?
     }
   }
   return 0;
