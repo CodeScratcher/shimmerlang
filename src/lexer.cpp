@@ -2,13 +2,11 @@
 #include <string>
 #include <vector>
 #include <regex>
-#include "DotClasses.h"
+#include "ShimmerClasses.h"
 
-DotToken make_token(bool string, bool integer, bool identifier, std::string current_token_contents) {
-  if(string) return DotString(current_token_contents);
-  if(integer) return DotInt(current_token_contents);
-  if(identifier) return DotIdentifier(current_token_contents);
-}
+DotToken make_token(bool string, bool integer, bool identifier, 
+                    std::string current_token_contents);
+
 std::vector<DotToken> lex(std::string str) {
   std::vector<DotToken> toReturn;
   DotToken dToken;
@@ -20,7 +18,9 @@ std::vector<DotToken> lex(std::string str) {
   for (int i = 0; i < str.length(); i++) {
     char ch = str.at(i);
     // Write a style guide 
-    if (in_string && !(ch == string_watch_out_for)) current_token_contents.append(&ch);
+    if (in_string && !(ch == string_watch_out_for)) {
+      current_token_contents.append(&ch);
+    }
     else if (ch == '(') {
      if (current_token_contents != "") {
       dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
@@ -104,13 +104,22 @@ std::vector<DotToken> lex(std::string str) {
   }
   return toReturn;
 }
+
+DotToken make_token(bool string, bool integer, bool identifier, 
+                    std::string current_token_contents) {
+  if(string) return DotString(current_token_contents);
+  if(integer) return DotInt(current_token_contents);
+  if(identifier) return DotIdentifier(current_token_contents);
+  else throw std::runtime_error("This should be unreachable");
+}
+
 #ifdef DEBUG
 const char* lex_test() {
-  std::vector<DotToken> lexed = lex("define(x, add(5,3))");
+  std::vector<DotToken> lexed = lex("print('hello world')");
   std::string str;
   for(DotToken i : lexed) {
-    str.append(i.getContents());
-    std::cout << "Token found: " << i.getContents() << "\n";
+    str.append(i.get_contents());
+    std::cout << "Token found: " << i.get_contents() << "\n";
   }
   return str.c_str();
 }

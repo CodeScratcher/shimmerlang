@@ -1,2 +1,2 @@
-#include "DotClasses.h"
-void eval(DotTree tree);
+#include "ShimmerClasses.h"
+int eval(DotTree tree);

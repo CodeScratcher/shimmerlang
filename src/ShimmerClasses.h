@@ -1,18 +1,22 @@
+#ifndef SHIMMER_CLASSES_H
+#define SHIMMER_CLASSES_H
+
 #include <string>
 #include <vector>
 #include <any>
-#ifndef DOT_LANG_CLASSES
-#define DOT_LANG_CLASSES
+
 enum DotTypes {
   TypeString,
   TypeInt,
   TypeBool,
   TypeFunc
 };
+
 class DotTree;
 class DotIdentifier;
 class DotLiteral;
 class DotStatement;
+
 class DotToken {
   public:
     std::string contents;
@@ -20,43 +24,52 @@ class DotToken {
     DotToken();
     int getParsedInt();
     std::string get_token_type();
-    std::string toString();
-    std::string getContents();
+    std::string to_string();
+    std::string get_contents();
 };
+
 class DotLParen : public DotToken  {
   public:
     DotLParen();
 };
+
 class DotRParen : public DotToken  {
   public:
     DotRParen();
 };
+
 class DotIdentifier : public DotToken {
   public:
     DotIdentifier(std::string content);
 };
+
 class DotString : public DotToken {
   public:
     DotString(std::string content);
 };
+
 class DotInt : public DotToken {
   public:
-    int parsedContents;
-    int getParsedContents();
+    int parsed_contents;
+    int get_parsed_contents();
     DotInt(std::string content);
 };
+
 class DotLBrace : public DotToken  {
   public:
     DotLBrace();
 };
+
 class DotRBrace : public DotToken  {
   public:
     DotRBrace();
 };
+
 class DotComma : public DotToken  {
   public:
     DotComma();
 };
+
 class DotStatement {
   public:
     std::vector<DotLiteral> params;
@@ -67,13 +80,15 @@ class DotStatement {
     void set_identifier(std::string ident);
     DotLiteral eval();
 };
+
 class DotTree {
   public:
     DotTree(std::vector<DotStatement> statement);
     DotTree();
     std::vector<DotStatement> statements;
-    std::vector<DotStatement> getTree();
+    std::vector<DotStatement> get_tree();
 };
+
 class DotLiteral {
   public:
     int type;
@@ -85,10 +100,11 @@ class DotLiteral {
     DotLiteral(std::string val);
     DotLiteral(DotTree function);
     DotLiteral(DotStatement statement);
-    int getType();
+    int get_type();
     int get_int();
     DotTree get_func();
     bool get_bool();
     std::string get_str();
 };
+
 #endif

@@ -2,7 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include "DotClasses.h"
+#include "ShimmerClasses.h"
 #include "lexer.h"
 #include "parser.h"
 #include "eval.h"
@@ -13,8 +13,10 @@ int dot_eval(std::string str);
 
 int main(int argc, char* argv[]) {
   if (argc > 1) {
+    // Interpreter
     std::ifstream file;
     file.open(argv[1]);
+
     if (!file) {
       std::cout << "File not found.";
     }
@@ -26,9 +28,10 @@ int main(int argc, char* argv[]) {
     }
   }
   else {
+    // Shell
     while(1) {
       std::string to_eval;
-      std::cout << "shimmer % ";
+      std::cout << "\x1b[1;92mshimmer % \x1b[0m";
       std::getline(std::cin, to_eval);
       dot_eval(to_eval);
     }

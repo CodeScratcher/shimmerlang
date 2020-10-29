@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include "lexer.h"
-#include "DotClasses.h"
+#include "ShimmerClasses.h"
 DotTree parse(std::vector<DotToken> tokens) {
   std::vector<DotStatement> statements;
   DotStatement to_add;
@@ -12,8 +12,8 @@ DotTree parse(std::vector<DotToken> tokens) {
   for (int i = 0; i < tokens.size(); i++) {
     DotToken on = tokens.at(i);
     if (on.get_token_type().compare("DotIdentifier") == 0 && !in_params) {
-      std::cout << on.getContents();
-      to_add.set_identifier(on.getContents());
+      std::cout << on.get_contents();
+      to_add.set_identifier(on.get_contents());
     }
     else if (on.get_token_type().compare("DotLParen")) {
       in_params = true;
@@ -27,13 +27,13 @@ DotTree parse(std::vector<DotToken> tokens) {
         i++;
         tokens_for_recursion.push_back(tokens.at(j));
       }
-      params.push_back(DotLiteral(parse(tokens_for_recursion).getTree().at(0)));
+      params.push_back(DotLiteral(parse(tokens_for_recursion).get_tree().at(0)));
     }
     else if (on.get_token_type().compare("DotInt")) {
       params.push_back(DotLiteral(on.getParsedInt()));
     }
     else if (on.get_token_type().compare("DotString")) {
-      params.push_back(DotLiteral(on.getContents()));
+      params.push_back(DotLiteral(on.get_contents()));
     }
   }
   DotTree toReturn = DotTree(statements); 
@@ -42,7 +42,7 @@ DotTree parse(std::vector<DotToken> tokens) {
 #ifdef DEBUG
 const char* parse_to_str() {
   DotTree x = parse(lex("print('hello world')"));
-  for (DotStatement i : x.getTree()) {
+  for (DotStatement i : x.get_tree()) {
     std::cout << i.get_identifier();
   }
   return "Hello World";

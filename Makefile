@@ -1,7 +1,10 @@
 .PHONY: build lib
+SRC_DIR = src
+SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
+CXXFLAGS := -Isrc -D DEBUG -g -o build/shimmerlang
 build:
-	clang++ -Isrc -D DEBUG -g src/DotClasses.cpp src/eval.cpp src/dotlang.cpp src/parser.cpp src/lexer.cpp -o build/dotlang;
+	clang++ $(CXXFLAGS) $(SRC_FILES)
 
 lib:
-	g++ -Isrc -c -Wall -Werror -fpic src/DotClasses.cpp -o dot.o;
-	g++ -shared dot.o -o build/libdot.so;
+	g++ -Isrc -c -Wall -Werror -fpic src/ShimmerClasses.cpp -o dot.o;
+	g++ -shared dot.o -o build/libshimmer.so;
