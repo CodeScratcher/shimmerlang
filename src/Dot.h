@@ -9,17 +9,10 @@ enum DotTypes {
   TypeBool,
   TypeFunc
 };
-class DotToken;
 class DotTree;
 class DotIdentifier;
-class DotRBrace;
-class DotLBrace;
 class DotLiteral;
-class DotRParen;
-class DotLParen;
 class DotStatement;
-class DotString;
-class DotInt;
 class DotToken {
   public:
     std::string contents;
