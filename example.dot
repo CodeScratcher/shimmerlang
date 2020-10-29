@@ -1,0 +1,32 @@
+/* 
+functions are variables 
+everything is a function
+function literals = (args){code}
+*/ 
+define(makePrinter, (txt){
+  return (){print(args)}
+})
+/* if statements =
+ if(condition, true)
+ ifElse(condition, true, false) */
+ifElse(true,
+  (){print("correct")}, 
+  (){print("uh oh")}
+)
+/* no operators, only functions */
+define(x,5)
+print(add(x, 3))
+define(hello, makePrinter("Hello world!"))
+hello()
+/* no loops, only recursion */
+define(recurse, (numTimes){
+  ifElse(less(numTimes,1)
+    (){print("done")}
+    (){
+      print(numTimes)
+      recurse(subtract(numTimes, 1))
+    }
+  )
+})
+recurse(15)
+recurse(5)

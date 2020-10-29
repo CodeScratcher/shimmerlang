@@ -1,0 +1,10 @@
+grammar dotgrammar;
+IDENTIFIER: [a-zA-Z][a-zA-Z0-9]*;
+NUMBER: [0-9]+;
+STRING: ["][!"]*["]|['][!']*['];
+WHITESPACE: ' ' -> skip;
+paramNames: IDENTIFIER | IDENTIFIER ',' paramNames;
+funcLiteral: '(' paramNames ')' '{' funcCall* '}';
+value: IDENTIFIER | NUMBER | STRING | funcLiteral;
+params: value | value ',' params;
+funcCall : IDENTIFIER '(' params ');';
