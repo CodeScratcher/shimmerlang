@@ -5,13 +5,16 @@
 #include <iostream>
 #include <typeinfo>
 #include "DotClasses.h"
+
 DotTree::DotTree(std::vector<DotStatement> statement) {
   statements = statement;
 }
 DotTree::DotTree() {
   
 }
-DotToken::DotToken() {}
+DotToken::DotToken() {
+
+}
 
 std::string DotToken::getContents() {
   return contents;

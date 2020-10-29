@@ -6,11 +6,11 @@
 #include "lexer.h"
 #include "parser.h"
 #include "eval.h"
+
 std::vector<DotToken> tokens;
-int dot_eval(std::string str) {
-  eval(parse(lex(str)));
-  return 0;
-}
+
+int dot_eval(std::string str);
+
 int main(int argc, char* argv[]) {
   if (argc > 1) {
     std::ifstream file;
@@ -22,8 +22,7 @@ int main(int argc, char* argv[]) {
       std::stringstream buffer;
       buffer << file.rdbuf();
       tokens = lex(buffer.str());
-      //dot_eval(buffer.str());
-      std::cout << buffer.str(); // is this alright?
+      dot_eval(buffer.str());
     }
   }
   else {
@@ -31,9 +30,13 @@ int main(int argc, char* argv[]) {
       std::string to_eval;
       std::cout << "shimmer % ";
       std::getline(std::cin, to_eval);
-      //dot_eval(to_eval);
-      std::cout << buffer.str(); // is this alright?
+      dot_eval(to_eval);
     }
   }
+
   return 0;
+}
+
+int dot_eval(std::string str) {
+  return eval(parse(lex(str)));
 }

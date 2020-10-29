@@ -4,7 +4,7 @@
 #include <regex>
 #include "DotClasses.h"
 
-DotToken makeToken(bool string, bool integer, bool identifier, std::string current_token_contents) {
+DotToken make_token(bool string, bool integer, bool identifier, std::string current_token_contents) {
   if(string) return DotString(current_token_contents);
   if(integer) return DotInt(current_token_contents);
   if(identifier) return DotIdentifier(current_token_contents);
@@ -19,10 +19,11 @@ std::vector<DotToken> lex(std::string str) {
   bool in_identifier;
   for (int i = 0; i < str.length(); i++) {
     char ch = str.at(i);
+    // Write a style guide 
     if (in_string && !(ch == string_watch_out_for)) current_token_contents.append(&ch);
     else if (ch == '(') {
-      if (current_token_contents != "") {
-      dToken = makeToken(in_string, in_int, in_identifier, current_token_contents);
+     if (current_token_contents != "") {
+      dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
       in_string = false;
       in_int = false;
       in_identifier = false;
@@ -34,7 +35,7 @@ std::vector<DotToken> lex(std::string str) {
     }
     else if (ch == ')') {
     if (current_token_contents != "") {
-      dToken = makeToken(in_string, in_int, in_identifier, current_token_contents);
+      dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
       in_string = false;
       in_int = false;
       in_identifier = false;
@@ -64,7 +65,7 @@ std::vector<DotToken> lex(std::string str) {
     }
     else if (ch == '{') {
       if (current_token_contents != "") {
-        dToken = makeToken(in_string, in_int, in_identifier, current_token_contents);
+        dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
         in_string = false;
         in_int = false;
         in_identifier = false;
@@ -76,7 +77,7 @@ std::vector<DotToken> lex(std::string str) {
     }
     else if (ch == '}') {
       if (current_token_contents != "") {
-        dToken = makeToken(in_string, in_int, in_identifier, current_token_contents);
+        dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
         in_string = false;
         in_int = false;
         in_identifier = false;
@@ -88,7 +89,7 @@ std::vector<DotToken> lex(std::string str) {
     }
     else if (ch == ',') {
       if (current_token_contents != "") {
-        dToken = makeToken(in_string, in_int, in_identifier, current_token_contents);
+        dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
         in_string = false;
         in_int = false;
         in_identifier = false;
