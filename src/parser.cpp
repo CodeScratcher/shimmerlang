@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include "lexer.h"
-#include "Dot.h"
+#include "DotClasses.h"
 DotTree parse(std::vector<DotToken> tokens) {
   std::vector<DotStatement> statements;
   DotStatement to_add;

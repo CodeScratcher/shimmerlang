@@ -4,7 +4,7 @@
 #include <any>
 #include <iostream>
 #include <typeinfo>
-#include "Dot.h"
+#include "DotClasses.h"
 DotTree::DotTree(std::vector<DotStatement> statement) {
   statements = statement;
 }

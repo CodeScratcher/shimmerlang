@@ -1,2 +1,2 @@
-#include "Dot.h"
+#include "DotClasses.h"
 void eval(DotTree tree);

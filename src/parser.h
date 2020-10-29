@@ -1,3 +1,3 @@
 #include <vector>
-#include "Dot.h"
+#include "DotClasses.h"
 DotTree parse(std::vector<DotToken>);

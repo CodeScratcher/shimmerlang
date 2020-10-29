@@ -2,7 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include "Dot.h"
+#include "DotClasses.h"
 #include "lexer.h"
 #include "parser.h"
 #include "eval.h"

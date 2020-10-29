@@ -1,4 +1,4 @@
 #include <vector>
 #include <string>
-#include "Dot.h"
+#include "DotClasses.h"
 std::vector<DotToken> lex(std::string str);

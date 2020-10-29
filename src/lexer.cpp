@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <regex>
-#include "Dot.h"
+#include "DotClasses.h"
 
 DotToken makeToken(bool string, bool integer, bool identifier, std::string current_token_contents) {
   if(string) return DotString(current_token_contents);
