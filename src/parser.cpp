@@ -39,12 +39,17 @@ DotTree parse(std::vector<DotToken> tokens) {
   DotTree toReturn = DotTree(statements); 
   return toReturn;
 }
+
 #ifdef DEBUG
-const char* parse_to_str() {
-  DotTree x = parse(lex("print('hello world')"));
+void parse_test() {
+  std::vector<DotToken> manual;
+  manual.push_back(DotIdentifier("print"));
+  manual.push_back(DotLParen());
+  manual.push_back(DotString("hello world"));
+  manual.push_back(DotRParen());
+  DotTree x = parse(manual);
   for (DotStatement i : x.get_tree()) {
     std::cout << i.get_identifier();
   }
-  return "Hello World";
 }
 #endif

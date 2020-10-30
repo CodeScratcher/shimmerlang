@@ -1,22 +1,33 @@
 #!/bin/bash
-echo Dot is a language partially inspired by lisp
+echo "Dot is a language partially inspired by lisp"
 
-read -p "Do you want to compile? [y/n] " answer
-if [[ $answer == "Y" ]] || [[ $answer == "y" ]]; then
+echo ""
+echo "What do you want to do?"
+echo "c = Compile, d = Debug, r = Run,"
+echo "e = compile and dEbug, u = compile and rUn"
+echo ""
+read -p "Which option? [cdreu] " answer
+
+if [[ $answer == "c" ]] || [[ $answer == "C" ]]; then
 	make
   #g++ -Isrc -c -Wall -Werror -fpic src/DotClasses.cpp -o dot.o
   #g++ -shared dot.o -o build/libdot.so
 fi
 
-read -p "Do you want to run? [y/n] " answer
-if [[ $answer == "Y" ]] || [[ $answer == "y" ]]; then
+if [[ $answer == "r" ]] || [[ $answer == "R" ]]; then
 	build/shimmerlang
-else
-  echo "You can run a program using build/shimmerlang (program name)"
-  read -p "Do you want to debug? [y/n] " answer
-  if [[ $answer == "Y" ]] || [[ $answer == "y" ]]; then
-    gdb build/shimmerlang
-  else
-    echo "You can debug using gdb build/shimmerlang"
-  fi
+fi
+
+if [[ $answer == "d" ]] || [[ $answer == "D" ]]; then
+  gdb build/shimmerlang
+fi
+
+if [[ $answer == "u" ]] || [[ $answer == "U" ]]; then
+  make
+  build/shimmerlang
+fi
+
+if [[ $answer == "e" ]] || [[ $answer == "E" ]]; then
+  make
+  gdb build/shimmerlang
 fi

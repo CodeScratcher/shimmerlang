@@ -3,7 +3,7 @@
 * For constants use ```UPPERCASE_WITH_UNDERSCORES_IF_NECESSARY```
 * For classes use ```PascalCaseWithoutUnderscores```
 * For variables use ```snake_case_with_no_uppercase```
-* For functions use ``snake_case_with_no_uppercase``` as well
+* For functions use ```snake_case_with_no_uppercase``` as well
 
 ## Braces
 * Keep braces on the same line as the function/class, as in ```void foo() {```
@@ -15,7 +15,6 @@
 
 ## Whitespace
 * Indentation is harmful and bad for code (JK, use spaces when possible)
-* Always put spaces around operators: 
 
 ## Pointers
 * Pointers should be like this normally: ```int* foo(void* x)```
@@ -23,3 +22,6 @@
 
 ## Line length
 * Always keep lines shorter than a screen.
+## Expressions
+* Always put spaces around operators: ```foo + bar * baz```
+* Always use parentheses if it helps readability: ```(foo + bar) * baz```

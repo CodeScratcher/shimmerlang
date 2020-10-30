@@ -4,9 +4,7 @@
 #include <regex>
 #include "ShimmerClasses.h"
 
-DotToken make_token(bool string, bool integer, bool identifier, 
-                    std::string current_token_contents);
-
+DotToken make_token(bool string, bool integer, bool identifier, std::string current_token_contents);
 std::vector<DotToken> lex(std::string str) {
   std::vector<DotToken> toReturn;
   DotToken dToken;
@@ -106,8 +104,7 @@ std::vector<DotToken> lex(std::string str) {
   return toReturn;
 }
 
-DotToken make_token(bool string, bool integer, bool identifier, 
-                    std::string current_token_contents) {
+DotToken make_token(bool string, bool integer, bool identifier, std::string current_token_contents) {
   if(string) return DotString(current_token_contents);
   if(integer) return DotInt(current_token_contents);
   if(identifier) return DotIdentifier(current_token_contents);
