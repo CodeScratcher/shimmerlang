@@ -5,14 +5,15 @@
 #include "ShimmerClasses.h"
 
 DotToken make_token(bool string, bool integer, bool identifier, std::string current_token_contents);
+
 std::vector<DotToken> lex(std::string str) {
   std::vector<DotToken> toReturn;
   DotToken dToken;
   std::string current_token_contents = "";
-  bool in_string;
+  bool in_string = false;
   char string_watch_out_for;
-  bool in_int;
-  bool in_identifier;
+  bool in_int = false;
+  bool in_identifier = false;
   for (int i = 0; i < str.length(); i++) {
     char ch = str.at(i);
     if (in_string && !(ch == string_watch_out_for)) {
@@ -42,7 +43,8 @@ std::vector<DotToken> lex(std::string str) {
       dToken = DotRParen();
       toReturn.push_back(dToken);
     }
-    else if (std::regex_match(&ch, std::regex("[a-zA-Z]")) && !(in_string | in_int | in_identifier)) {
+    else if (std::regex_match(&ch, std::regex("[a-zA-Z]")) && \
+             !(in_string | in_int | in_identifier)) {
       in_identifier = true;
       current_token_contents.append(&ch);
     }
