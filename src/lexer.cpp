@@ -46,7 +46,6 @@ std::vector<DotToken> lex(std::string str) {
     }
     else if (std::regex_match(&ch, std::regex("[a-zA-Z]")) && !(in_string | in_int | in_identifier)) {
       in_identifier = true;
-  
       current_token_contents.append(&ch);
     }
     else if (ch == '\'') {
@@ -57,7 +56,9 @@ std::vector<DotToken> lex(std::string str) {
       in_string = true;
       string_watch_out_for = '"';
     }
-    else if (std::regex_match(&ch, std::regex("[a-zA-Z0-9]")) && in_identifier) current_token_contents.append(&ch);
+    else if (std::regex_match(&ch, std::regex("[a-zA-Z0-9]")) && in_identifier) {
+      current_token_contents.append(&ch);
+    }
     else if (std::regex_match(&ch, std::regex("[0-9]")) && !in_string && !in_identifier) {
       in_int = true;
       current_token_contents.append(&ch);

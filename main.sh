@@ -12,11 +12,11 @@ read -p "Do you want to run? [y/n] " answer
 if [[ $answer == "Y" ]] || [[ $answer == "y" ]]; then
 	build/shimmerlang
 else
-  echo "You can run a program using build/shimmerlang program"
-fi
-read -p "Do you want to debug? [y/n] " answer
-if [[ $answer == "Y" ]] || [[ $answer == "y" ]]; then
-	gdb build/shimmerlang
-else
-  echo "You can run a program using gdb build/shimmerlang program"
+  echo "You can run a program using build/shimmerlang (program name)"
+  read -p "Do you want to debug? [y/n] " answer
+  if [[ $answer == "Y" ]] || [[ $answer == "y" ]]; then
+    gdb build/shimmerlang
+  else
+    echo "You can debug using gdb build/shimmerlang"
+  fi
 fi
