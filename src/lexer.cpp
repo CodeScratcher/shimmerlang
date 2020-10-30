@@ -4,14 +4,16 @@
 #include <regex>
 #include "ShimmerClasses.h"
 
-DotToken make_token(bool string, bool integer, bool identifier, std::string current_token_contents);
+DotToken make_token \
+(bool string, bool integer, bool identifier, \
+std::string current_token_contents);
 
 std::vector<DotToken> lex(std::string str) {
   std::vector<DotToken> toReturn;
   DotToken dToken;
   std::string current_token_contents = "";
-  bool in_string = false;
   char string_watch_out_for;
+  bool in_string = false;
   bool in_int = false;
   bool in_identifier = false;
   for (int i = 0; i < str.length(); i++) {
@@ -19,25 +21,30 @@ std::vector<DotToken> lex(std::string str) {
     if (in_string && !(ch == string_watch_out_for)) {
       current_token_contents.append(&ch);
     }
-    else if (ch == '(') {
-     if (current_token_contents != "") {
+    else if (in_string && ch == string_watch_out_for) {
       dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
       in_string = false;
-      in_int = false;
-      in_identifier = false;
       toReturn.push_back(dToken);
+    }
+    else if (ch == '(') {
+      if (current_token_contents != "") {
+        dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
+        in_string = false;
+        in_int = false;
+        in_identifier = false;
+        toReturn.push_back(dToken);
       }
       current_token_contents = "";
       dToken = DotLParen();
       toReturn.push_back(dToken);
     }
     else if (ch == ')') {
-    if (current_token_contents != "") {
-      dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
-      in_string = false;
-      in_int = false;
-      in_identifier = false;
-      toReturn.push_back(dToken);
+      if (current_token_contents != "") {
+        dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
+        in_string = false;
+        in_int = false;
+        in_identifier = false;
+        toReturn.push_back(dToken);
       }
       current_token_contents = "";
       dToken = DotRParen();
@@ -45,6 +52,7 @@ std::vector<DotToken> lex(std::string str) {
     }
     else if (std::regex_match(&ch, std::regex("[a-zA-Z]")) && \
              !(in_string | in_int | in_identifier)) {
+      std::cout << "Starting identifier: " << ch << "\n";
       in_identifier = true;
       current_token_contents.append(&ch);
     }
@@ -57,6 +65,7 @@ std::vector<DotToken> lex(std::string str) {
       string_watch_out_for = '"';
     }
     else if (std::regex_match(&ch, std::regex("[a-zA-Z0-9]")) && in_identifier) {
+      std::cout << "Continuing with identifier: " << ch << "\n";
       current_token_contents.append(&ch);
     }
     else if (std::regex_match(&ch, std::regex("[0-9]")) && !in_string && !in_identifier) {
@@ -106,7 +115,9 @@ std::vector<DotToken> lex(std::string str) {
   return toReturn;
 }
 
-DotToken make_token(bool string, bool integer, bool identifier, std::string current_token_contents) {
+DotToken make_token\
+(bool string, bool integer,\
+bool identifier, std::string current_token_contents) {
   if(string) return DotString(current_token_contents);
   if(integer) return DotInt(current_token_contents);
   if(identifier) return DotIdentifier(current_token_contents);
