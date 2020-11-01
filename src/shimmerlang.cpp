@@ -9,7 +9,7 @@
 
 std::vector<DotToken> tokens;
 
-int dot_eval(std::string str);
+int execute(std::string str);
 
 int main(int argc, char* argv[]) {
   if (argc > 1) {
@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
     file.open(argv[1]);
 
     if (!file) {
-      std::cout << "File not found.";
+      std::cout << "Error while opening file.";
     }
     else {
       std::stringstream buffer;
@@ -41,5 +41,5 @@ int main(int argc, char* argv[]) {
 }
 
 int dot_eval(std::string str) {
-  return eval(parse(lex(str)));
+  return execute(parse(lex(str)));
 }

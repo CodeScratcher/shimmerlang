@@ -51,9 +51,13 @@ std::vector<DotToken> lex(std::string str) {
       toReturn.push_back(dToken);
     }
     else if (std::regex_match(&ch, std::regex("[a-zA-Z]")) && \
-             !(in_string | in_int | in_identifier)) {
-      std::cout << "Starting identifier: " << ch << "\n";
+             !(in_string || in_int || in_identifier)) {
+      std::cout << "Starting an identifier with char: " << ch << "\n";
       in_identifier = true;
+      current_token_contents.append(&ch);
+    }
+    else if (std::regex_match(&ch, std::regex("[a-zA-Z0-9]")) && in_identifier) {
+      std::cout << "Continuing identifier with char: " << ch << "\n";
       current_token_contents.append(&ch);
     }
     else if (ch == '\'') {
@@ -63,10 +67,6 @@ std::vector<DotToken> lex(std::string str) {
     else if (ch == '"') {
       in_string = true;
       string_watch_out_for = '"';
-    }
-    else if (std::regex_match(&ch, std::regex("[a-zA-Z0-9]")) && in_identifier) {
-      std::cout << "Continuing with identifier: " << ch << "\n";
-      current_token_contents.append(&ch);
     }
     else if (std::regex_match(&ch, std::regex("[0-9]")) && !in_string && !in_identifier) {
       in_int = true;
@@ -121,7 +121,7 @@ bool identifier, std::string current_token_contents) {
   if(string) return DotString(current_token_contents);
   if(integer) return DotInt(current_token_contents);
   if(identifier) return DotIdentifier(current_token_contents);
-  else throw std::runtime_error("This should be unreachable");
+  else throw std::runtime_error("token is neither str nor int nor id");
 }
 
 #ifdef DEBUG
