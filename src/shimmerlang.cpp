@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
       std::stringstream buffer;
       buffer << file.rdbuf();
       tokens = lex(buffer.str());
-      dot_eval(buffer.str());
+      execute(buffer.str());
     }
   }
   else {
@@ -33,13 +33,13 @@ int main(int argc, char* argv[]) {
       std::string to_eval;
       std::cout << "\x1b[1;92mshimmer % \x1b[0m";
       std::getline(std::cin, to_eval);
-      dot_eval(to_eval);
+      execute(to_eval);
     }
   }
 
   return 0;
 }
 
-int dot_eval(std::string str) {
-  return execute(parse(lex(str)));
+int execute(std::string str) {
+  return eval(parse(lex(str)));
 }

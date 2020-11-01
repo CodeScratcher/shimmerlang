@@ -170,6 +170,6 @@ DotLiteral DotStatement::eval() {
   return DotLiteral(0);
 }
 
-int DotToken::getParsedInt(){
+int DotToken::getParsedInt() {
   return 0;
 }
