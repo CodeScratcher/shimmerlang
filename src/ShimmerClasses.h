@@ -76,7 +76,7 @@ class DotStatement {
     std::string identifier;
     DotStatement(std::string ident, std::vector<DotLiteral> param);
     DotStatement();
-    std::vector<DOtL
+    std::vector<DotLiteral> get)params;
     std::string get_identifier();
     void set_identifier(std::string ident);
     DotLiteral eval();
