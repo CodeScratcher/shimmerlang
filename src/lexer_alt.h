@@ -19,4 +19,4 @@ class Lexer {
     void finish_current_token();
     DotToken make_token();
     //void test_make_token(); made public for testing
-}
+};

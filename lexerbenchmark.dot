@@ -1,24 +1,17 @@
-/* 
-functions are variables 
-everything is a function
-function literals = (args){code}
-*/ 
+
 define(makePrinter, (txt){
   return (){print(args)}
 })
-/* if statements =
  if(condition, true)
- ifElse(condition, true, false) */
+ ifElse(condition, true, false) 
 ifElse(true,
   (){print("correct")}, 
   (){print("uh oh")}
 )
-/* no operators, only functions */
 define(x,5)
 print(add(x, 3))
 define(hello, makePrinter("Hello world!"))
 hello()
-/* no loops, only recursion */
 define(recurse, (numTimes){
   ifElse(less(numTimes,1)
     (){print("done")}
@@ -30,7 +23,6 @@ define(recurse, (numTimes){
 })
 recurse(15)
 recurse(5)
-define(array,[1, 2, 3, 4, 5, 6, 7, 8, 9])
 define(forInBackend, (array, callback, start){
   ifElse(greater(start, len(array)),
   (){
@@ -45,14 +37,3 @@ define(forIn, (array, callback){
   forInBackend(array, callback, 0)
 })
 export(forIn)
-forIn([1,5,3,2,3], (arr, i){
-  print(i)
-  printWEnd(i,"")
-})
-/* =>
-1
-15
-53
-32
-23
-*/

@@ -8,3 +8,4 @@ build:
 lib:
 	g++ -Isrc -c -Wall -Werror -fpic src/ShimmerClasses.cpp -o dot.o;
 	g++ -shared dot.o -o build/libshimmer.so;
+  

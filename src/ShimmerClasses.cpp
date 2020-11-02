@@ -33,7 +33,7 @@ DotLParen::DotLParen() {
 }
 
 DotRParen::DotRParen() {
-  token_type = "DotLParen";
+  token_type = "DotRParen";
   // DotRParen will always be a ')'
   contents = ")";
 }
@@ -170,6 +170,6 @@ DotLiteral DotStatement::eval() {
   return DotLiteral(0);
 }
 
-int DotToken::getParsedInt() {
+int DotToken::get_parsed_contents() {
   return 0;
 }
