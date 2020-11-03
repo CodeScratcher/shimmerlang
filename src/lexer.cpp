@@ -17,9 +17,7 @@ std::vector<DotToken> lex(std::string str) {
   DotToken dToken;
   std::string current_token_contents = "";
   char string_watch_out_for;
-  bool in_string = false;
-  bool in_int = false;
-  bool in_identifier = false;
+  State currently_in = NONE;
   for (int i = 0; i < str.length(); i++) {
     char ch = str.at(i);
     // std::cout << i << ": "<< ch << "\n";
@@ -28,16 +26,14 @@ std::vector<DotToken> lex(std::string str) {
     }
     else if (in_string && ch == string_watch_out_for) {
       dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
-      in_string = false;
+      currently_in = NONE;
       current_token_contents = "";
       toReturn.push_back(dToken);
     }
     else if (ch == '(') {
       if (current_token_contents != "") {
         dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
-        in_string = false;
-        in_int = false;
-        in_identifier = false;
+        currently_in = NONE;
         toReturn.push_back(dToken);
       }
       current_token_contents = "";
@@ -47,9 +43,7 @@ std::vector<DotToken> lex(std::string str) {
     else if (ch == ')') {
       if (current_token_contents != "") {
         dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
-        in_string = false;
-        in_int = false;
-        in_identifier = false;
+        currently_in = NONE;
         toReturn.push_back(dToken);
       }
   
@@ -60,7 +54,7 @@ std::vector<DotToken> lex(std::string str) {
     else if (std::regex_search(&ch, std::regex("[a-zA-Z]")) && \
              !(in_string || in_int || in_identifier)) {
      // std::cout << "Starting an identifier with char: " << ch << "\n";
-      in_identifier = true;
+      currently_in = ID;
       current_token_contents.push_back(ch);
     }
     else if (std::regex_search(&ch, std::regex("[a-zA-Z0-9]")) && in_identifier) {
@@ -70,23 +64,21 @@ std::vector<DotToken> lex(std::string str) {
     }
     
     else if (ch == '\'') {
-      in_string = true;
+      currently_in = STR;
       string_watch_out_for = '\'';
     }
     else if (ch == '"') {
-      in_string = true;
+      currently_in = STR;
       string_watch_out_for = '"';
     }
     else if (std::regex_search(&ch, std::regex("[0-9]")) && !in_string && !in_identifier) {
-      in_int = true;
+      currently_in = INT;
       current_token_contents.push_back(ch);
     }
     else if (ch == '{') {
       if (current_token_contents != "") {
         dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
-        in_string = false;
-        in_int = false;
-        in_identifier = false;
+        currently_in = NONE;
         toReturn.push_back(dToken);
       }
       current_token_contents = "";
@@ -96,9 +88,7 @@ std::vector<DotToken> lex(std::string str) {
     else if (ch == '}') {
       if (current_token_contents != "") {
         dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
-        in_string = false;
-        in_int = false;
-        in_identifier = false;
+        currently_in = NONE;
         toReturn.push_back(dToken);
       }
       current_token_contents = "";
@@ -108,9 +98,7 @@ std::vector<DotToken> lex(std::string str) {
     else if (ch == ',') {
       if (current_token_contents != "") {
         dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
-        in_string = false;
-        in_int = false;
-        in_identifier = false;
+        currently_in = NONE;
         toReturn.push_back(dToken);
       }
       current_token_contents = "";
