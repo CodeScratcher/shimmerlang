@@ -27,7 +27,7 @@ DotTree parse(std::vector<DotToken> tokens) {
       std::cout << "Found RParen at end" << "\n";
       in_params = false;
       std::cout << to_add.get_identifier() << "\n";
-      std::cout << to_add.get_params() << "\n";
+      std::cout << to_add.get_params().at(0) << "\n";
       statements.push_back(to_add);
     }
     else if (this_token.get_token_type().compare("DotIdentifier") == 0) {

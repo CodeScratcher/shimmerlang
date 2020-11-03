@@ -69,14 +69,13 @@ class DotComma : public DotToken  {
   public:
     DotComma();
 };
-
 class DotStatement {
   public:
     std::vector<DotLiteral> params;
     std::string identifier;
     DotStatement(std::string ident, std::vector<DotLiteral> param);
     DotStatement();
-    std::vector<DotLiteral> get)params;
+    std::vector<DotLiteral> get_params;
     std::string get_identifier();
     void set_identifier(std::string ident);
     DotLiteral eval();

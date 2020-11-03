@@ -19,11 +19,13 @@ if [[ $answer == "d" ]]; then
 fi
 
 if [[ $answer == "R" ]]; then
-  make
-  build/shimmerlang
+  if make; then
+    build/shimmerlang;
+  fi
 fi
 
 if [[ $answer == "D" ]]; then
-  make
-  gdb build/shimmerlang
+  if make; then
+    gdb build/shimmerlang
+  fi
 fi

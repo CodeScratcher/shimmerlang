@@ -37,6 +37,9 @@ DotRParen::DotRParen() {
   // DotRParen will always be a ')'
   contents = ")";
 }
+std::vector<DotLiteral> DotStatement::get_params {
+  return params;
+}
 
 DotIdentifier::DotIdentifier(std::string content) {
   token_type = "DotIdentifier";
