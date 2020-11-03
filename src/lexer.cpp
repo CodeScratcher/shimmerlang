@@ -8,9 +8,10 @@
 #endif
 #include "ShimmerClasses.h"
 #include "text_effects.h"
+#include "lexer.h"
 
 DotToken make_token \
-(bool string, bool integer, bool identifier, \
+(State now_in, \
 std::string current_token_contents);
 
 std::vector<DotToken> lex(std::string str) {
@@ -18,39 +19,36 @@ std::vector<DotToken> lex(std::string str) {
   DotToken dToken;
   std::string current_token_contents = "";
   char string_watch_out_for;
-  bool in_string = false;
-  bool in_int = false;
-  bool in_identifier = false;
+  State now_in = NONE;
   for (int i = 0; i < str.length(); i++) {
     char ch = str.at(i);
     // std::cout << i << ": "<< ch << "\n";
-    if (in_string && !(ch == string_watch_out_for)) {
-      current_token_contents.push_back(ch);
-    }
-    else if (in_string && ch == string_watch_out_for) {
-      dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
-      in_string = false;
-      current_token_contents = "";
-      toReturn.push_back(dToken);
+    if (now_in == STR && !(ch == string_watch_out_for)) {
+      if (ch == string_watch_out_for) {
+        dToken = make_token(now_in, current_token_contents);
+        now_in = NONE;
+        current_token_contents = "";
+        toReturn.push_back(dToken);
+      }
+      else {
+        current_token_contents.push_back(ch);
+      }
     }
     else if (ch == '(') {
       if (current_token_contents != "") {
-        dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
-        in_string = false;
-        in_int = false;
-        in_identifier = false;
+        dToken = make_token(now_in, current_token_contents);
+        now_in = NONE;
         toReturn.push_back(dToken);
       }
+
       current_token_contents = "";
       dToken = DotLParen();
       toReturn.push_back(dToken);
     }
     else if (ch == ')') {
       if (current_token_contents != "") {
-        dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
-        in_string = false;
-        in_int = false;
-        in_identifier = false;
+        dToken = make_token(now_in, current_token_contents);
+        now_in = NONE;
         toReturn.push_back(dToken);
       }
   
@@ -58,80 +56,68 @@ std::vector<DotToken> lex(std::string str) {
       dToken = DotRParen();
       toReturn.push_back(dToken);
     }
-    else if (std::regex_search(&ch, std::regex("[a-zA-Z]")) && \
-             !(in_string || in_int || in_identifier)) {
+    else if (std::regex_search(&ch, std::regex("[a-zA-Z]")) && now_in == NONE) {
      // std::cout << "Starting an identifier with char: " << ch << "\n";
-      in_identifier = true;
+      now_in = ID;
       current_token_contents.push_back(ch);
     }
-    else if (std::regex_search(&ch, std::regex("[a-zA-Z0-9]")) && in_identifier) {
+    else if (std::regex_search(&ch, std::regex("[a-zA-Z0-9]")) && now_in == ID) {
       //std::cout << "Continuing identifier with char: " << ch << "\n";
       current_token_contents.push_back(ch);
       //std::cout << "Current contents: " << current_token_contents << "\n";
     }
-    
-    else if (ch == '\'') {
-      in_string = true;
-      string_watch_out_for = '\'';
+    else if (ch == '\'' || ch == '"') {
+      now_in = STR;
+      string_watch_out_for = ch;
     }
-    else if (ch == '"') {
-      in_string = true;
-      string_watch_out_for = '"';
-    }
-    else if (std::regex_search(&ch, std::regex("[0-9]")) && !in_string && !in_identifier) {
-      in_int = true;
+    else if (std::regex_search(&ch, std::regex("[0-9]")) && \
+             now_in != STR && now_in != ID) {
+      now_in = INT;
       current_token_contents.push_back(ch);
     }
     else if (ch == '{') {
       if (current_token_contents != "") {
-        dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
-        in_string = false;
-        in_int = false;
-        in_identifier = false;
+        dToken = make_token(now_in, current_token_contents);
+        now_in = NONE;
         toReturn.push_back(dToken);
       }
+
       current_token_contents = "";
       dToken = DotLBrace();
       toReturn.push_back(dToken);
     }
     else if (ch == '}') {
       if (current_token_contents != "") {
-        dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
-        in_string = false;
-        in_int = false;
-        in_identifier = false;
+        dToken = make_token(now_in, current_token_contents);
+        now_in = NONE;
         toReturn.push_back(dToken);
       }
+
       current_token_contents = "";
       dToken = DotRBrace();
       toReturn.push_back(dToken);
     }
     else if (ch == ',') {
       if (current_token_contents != "") {
-        dToken = make_token(in_string, in_int, in_identifier, current_token_contents);
-        in_string = false;
-        in_int = false;
-        in_identifier = false;
+        dToken = make_token(now_in, current_token_contents);
+        now_in = NONE;
         toReturn.push_back(dToken);
       }
+
       current_token_contents = "";
       dToken = DotComma();
       toReturn.push_back(dToken);
-    }
-    else {
-    
     }
   }
   return toReturn;
 }
 
-DotToken make_token\
-(bool string, bool integer,\
-bool identifier, std::string current_token_contents) {
-  if(string) return DotString(current_token_contents);
-  if(integer) return DotInt(current_token_contents);
-  if(identifier) return DotIdentifier(current_token_contents);
-  else return DotString("");
+DotToken make_token(State now_in, std::string current_token_contents) {
+  if(now_in == STR)  return DotString(current_token_contents);
+  if(now_in == INT)  return DotInt(current_token_contents);
+  if(now_in == ID)   return DotIdentifier(current_token_contents);
+  if(now_in == NONE) return DotString("");
+  else throw std::runtime_error("illegal state: " + std::to_string(now_in));
 }
 
 #ifdef DEBUG
