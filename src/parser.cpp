@@ -20,27 +20,20 @@ DotTree parse(std::vector<DotToken> tokens) {
       to_add.set_identifier(this_token.get_contents());
     }
     else if (this_token.get_token_type().compare("DotLParen") == 0) {
-      std::cout << "Found LParen" << "\n";
       in_params = true;
     }
     else if (this_token.get_token_type().compare("DotRParen") == 0) {
-      std::cout << "Found RParen at end" << "\n";
       in_params = false;
-      std::cout << to_add.get_identifier() << "\n";
-      std::cout << to_add.get_params().at(0) << "\n";
+      to_add.set_params(params);
+      params.clear();
       statements.push_back(to_add);
     }
     else if (this_token.get_token_type().compare("DotIdentifier") == 0) {
-      for(int j = 0; tokens.at(j).get_token_type().compare("DotComma") == 0; j++) {
+      for(int j = i; tokens.at(j).get_token_type().compare("DotRParen") != 0; j++) {
         i++;
-        if (tokens.at(j).get_token_type().compare("DotRParen") == 0) {
-          std::cout << "Found RParen at end";
-          in_params = false;
-          statements.push_back(to_add);
-          break;
-        }
         tokens_for_recursion.push_back(tokens.at(j));
       }
+      tokens_for_recursion.push_back(DotRParen());
       params.push_back(DotLiteral(parse(tokens_for_recursion).get_tree().at(0)));
     }
     else if (this_token.get_token_type().compare("DotInt") == 0) {
@@ -56,11 +49,12 @@ DotTree parse(std::vector<DotToken> tokens) {
 
 #ifdef DEBUG
 const char* parse_test() {
-  DotTree x = parse(lex("print('hello world')"));
+  DotTree x = parse(lex("print(add(5, 3))"));
   std::cout << "Parsing done." << "\n";
 
   for (DotStatement i : x.get_tree()) {
     std::cout << i.get_identifier();
+    std::cout << i.get_params().at(0).get_str();
   }
 
   return "Test complete";

@@ -22,10 +22,11 @@ class DotToken {
     std::string contents;
     std::string token_type;
     DotToken();
+    int parsed_contents;
     int get_parsed_contents();
     std::string get_token_type();
-    std::string to_string();
     std::string get_contents();
+    std::string to_string();
 };
 
 class DotLParen : public DotToken  {
@@ -50,8 +51,6 @@ class DotString : public DotToken {
 
 class DotInt : public DotToken {
   public:
-    int parsed_contents;
-    int get_parsed_contents();
     DotInt(std::string content);
 };
 
@@ -75,9 +74,10 @@ class DotStatement {
     std::string identifier;
     DotStatement(std::string ident, std::vector<DotLiteral> param);
     DotStatement();
-    std::vector<DotLiteral> get_params;
+    std::vector<DotLiteral> get_params();
     std::string get_identifier();
     void set_identifier(std::string ident);
+    void set_params(std::vector<DotLiteral> param);
     DotLiteral eval();
 };
 

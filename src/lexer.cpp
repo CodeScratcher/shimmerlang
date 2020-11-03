@@ -7,6 +7,7 @@
 #include <sstream>
 #endif
 #include "ShimmerClasses.h"
+#include "text_effects.h"
 
 DotToken make_token \
 (bool string, bool integer, bool identifier, \
@@ -136,12 +137,24 @@ bool identifier, std::string current_token_contents) {
 #ifdef DEBUG
 const char* lex_test() {
   std::vector<DotToken> lexed = lex("print(add(5, 3))");
-  std::cout << "Lexed successfully. Entered testing \n";
+  std::cout << "Lexed successfully. Entered testing.\n\n";
   std::string str;
+  std::cout << "       " << BOLD("Name") << "\t\t" << BOLD("Type \n");
   for(DotToken i : lexed) {
-    str.append(i.get_contents());
-    std::cout << "Token found: " << i.get_contents() << "\n";
+    std::string token_contents = i.get_contents();
+    std::string token_type = i.get_token_type();
+    int token_length = token_contents.length();
+
+    std::string padding = "\t";
+    str.append(token_contents);
+
+    if (token_length < 4) {
+      padding = "\t\t";
+    }
+
+    std::cout << "Found: " << token_contents << padding << token_type << "\n";
   }
+
   return str.c_str();
 }
 #endif

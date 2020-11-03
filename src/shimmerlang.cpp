@@ -3,6 +3,7 @@
 #include <sstream>
 #include <string>
 #include "ShimmerClasses.h"
+#include "text_effects.h"
 #include "lexer.h"
 #include "parser.h"
 #include "eval.h"
@@ -31,7 +32,7 @@ int main(int argc, char* argv[]) {
     // Shell
     while(1) {
       std::string to_eval;
-      std::cout << "\x1b[1;92mshimmer % \x1b[0m";
+      std::cout << BOLD(L_GREEN("shimmer % "));
       std::getline(std::cin, to_eval);
       execute(to_eval);
     }

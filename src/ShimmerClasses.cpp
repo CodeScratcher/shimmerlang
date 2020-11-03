@@ -37,10 +37,12 @@ DotRParen::DotRParen() {
   // DotRParen will always be a ')'
   contents = ")";
 }
-std::vector<DotLiteral> DotStatement::get_params {
+std::vector<DotLiteral> DotStatement::get_params() {
   return params;
 }
-
+void DotStatement::set_params(std::vector<DotLiteral> param) {
+  params = param;
+}
 DotIdentifier::DotIdentifier(std::string content) {
   token_type = "DotIdentifier";
   // Identifier will have contents
@@ -58,9 +60,6 @@ DotInt::DotInt(std::string content) {
   parsed_contents = std::stoi(content);
 }
 
-int DotInt::get_parsed_contents() {
-  return parsed_contents;
-}
 
 DotLBrace::DotLBrace() {
   token_type = "DotLBrace";
@@ -86,7 +85,7 @@ DotLiteral::DotLiteral(int val) {
 }
 
 DotLiteral::DotLiteral(std::string val) {
-  type = TypeInt;
+  type = TypeString;
   str_value = val;
 }
 
@@ -130,8 +129,9 @@ bool DotLiteral::get_bool() {
 }
 
 std::string DotLiteral::get_str() {
-  if (get_type() == TypeInt) {
-    return std::to_string(get_int());
+  std::cout << type;
+  if (type == TypeInt) {
+    return std::to_string(int_value);
   }
   else return str_value;
 }
@@ -155,11 +155,13 @@ std::vector<DotStatement> DotTree::get_tree() {
 }
 
 DotLiteral DotStatement::eval() {
+  
   if (std::string("print").compare(identifier) == 0) {
-    std::cout << params.at(0).get_str();
+    std::cout << params.at(0).get_str() << "\n";
   }
   if (std::string("add").compare(identifier) == 0) {
-    return DotLiteral(params.at(0).get_int() + params.at(1).get_int());
+    DotLiteral x = DotLiteral(params.at(0).get_int() + params.at(1).get_int());
+    return x;
   }
   if (std::string("sub").compare(identifier) == 0) {
     return DotLiteral(params.at(0).get_int() - params.at(1).get_int());
@@ -170,9 +172,14 @@ DotLiteral DotStatement::eval() {
   if (std::string("div").compare(identifier) == 0) {
     return DotLiteral(params.at(0).get_int() / params.at(1).get_int());
   }
+  if(std::string("input").compare(identifier) == 0) {
+    std::cout << params.at(0).get_str();
+    std::string buffer;
+    std::getline(std::cin, buffer);
+    return DotLiteral(buffer);
+  }
   return DotLiteral(0);
 }
-
-int DotToken::get_parsed_contents() {
-  return 0;
+int DotToken::get_parsed_contents(){
+  return parsed_contents;
 }
