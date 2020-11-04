@@ -30,6 +30,8 @@ DotTree parse(std::vector<DotToken> tokens) {
     }
     else if (this_token.get_token_type().compare("DotIdentifier") == 0) {
       for(int j = i; tokens.at(j).get_token_type().compare("DotRParen") != 0; j++) {
+        
+        std::cout << "CharNum: " << j  << " Token: " << tokens.at(j).get_contents() << "\n";
         i++;
         tokens_for_recursion.push_back(tokens.at(j));
       }
@@ -49,7 +51,7 @@ DotTree parse(std::vector<DotToken> tokens) {
 
 #ifdef DEBUG
 const char* parse_test() {
-  DotTree x = parse(lex("print(add(5, 3))"));
+  DotTree x = parse(lex("print(add(4, div(6, 2)))"));
   std::cout << "Parsing done." << "\n";
 
   for (DotStatement i : x.get_tree()) {
