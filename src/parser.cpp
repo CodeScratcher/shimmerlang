@@ -66,6 +66,9 @@ const char* parse_test() {
 
   for (DotStatement i : x.get_tree()) {
     std::cout << i.get_identifier();
+    for (ShimmerParam j : i.get_params()){
+      std::cout << param_recursive_str(j) << "\n";
+    }
   }
 
   return "Test complete";
