@@ -113,7 +113,6 @@ bool DotLiteral::get_bool() {
 }
 
 std::string DotLiteral::get_str() {
-  std::cout << "Current type: " << type << "\n";
   if (type == TypeInt) {
     return std::to_string(int_value);
   }

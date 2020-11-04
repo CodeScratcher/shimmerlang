@@ -23,7 +23,7 @@ std::vector<DotToken> lex(std::string str) {
   for (int i = 0; i < str.length(); i++) {
     char ch = str.at(i);
     // std::cout << i << ": "<< ch << "\n";
-    if (now_in == STR && !(ch == string_watch_out_for)) {
+    if (now_in == STR) {
       if (ch == string_watch_out_for) {
         dToken = make_token(now_in, current_token_contents);
         now_in = NONE;
@@ -122,7 +122,7 @@ DotToken make_token(State now_in, std::string current_token_contents) {
 
 #ifdef DEBUG
 const char* lex_test() {
-  std::vector<DotToken> lexed = lex("print(add(5, 3))");
+  std::vector<DotToken> lexed = lex("print('Hello world')");
   std::cout << "Lexed successfully. Entered testing.\n\n";
   std::string str;
   std::cout << "       " << BOLD("Name") << "\t\t" << BOLD("Type \n");
