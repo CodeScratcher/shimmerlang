@@ -11,12 +11,15 @@ enum DotTypes {
   TypeBool,
   TypeFunc
 };
-
 class DotTree;
 class DotIdentifier;
 class DotLiteral;
 class DotStatement;
-
+class ShimmerParam {
+  DotLiteral literal_val;
+  DotStatement statement_val;
+  bool is_literal;
+}
 class DotToken {
   public:
     std::string contents;
@@ -99,7 +102,6 @@ class DotLiteral {
     DotLiteral(int val);
     DotLiteral(std::string val);
     DotLiteral(DotTree function);
-    DotLiteral(DotStatement statement);
     int get_type();
     int get_int();
     DotTree get_func();

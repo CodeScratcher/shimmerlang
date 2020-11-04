@@ -94,23 +94,7 @@ DotLiteral::DotLiteral(DotTree function) {
   func_value = function;
 }
 
-DotLiteral::DotLiteral(DotStatement statement) { 
-  DotLiteral evaluated = statement.eval();
-  switch(evaluated.get_type()) {
-    case TypeBool:
-      bool_value = evaluated.get_bool();
-      break;
-    case TypeString:
-      str_value = evaluated.get_str();
-      break;
-    case TypeFunc:
-      func_value = evaluated.get_func();
-      break;
-    case TypeInt:
-      int_value = evaluated.get_int();
-      break;
-  }
-}
+
 
 int DotLiteral::get_type() {
   return type;
@@ -129,7 +113,6 @@ bool DotLiteral::get_bool() {
 }
 
 std::string DotLiteral::get_str() {
-  std::cout << type;
   if (type == TypeInt) {
     return std::to_string(int_value);
   }
