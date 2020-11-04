@@ -15,11 +15,7 @@ class DotTree;
 class DotIdentifier;
 class DotLiteral;
 class DotStatement;
-class ShimmerParam {
-  DotLiteral literal_val;
-  DotStatement statement_val;
-  bool is_literal;
-}
+class ShimmerParam;
 class DotToken {
   public:
     std::string contents;
@@ -73,14 +69,14 @@ class DotComma : public DotToken  {
 };
 class DotStatement {
   public:
-    std::vector<DotLiteral> params;
+    std::vector<ShimmerParam> params;
     std::string identifier;
-    DotStatement(std::string ident, std::vector<DotLiteral> param);
+    DotStatement(std::string ident, std::vector<ShimmerParam> param);
     DotStatement();
-    std::vector<DotLiteral> get_params();
+    std::vector<ShimmerParam> get_params();
     std::string get_identifier();
     void set_identifier(std::string ident);
-    void set_params(std::vector<DotLiteral> param);
+    void set_params(std::vector<ShimmerParam> param);
     DotLiteral eval();
 };
 
@@ -94,6 +90,7 @@ class DotTree {
 
 class DotLiteral {
   public:
+    DotLiteral();
     int type;
     std::string str_value;
     bool bool_value;
@@ -108,5 +105,15 @@ class DotLiteral {
     bool get_bool();
     std::string get_str();
 };
-
+class ShimmerParam {
+  public:
+    DotLiteral literal_val;
+    DotStatement statement_val;
+    bool is_literal;
+    ShimmerParam(DotLiteral literal_value);
+    ShimmerParam(DotStatement statement_value);
+    DotLiteral get_literal_val();
+    DotStatement get_statement_val();
+    bool get_is_literal();
+};
 #endif

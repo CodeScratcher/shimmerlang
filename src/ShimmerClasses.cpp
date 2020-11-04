@@ -37,10 +37,10 @@ DotRParen::DotRParen() {
   // DotRParen will always be a ')'
   contents = ")";
 }
-std::vector<DotLiteral> DotStatement::get_params() {
+std::vector<ShimmerParam> DotStatement::get_params() {
   return params;
 }
-void DotStatement::set_params(std::vector<DotLiteral> param) {
+void DotStatement::set_params(std::vector<ShimmerParam> param) {
   params = param;
 }
 DotIdentifier::DotIdentifier(std::string content) {
@@ -113,13 +113,14 @@ bool DotLiteral::get_bool() {
 }
 
 std::string DotLiteral::get_str() {
+  std::cout << "Current type: " << type << "\n";
   if (type == TypeInt) {
     return std::to_string(int_value);
   }
   else return str_value;
 }
 
-DotStatement::DotStatement(std::string ident, std::vector<DotLiteral> param) {
+DotStatement::DotStatement(std::string ident, std::vector<ShimmerParam> param) {
   identifier = ident;
   params = param;
 }
@@ -138,25 +139,29 @@ std::vector<DotStatement> DotTree::get_tree() {
 }
 
 DotLiteral DotStatement::eval() {
-  
+  for (int i = 0; i < params.size(); i++) {
+    if (!params.at(i).get_is_literal()) {
+      params.at(i) = ShimmerParam(params.at(i).get_statement_val().eval());
+    }
+  }
   if (std::string("print").compare(identifier) == 0) {
-    std::cout << params.at(0).get_str() << "\n";
+    std::cout << params.at(0).get_literal_val().get_str() << "\n";
   }
   if (std::string("add").compare(identifier) == 0) {
-    DotLiteral x = DotLiteral(params.at(0).get_int() + params.at(1).get_int());
+    DotLiteral x = DotLiteral(params.at(0).get_literal_val().get_int() + params.at(1).get_literal_val().get_int());
     return x;
   }
   if (std::string("sub").compare(identifier) == 0) {
-    return DotLiteral(params.at(0).get_int() - params.at(1).get_int());
+    return DotLiteral(params.at(0).get_literal_val().get_int() - params.at(1).get_literal_val().get_int());
   }
   if (std::string("mult").compare(identifier) == 0) {
-    return DotLiteral(params.at(0).get_int() * params.at(1).get_int());
+    return DotLiteral(params.at(0).get_literal_val().get_int() * params.at(1).get_literal_val().get_int());
   }
   if (std::string("div").compare(identifier) == 0) {
-    return DotLiteral(params.at(0).get_int() / params.at(1).get_int());
+    return DotLiteral(params.at(0).get_literal_val().get_int() / params.at(1).get_literal_val().get_int());
   }
   if(std::string("input").compare(identifier) == 0) {
-    std::cout << params.at(0).get_str();
+    std::cout << params.at(0).get_literal_val().get_str();
     std::string buffer;
     std::getline(std::cin, buffer);
     return DotLiteral(buffer);
@@ -165,4 +170,24 @@ DotLiteral DotStatement::eval() {
 }
 int DotToken::get_parsed_contents(){
   return parsed_contents;
+}
+ShimmerParam::ShimmerParam(DotLiteral literal_value) {
+  is_literal = true;
+  literal_val = literal_value;
+}
+ShimmerParam::ShimmerParam(DotStatement statement_value) {
+  is_literal = false;
+  statement_val = statement_value;
+}
+DotLiteral ShimmerParam::get_literal_val() {
+  return literal_val;
+}
+DotStatement ShimmerParam::get_statement_val() {
+  return statement_val;
+}
+bool ShimmerParam::get_is_literal() {
+  return is_literal;
+}
+DotLiteral::DotLiteral() {
+
 }

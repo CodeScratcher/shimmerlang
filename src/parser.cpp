@@ -11,7 +11,7 @@ DotTree parse(std::vector<DotToken> tokens) {
   std::vector<DotStatement> statements;
   DotStatement to_add;
   bool in_params = false;
-  std::vector<DotLiteral> params;
+  std::vector<ShimmerParam> params;
   std::vector<DotToken> tokens_for_recursion;
   for (int i = 0; i < tokens.size(); i++) {
     DotToken this_token = tokens.at(i);
@@ -34,13 +34,13 @@ DotTree parse(std::vector<DotToken> tokens) {
         tokens_for_recursion.push_back(tokens.at(j));
       }
       tokens_for_recursion.push_back(DotRParen());
-      params.push_back(DotLiteral(parse(tokens_for_recursion).get_tree().at(0)));
+      params.push_back(ShimmerParam(parse(tokens_for_recursion).get_tree().at(0)));
     }
     else if (this_token.get_token_type().compare("DotInt") == 0) {
-      params.push_back(DotLiteral(this_token.get_parsed_contents()));
+      params.push_back(ShimmerParam(this_token.get_parsed_contents()));
     }
     else if (this_token.get_token_type().compare("DotString") == 0) {
-      params.push_back(DotLiteral(this_token.get_contents()));//get_parsed_contents?
+      params.push_back(ShimmerParam(this_token.get_contents()));//get_parsed_contents?
     }
   }
   DotTree toReturn = DotTree(statements); 
@@ -54,7 +54,6 @@ const char* parse_test() {
 
   for (DotStatement i : x.get_tree()) {
     std::cout << i.get_identifier();
-    std::cout << i.get_params().at(0).get_str();
   }
 
   return "Test complete";
