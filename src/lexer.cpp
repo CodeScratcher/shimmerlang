@@ -150,7 +150,7 @@ const char* lex_test() {
 #ifdef BENCHMARK
 int main() {
   std::ifstream file;
-    file.open("lexerbenchmark.dot");
+    file.open("lexerbenchmark.shmr");
 
     if (!file) {
       std::cout << "Error while opening file.";

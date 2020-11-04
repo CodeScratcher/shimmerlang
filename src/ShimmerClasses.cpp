@@ -26,6 +26,10 @@ std::string DotToken::get_token_type() {
   return token_type;
 }
 
+int DotToken::get_parsed_contents(){
+  return parsed_contents;
+}
+
 DotLParen::DotLParen() {
   token_type = "DotLParen";
   // DotLParen will always be a '('
@@ -37,12 +41,15 @@ DotRParen::DotRParen() {
   // DotRParen will always be a ')'
   contents = ")";
 }
+
 std::vector<ShimmerParam> DotStatement::get_params() {
   return params;
 }
+
 void DotStatement::set_params(std::vector<ShimmerParam> param) {
   params = param;
 }
+
 DotIdentifier::DotIdentifier(std::string content) {
   token_type = "DotIdentifier";
   // Identifier will have contents
@@ -59,7 +66,6 @@ DotInt::DotInt(std::string content) {
   contents = content;
   parsed_contents = std::stoi(content);
 }
-
 
 DotLBrace::DotLBrace() {
   token_type = "DotLBrace";
@@ -166,26 +172,27 @@ DotLiteral DotStatement::eval() {
   }
   return DotLiteral(0);
 }
-int DotToken::get_parsed_contents(){
-  return parsed_contents;
+DotLiteral::DotLiteral() {
+
 }
 ShimmerParam::ShimmerParam(DotLiteral literal_value) {
   is_literal = true;
   literal_val = literal_value;
 }
+
 ShimmerParam::ShimmerParam(DotStatement statement_value) {
   is_literal = false;
   statement_val = statement_value;
 }
+
 DotLiteral ShimmerParam::get_literal_val() {
   return literal_val;
 }
+
 DotStatement ShimmerParam::get_statement_val() {
   return statement_val;
 }
+
 bool ShimmerParam::get_is_literal() {
   return is_literal;
-}
-DotLiteral::DotLiteral() {
-
 }

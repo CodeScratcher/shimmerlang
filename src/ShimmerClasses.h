@@ -11,6 +11,7 @@ enum DotTypes {
   TypeBool,
   TypeFunc
 };
+
 class DotTree;
 class DotIdentifier;
 class DotLiteral;
@@ -107,11 +108,11 @@ class DotLiteral {
 };
 class ShimmerParam {
   public:
+    ShimmerParam(DotLiteral literal_value);
+    ShimmerParam(DotStatement statement_value);
     DotLiteral literal_val;
     DotStatement statement_val;
     bool is_literal;
-    ShimmerParam(DotLiteral literal_value);
-    ShimmerParam(DotStatement statement_value);
     DotLiteral get_literal_val();
     DotStatement get_statement_val();
     bool get_is_literal();

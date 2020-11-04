@@ -56,3 +56,19 @@ forIn([1,5,3,2,3], (arr, i){
 32
 23
 */
+define(object,<identifier:"value">)
+define(DogConstructor, (age, breed){
+  return(<
+    age:$(age),
+    breed:$(breed)
+  >)
+})
+define(AwardDogConstructor, (age,breed,awards){
+  define(base, DogConstructor($(age),$(breed)))
+  objectSet(base, awards, $(awards))
+  return(base)
+})
+define(Harper, DogConstructor(11, "Lab Mix"))
+define(Stanley, DogConstructor(2, "Standard Poodle"))
+define(SomeAwardDog, AwardDogConstructor(4, "Lab", ["Best Lab", "Most Obedient Dog"]))
+define(iCanHazObjectArrays, [$(Harper), $(Stanley), $(SomeAwardDog)])

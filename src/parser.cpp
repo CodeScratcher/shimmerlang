@@ -33,7 +33,6 @@ DotTree parse(std::vector<DotToken> tokens) {
       for(int j = i;  ; j++) {
         i++;
         tokens_for_recursion.push_back(tokens.at(j));
-       // std::cout << tokens.at(j).get_token_type() << j << "\n";
         if (tokens.at(j).get_token_type().compare("DotRParen") == 0 ) {
         sub_expr_layer--;
         std::cout << sub_expr_layer << "\n";
@@ -47,7 +46,6 @@ DotTree parse(std::vector<DotToken> tokens) {
         }
          
       }
-   //   std::cout << "Made it to the end of this level, moving to next. \n";
       lex_to_str(tokens_for_recursion);
       DotTree parsed = parse(tokens_for_recursion);
       print_debug_info(parsed);
@@ -59,7 +57,7 @@ DotTree parse(std::vector<DotToken> tokens) {
       params.push_back(x);
     }
     else if (this_token.get_token_type().compare("DotString") == 0) {
-      params.push_back(ShimmerParam(DotLiteral(this_token.get_contents())));//get_parsed_contents?
+      params.push_back(ShimmerParam(DotLiteral(this_token.get_contents())));
     }
   }
   DotTree toReturn = DotTree(statements); 
@@ -69,7 +67,10 @@ DotTree parse(std::vector<DotToken> tokens) {
 #ifdef DEBUG
 const char* param_recursive_str(ShimmerParam to_convert) {
   if(to_convert.get_is_literal()) {
-    return to_convert.get_literal_val().get_str().c_str();
+    DotLiteral liter = to_convert.get_literal_val();
+    if (liter.type == TypeString || liter.type == TypeInt) {
+      return liter.get_str().c_str();
+    }
   }
   else {
     for (ShimmerParam i : to_convert.get_statement_val().get_params()) {
@@ -87,7 +88,7 @@ void print_debug_info(DotTree x) {
   }
 }
 const char* parse_test() {
-  DotTree x = parse(lex("add(3,3)"));
+  DotTree x = parse(lex("print(add(sub(2, 1), sub(3, add(1, 1))))"));
   std::cout << "Parsing done." << "\n";
 
   print_debug_info(x);  
