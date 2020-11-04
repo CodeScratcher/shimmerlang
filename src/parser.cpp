@@ -29,11 +29,22 @@ DotTree parse(std::vector<DotToken> tokens) {
       statements.push_back(to_add);
     }
     else if (this_token.get_token_type().compare("DotIdentifier") == 0) {
-      for(int j = i; tokens.at(j).get_token_type().compare("DotRParen") != 0; j++) {
+      int sub_expr_layer = 0;
+      for(int j = i; ; j++) {
+        if (tokens.at(j).get_token_type().compare("DotRParen") == 0 ) {
+          if (sub_expr_layer == 0) {
+            break;
+          }
+          else {
+            sub_expr_layer--;
+          }
+        }
+        if (tokens.at(j).get_token_type().compare("DotLParen") == 0) {
+          sub_expr_layer++;
+        }
         i++;
         tokens_for_recursion.push_back(tokens.at(j));
       }
-      tokens_for_recursion.push_back(DotRParen());
       DotStatement to_push = parse(tokens_for_recursion).get_tree().at(0);
       params.push_back(ShimmerParam(to_push));
     }
@@ -58,5 +69,16 @@ const char* parse_test() {
   }
 
   return "Test complete";
+}
+const char* param_recursive_str(ShimmerParam to_convert) {
+  if(to_convert.get_is_literal()) {
+    return to_convert.get_literal_val().get_str().c_str();
+  }
+  else {
+    for (ShimmerParam i : to_convert.get_statement_val().get_params()) {
+      std::cout << param_recursive_str(i) << "\n";
+      return "No";
+    }
+  }
 }
 #endif

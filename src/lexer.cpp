@@ -121,9 +121,7 @@ DotToken make_token(State now_in, std::string current_token_contents) {
 }
 
 #ifdef DEBUG
-const char* lex_test() {
-  std::vector<DotToken> lexed = lex("print(add(4, div(6, 2)))");
-  std::cout << "Lexed successfully. Entered testing.\n\n";
+const char* lex_to_str(std::vector<DotToken> lexed) {
   std::string str;
   std::cout << "       " << BOLD("Name") << "\t\t" << BOLD("Type \n");
   for(DotToken i : lexed) {
@@ -142,6 +140,11 @@ const char* lex_test() {
   }
 
   return str.c_str();
+}
+const char* lex_test() {
+  std::vector<DotToken> lexed = lex("print(add(4, div(6, 2)))");
+  std::cout << "Lexed successfully. Entered testing.\n\n";
+  return lex_to_str(lexed);
 }
 #endif
 #ifdef BENCHMARK

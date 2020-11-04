@@ -95,7 +95,6 @@ DotLiteral::DotLiteral(DotTree function) {
 }
 
 
-
 int DotLiteral::get_type() {
   return type;
 }
