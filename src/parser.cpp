@@ -30,13 +30,12 @@ DotTree parse(std::vector<DotToken> tokens) {
     }
     else if (this_token.get_token_type().compare("DotIdentifier") == 0) {
       for(int j = i; tokens.at(j).get_token_type().compare("DotRParen") != 0; j++) {
-        
-        std::cout << "CharNum: " << j  << " Token: " << tokens.at(j).get_contents() << "\n";
         i++;
         tokens_for_recursion.push_back(tokens.at(j));
       }
       tokens_for_recursion.push_back(DotRParen());
-      params.push_back(ShimmerParam(parse(tokens_for_recursion).get_tree().at(0)));
+      DotStatement to_push = parse(tokens_for_recursion).get_tree().at(0);
+      params.push_back(ShimmerParam(to_push));
     }
     else if (this_token.get_token_type().compare("DotInt") == 0) {
       params.push_back(ShimmerParam(this_token.get_parsed_contents()));
