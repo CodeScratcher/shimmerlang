@@ -145,7 +145,8 @@ std::vector<DotStatement> DotTree::get_tree() {
 DotLiteral DotStatement::eval() {
   for (int i = 0; i < params.size(); i++) {
     if (!params.at(i).get_is_literal()) {
-      params.at(i) = ShimmerParam(params.at(i).get_statement_val().eval());
+      DotLiteral x = params.at(i).get_statement_val().eval();
+      params.at(i) = ShimmerParam(x);
     }
   }
   if (std::string("print").compare(identifier) == 0) {

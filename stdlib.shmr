@@ -1,0 +1,19 @@
+// While loop
+define(while, (cond, callback){
+	if(not(cond()), (){
+		callback()
+		while()
+	})
+})
+// Car
+define(car, (l){
+	return(arrayAt(l, 1))
+})
+// cdr
+define(cdr_backend, (l, num){
+	if(not(eq(num, 1)), (){
+		return(arrayAt(l,num))
+	})
+})
+define(cdr, (l){
+})

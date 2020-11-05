@@ -15,11 +15,10 @@ DotTree parse(std::vector<DotToken> tokens) {
   std::vector<DotToken> tokens_for_recursion;
   for (int i = 0; i < tokens.size(); i++) {
     DotToken this_token = tokens.at(i);
-
     if (this_token.get_token_type().compare("DotIdentifier") == 0 && !in_params) {
       to_add.set_identifier(this_token.get_contents());
     }
-    else if (this_token.get_token_type().compare("DotLParen") == 0) {
+    else if (this_token.get_token_type().compare("DotLParen") == 0 && !in_params) {
       in_params = true;
     }
     else if (this_token.get_token_type().compare("DotRParen") == 0) {
@@ -28,14 +27,14 @@ DotTree parse(std::vector<DotToken> tokens) {
       params.clear();
       statements.push_back(to_add);
     }
-    else if (this_token.get_token_type().compare("DotIdentifier") == 0) {
+    else if (this_token.get_token_type().compare("DotIdentifier") == 0 && in_params) {
       int sub_expr_layer = 0;
-      for(int j = i;  ; j++) {
-        i++;
+      int j = i;
+      while(true) {
         tokens_for_recursion.push_back(tokens.at(j));
+        j++;
         if (tokens.at(j).get_token_type().compare("DotRParen") == 0 ) {
         sub_expr_layer--;
-        std::cout << sub_expr_layer << "\n";
         if (sub_expr_layer == 0) {
             break;
           }
@@ -44,13 +43,13 @@ DotTree parse(std::vector<DotToken> tokens) {
         if (tokens.at(j).get_token_type().compare("DotLParen") == 0) {
           sub_expr_layer++;
         }
-         
       }
-      lex_to_str(tokens_for_recursion);
+      tokens_for_recursion.push_back(tokens.at(j));
+      i = j;
       DotTree parsed = parse(tokens_for_recursion);
-      print_debug_info(parsed);
       DotStatement to_push = parsed.get_tree().at(0);
-      params.push_back(ShimmerParam(to_push));
+      ShimmerParam param = ShimmerParam(to_push);
+      params.push_back(param);
     }
     else if (this_token.get_token_type().compare("DotInt") == 0) {
       ShimmerParam x = ShimmerParam(DotLiteral(this_token.get_parsed_contents()));
@@ -68,6 +67,7 @@ DotTree parse(std::vector<DotToken> tokens) {
 const char* param_recursive_str(ShimmerParam to_convert) {
   if(to_convert.get_is_literal()) {
     DotLiteral liter = to_convert.get_literal_val();
+    std::cout << liter.type << "\n";
     if (liter.type == TypeString || liter.type == TypeInt) {
       return liter.get_str().c_str();
     }
@@ -81,7 +81,6 @@ const char* param_recursive_str(ShimmerParam to_convert) {
 }
 void print_debug_info(DotTree x) {
   for (DotStatement i : x.get_tree()) {
-  //  std::cout << i.get_identifier() << "\n";
     for (ShimmerParam j : i.get_params()){
       std::cout << param_recursive_str(j) << "\n";
     }
