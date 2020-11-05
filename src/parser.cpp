@@ -75,6 +75,7 @@ DotTree parse(std::vector<DotToken> tokens) {
       }
     }
     else if (this_token.get_token_type().compare("DotComma")) {
+      std::cout << "Commas";
       separated = true;
     }
   }

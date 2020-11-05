@@ -10,11 +10,6 @@
 #include "text_effects.h"
 #include "lexer.h"
 
-
-DotToken make_token \
-(State now_in, \
-std::string current_token_contents);
-
 std::vector<DotToken> lex(std::string str) {
   std::vector<DotToken> toReturn;
   DotToken dToken;
