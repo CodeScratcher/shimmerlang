@@ -1,3 +1,1 @@
-print("A: Hello!")
-print("B: How are you?")
-print("A: I'm doing good.")
+print("Hello, world!")

@@ -10,6 +10,7 @@
 #include "text_effects.h"
 #include "lexer.h"
 
+
 DotToken make_token \
 (State now_in, \
 std::string current_token_contents);
@@ -23,6 +24,9 @@ std::vector<DotToken> lex(std::string str) {
   for (int i = 0; i < str.length(); i++) {
     char ch = str.at(i);
     // std::cout << i << ": "<< ch << "\n";
+    if (now_in != STR && (ch == ' ' || ch == '\t' || ch == '\n')) {
+      continue;
+    }
     if (now_in == STR) {
       if (ch == string_watch_out_for) {
         dToken = make_token(now_in, current_token_contents);
@@ -108,7 +112,21 @@ std::vector<DotToken> lex(std::string str) {
       dToken = DotComma();
       toReturn.push_back(dToken);
     }
+    else {
+      std::string suspect = "";
+
+      if (ch < ' ') {
+        suspect = "<char code DEC " + std::to_string((int) ch) + ">";
+      }
+      else {
+        suspect = std::string(&ch);
+      }
+
+      std::string message = "Unknown character <" + suspect + ">";
+      throw std::runtime_error(message);
+    }
   }
+
   return toReturn;
 }
 

@@ -5,12 +5,11 @@
 #include "lexer.h"
 #include "ShimmerClasses.h"
 
-#define TOKEN_TYPE_EQUAL(index, type) (tokens.at((index)).get_token_type().compare((type)) == 0))
-
 DotTree parse(std::vector<DotToken> tokens) {
   std::vector<DotStatement> statements;
   DotStatement to_add;
   bool in_params = false;
+  bool separated = true;
   std::vector<ShimmerParam> params;
   std::vector<DotToken> tokens_for_recursion;
   for (int i = 0; i < tokens.size(); i++) {
@@ -28,35 +27,55 @@ DotTree parse(std::vector<DotToken> tokens) {
       statements.push_back(to_add);
     }
     else if (this_token.get_token_type().compare("DotIdentifier") == 0 && in_params) {
-      int sub_expr_layer = 0;
-      int j = i;
-      while(true) {
-        tokens_for_recursion.push_back(tokens.at(j));
-        j++;
-        if (tokens.at(j).get_token_type().compare("DotRParen") == 0 ) {
-        sub_expr_layer--;
-        if (sub_expr_layer == 0) {
-            break;
+      if (separated) {
+        int sub_expr_layer = 0;
+        int j = i;
+        while(true) {
+          tokens_for_recursion.push_back(tokens.at(j));
+          j++;
+          if (tokens.at(j).get_token_type().compare("DotRParen") == 0 ) {
+          sub_expr_layer--;
+          if (sub_expr_layer == 0) {
+              break;
+            }
+          
           }
-        
+          if (tokens.at(j).get_token_type().compare("DotLParen") == 0) {
+            sub_expr_layer++;
+          }
         }
-        if (tokens.at(j).get_token_type().compare("DotLParen") == 0) {
-          sub_expr_layer++;
-        }
+        tokens_for_recursion.push_back(tokens.at(j));
+        i = j;
+        DotTree parsed = parse(tokens_for_recursion);
+        DotStatement to_push = parsed.get_tree().at(0);
+        ShimmerParam param = ShimmerParam(to_push);
+        params.push_back(param);
       }
-      tokens_for_recursion.push_back(tokens.at(j));
-      i = j;
-      DotTree parsed = parse(tokens_for_recursion);
-      DotStatement to_push = parsed.get_tree().at(0);
-      ShimmerParam param = ShimmerParam(to_push);
-      params.push_back(param);
+      else {
+        throw std::runtime_error(std::string("Missing a comma at token: ")+ this_token.get_contents());
+      }
     }
     else if (this_token.get_token_type().compare("DotInt") == 0) {
-      ShimmerParam x = ShimmerParam(DotLiteral(this_token.get_parsed_contents()));
-      params.push_back(x);
+      if (separated) {
+        ShimmerParam x(DotLiteral(this_token.get_parsed_contents()));
+        params.push_back(x);
+        separated = false;
+      }
+      else {
+        throw std::runtime_error(std::string("Missing a comma at token: ")+ this_token.get_contents());
+      }
     }
     else if (this_token.get_token_type().compare("DotString") == 0) {
+      if (separated) {
       params.push_back(ShimmerParam(DotLiteral(this_token.get_contents())));
+      separated = false;
+      }
+      else {
+        throw std::runtime_error(std::string("Missing a comma at token: ")+ this_token.get_contents());
+      }
+    }
+    else if (this_token.get_token_type().compare("DotComma")) {
+      separated = true;
     }
   }
   DotTree toReturn = DotTree(statements); 
