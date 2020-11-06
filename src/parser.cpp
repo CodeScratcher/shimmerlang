@@ -62,7 +62,7 @@ DotTree parse(std::vector<DotToken> tokens) {
         separated = false;
       }
       else {
-        throw std::runtime_error(std::string("Missing a comma at token: ")+ this_token.get_contents());
+        throw std::runtime_error(std::string("Missing a comma at token: ") + this_token.get_contents());
       }
     }
     else if (this_token.get_token_type().compare("DotString") == 0) {
@@ -74,8 +74,7 @@ DotTree parse(std::vector<DotToken> tokens) {
         throw std::runtime_error(std::string("Missing a comma at token: ")+ this_token.get_contents());
       }
     }
-    else if (this_token.get_token_type().compare("DotComma")) {
-      std::cout << "Commas";
+    else if (this_token.get_token_type().compare("DotComma") == 0) {
       separated = true;
     }
   }

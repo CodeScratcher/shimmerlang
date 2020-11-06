@@ -5,6 +5,7 @@
 #include <iostream>
 #include <typeinfo>
 #include "ShimmerClasses.h"
+#include <unordered_map>
 
 DotTree::DotTree(std::vector<DotStatement> statement) {
   statements = statement;
@@ -197,3 +198,7 @@ DotStatement ShimmerParam::get_statement_val() {
 bool ShimmerParam::get_is_literal() {
   return is_literal;
 }
+DotScope::DotScope(std::unordered_map<std::string, DotLiteral> cur_scope){}
+DotScope::DotScope(DotScope upper_scope, DotScope cur_scope){}
+DotScope::DotScope(){} // Default constructor
+DotLiteral DotScope::get_variable_by_name(){}
