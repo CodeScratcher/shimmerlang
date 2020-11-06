@@ -20,6 +20,13 @@ std::vector<DotToken> lex(std::string str) {
     char ch = str.at(i);
     // std::cout << i << ": "<< ch << "\n";
     if (now_in != STR && (ch == ' ' || ch == '\t' || ch == '\n')) {
+      if (current_token_contents != "") {
+        dToken = make_token(now_in, current_token_contents);
+        now_in = NONE;
+        toReturn.push_back(dToken);
+      }
+  
+      current_token_contents = "";
       continue;
     }
     if (now_in == STR) {

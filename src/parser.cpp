@@ -44,6 +44,9 @@ DotTree parse(std::vector<DotToken> tokens) {
             sub_expr_layer++;
           }
         }
+        if (j > tokens.size()) {
+          throw std::runtime_error("Missing closing parenthesis.");
+        }
         tokens_for_recursion.push_back(tokens.at(j));
         i = j;
         DotTree parsed = parse(tokens_for_recursion);
@@ -52,7 +55,7 @@ DotTree parse(std::vector<DotToken> tokens) {
         params.push_back(param);
       }
       else {
-        throw std::runtime_error(std::string("Missing a comma at token: ")+ this_token.get_contents());
+        throw std::runtime_error(std::string("Missing a comma at token: ") + this_token.get_contents());
       }
     }
     else if (this_token.get_token_type().compare("DotInt") == 0) {

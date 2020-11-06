@@ -150,6 +150,9 @@ DotLiteral DotStatement::eval() {
       params.at(i) = ShimmerParam(x);
     }
   }
+  if(std::string("help").compare(identifier) == 0) {
+    std::cout << "Read readme.md"
+  }
   if (std::string("print").compare(identifier) == 0) {
     std::cout << params.at(0).get_literal_val().get_str() << "\n";
   }
@@ -198,7 +201,7 @@ DotStatement ShimmerParam::get_statement_val() {
 bool ShimmerParam::get_is_literal() {
   return is_literal;
 }
-DotScope::DotScope(std::unordered_map<std::string, DotLiteral> cur_scope){}
-DotScope::DotScope(DotScope upper_scope, DotScope cur_scope){}
-DotScope::DotScope(){} // Default constructor
-DotLiteral DotScope::get_variable_by_name(){}
+ShimmerScope::ShimmerScope(std::unordered_map<std::string, DotLiteral> cur_scope){}
+ShimmerScope::ShimmerScope(ShimmerScope upper_scope, ShimmerScope cur_scope){}
+ShimmerScope::ShimmerScope(){} // Default constructor
+DotLiteral ShimmerScope::get_variable_by_name(){}

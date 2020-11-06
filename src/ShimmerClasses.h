@@ -11,7 +11,7 @@ enum DotTypes {
   TypeBool,
   TypeFunc
 };
-class DotScope;
+class ShimmerScope;
 class DotTree;
 class DotIdentifier;
 class DotLiteral;
@@ -117,12 +117,12 @@ class ShimmerParam {
     DotStatement get_statement_val();
     bool get_is_literal();
 };
-class DotScope {
-  DotScope* upper_scope;
+class ShimmerScope {
+  ShimmerScope* upper_scope;
   std::unordered_map<std::string, DotLiteral> current_scope;
-  DotScope(std::unordered_map<std::string, DotLiteral> cur_scope);
-  DotScope(DotScope upper_scope, DotScope cur_scope);
-  DotScope(); // Default constructor
+  ShimmerScope(std::unordered_map<std::string, DotLiteral> cur_scope);
+  ShimmerScope(ShimmerScope upper_scope, ShimmerScope cur_scope);
+  ShimmerScope(); // Default constructor
   DotLiteral get_variable_by_name();
 };
 #endif
