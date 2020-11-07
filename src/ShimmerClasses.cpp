@@ -6,7 +6,6 @@
 #include <typeinfo>
 #include "ShimmerClasses.h"
 #include <unordered_map>
-
 DotTree::DotTree(std::vector<DotStatement> statement) {
   statements = statement;
 }
@@ -31,6 +30,10 @@ int DotToken::get_parsed_contents(){
   return parsed_contents;
 }
 
+bool DotToken::is_of_type(std::string type) {
+  return token_type.compare(type) == 0;
+}
+
 DotLParen::DotLParen() {
   token_type = "DotLParen";
   // DotLParen will always be a '('
@@ -41,6 +44,11 @@ DotRParen::DotRParen() {
   token_type = "DotRParen";
   // DotRParen will always be a ')'
   contents = ")";
+}
+
+DotIDLiteralSign::DotIDLiteralSign() {
+  token_type = "DotIDLiteralSign";
+  contents = "$";
 }
 
 std::vector<ShimmerParam> DotStatement::get_params() {
@@ -101,7 +109,6 @@ DotLiteral::DotLiteral(DotTree function) {
   func_value = function;
 }
 
-
 int DotLiteral::get_type() {
   return type;
 }
@@ -116,6 +123,15 @@ DotTree DotLiteral::get_func() {
 
 bool DotLiteral::get_bool() {
   return bool_value;
+}
+
+DotLiteral(DotIdentifier val) {
+  id_value = val;
+  type = TypeId;
+}
+
+DotIdentifier get_id() {
+  return id_value;
 }
 
 std::string DotLiteral::get_str() {
@@ -151,25 +167,28 @@ DotLiteral DotStatement::eval() {
     }
   }
   if(std::string("help").compare(identifier) == 0) {
-    std::cout << "Read readme.md"
+    std::cout << "Read readme.md\n";
   }
-  if (std::string("print").compare(identifier) == 0) {
+  else if (std::string("print").compare(identifier) == 0) {
     std::cout << params.at(0).get_literal_val().get_str() << "\n";
   }
-  if (std::string("add").compare(identifier) == 0) {
-    DotLiteral x = DotLiteral(params.at(0).get_literal_val().get_int() + params.at(1).get_literal_val().get_int());
-    return x;
+  else if (std::string("add").compare(identifier) == 0) {
+    return DotLiteral(params.at(0).get_literal_val().get_int() + \
+                      params.at(1).get_literal_val().get_int());
   }
-  if (std::string("sub").compare(identifier) == 0) {
-    return DotLiteral(params.at(0).get_literal_val().get_int() - params.at(1).get_literal_val().get_int());
+  else if (std::string("sub").compare(identifier) == 0) {
+    return DotLiteral(params.at(0).get_literal_val().get_int() - \
+                      params.at(1).get_literal_val().get_int());
   }
-  if (std::string("mult").compare(identifier) == 0) {
-    return DotLiteral(params.at(0).get_literal_val().get_int() * params.at(1).get_literal_val().get_int());
+  else if (std::string("mult").compare(identifier) == 0) {
+    return DotLiteral(params.at(0).get_literal_val().get_int() * \
+                      params.at(1).get_literal_val().get_int());
   }
-  if (std::string("div").compare(identifier) == 0) {
-    return DotLiteral(params.at(0).get_literal_val().get_int() / params.at(1).get_literal_val().get_int());
+  else if (std::string("div").compare(identifier) == 0) {
+    return DotLiteral(params.at(0).get_literal_val().get_int() / \
+                      params.at(1).get_literal_val().get_int());
   }
-  if(std::string("input").compare(identifier) == 0) {
+  else if(std::string("input").compare(identifier) == 0) {
     std::cout << params.at(0).get_literal_val().get_str();
     std::string buffer;
     std::getline(std::cin, buffer);
@@ -177,17 +196,27 @@ DotLiteral DotStatement::eval() {
   }
   return DotLiteral(0);
 }
+
 DotLiteral::DotLiteral() {
 
 }
+
 ShimmerParam::ShimmerParam(DotLiteral literal_value) {
   is_literal = true;
+  is_id = false;
   literal_val = literal_value;
 }
 
 ShimmerParam::ShimmerParam(DotStatement statement_value) {
   is_literal = false;
+  is_id = false;
   statement_val = statement_value;
+}
+
+ShimmerParam::ShimmerParam(DotIdentifier identifier_value) {
+  is_literal = false;
+  is_id = true;
+  identifier_val = identifier_value;
 }
 
 DotLiteral ShimmerParam::get_literal_val() {
@@ -198,10 +227,33 @@ DotStatement ShimmerParam::get_statement_val() {
   return statement_val;
 }
 
-bool ShimmerParam::get_is_literal() {
-  return is_literal;
+DotStatement ShimmerParam::get_identifier_val() {
+  return identifier_val;
 }
-ShimmerScope::ShimmerScope(std::unordered_map<std::string, DotLiteral> cur_scope){}
-ShimmerScope::ShimmerScope(ShimmerScope upper_scope, ShimmerScope cur_scope){}
-ShimmerScope::ShimmerScope(){} // Default constructor
-DotLiteral ShimmerScope::get_variable_by_name(){}
+
+ParamType ShimmerParam::get_param_type() {
+  return param_type;
+}
+
+ShimmerScope::ShimmerScope(Scope cur_scope) {
+  upper_scope = nullptr;
+  current_scope = cur_scope;
+}
+
+ShimmerScope::ShimmerScope(ShimmerScope* up_scope, Scope cur_scope) {
+  upper_scope = up_scope;
+  current_scope = cur_scope;
+}
+
+ShimmerScope::ShimmerScope() { // Default constructor
+
+}
+
+DotLiteral ShimmerScope::get_variable_by_name(std::string var_name) {
+  if (current_scope.find(key) != current_scope.end) {
+    return current_scope.at(var_name);
+  }
+  else {
+    return *upper_scope.get_variable_by_name(var_name);
+  }
+}

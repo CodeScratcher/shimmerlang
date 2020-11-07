@@ -81,6 +81,17 @@ std::vector<DotToken> lex(std::string str) {
       now_in = INT;
       current_token_contents.push_back(ch);
     }
+    else if (ch == '$') {
+      if (current_token_contents != "") {
+        dToken = make_token(now_in, current_token_contents);
+        now_in = NONE;
+        toReturn.push_back(dToken);
+      }
+
+      current_token_contents = "";
+      dToken = DotIDLiteralSign();
+      toReturn.push_back(dToken);
+    }
     else if (ch == '{') {
       if (current_token_contents != "") {
         dToken = make_token(now_in, current_token_contents);
@@ -118,7 +129,7 @@ std::vector<DotToken> lex(std::string str) {
       std::string suspect = "";
 
       if (ch < ' ') {
-        suspect = "<char code DEC " + std::to_string((int) ch) + ">";
+        suspect = "char code DEC " + std::to_string((int) ch);
       }
       else {
         suspect = std::string(&ch);

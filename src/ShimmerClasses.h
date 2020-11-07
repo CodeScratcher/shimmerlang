@@ -5,12 +5,19 @@
 #include <vector>
 #include <any>
 #include <unordered_map>
+
+typedef Scope std::unordered_map<std::string, DotLiteral>
+
 enum DotTypes {
   TypeString,
   TypeInt,
   TypeBool,
-  TypeFunc
+  TypeFunc,
+  TypeId
 };
+
+typedef enum { NONE, LITERAL, STATEMENT, IDENTIFIER } ParamType;
+
 class ShimmerScope;
 class DotTree;
 class DotIdentifier;
@@ -25,7 +32,8 @@ class DotToken {
     int parsed_contents;
     int get_parsed_contents();
     std::string get_token_type();
-    std::string get_contents();
+    int get_parsed_contents();
+    bool is_of_type(std::string type);
     std::string to_string();
 };
 
@@ -38,7 +46,10 @@ class DotRParen : public DotToken  {
   public:
     DotRParen();
 };
-
+class DotIDLiteralSign : public DotToken  {
+  public:
+    DotIDLiteralSign();
+};
 class DotIdentifier : public DotToken {
   public:
     DotIdentifier(std::string content);
@@ -97,32 +108,44 @@ class DotLiteral {
     bool bool_value;
     int int_value;
     DotTree func_value;
+    DotIdentifier id_value;
     DotLiteral(int val);
+    DotLiteral(DotIdentifier val);
     DotLiteral(std::string val);
     DotLiteral(DotTree function);
     int get_type();
     int get_int();
     DotTree get_func();
     bool get_bool();
+    DotIdentifier get_id();
     std::string get_str();
 };
+
 class ShimmerParam {
   public:
     ShimmerParam(DotLiteral literal_value);
     ShimmerParam(DotStatement statement_value);
+    ShimmerParam(DotIdentifier identifier_value);
+
+    ParamType param_type = NONE;
+    ParamType get_param_type();
+
     DotLiteral literal_val;
     DotStatement statement_val;
-    bool is_literal;
+    DotIdentifier identifier_val;
+
     DotLiteral get_literal_val();
     DotStatement get_statement_val();
-    bool get_is_literal();
+    DotIdentifier get_identifier_val();
 };
+
 class ShimmerScope {
   ShimmerScope* upper_scope;
-  std::unordered_map<std::string, DotLiteral> current_scope;
-  ShimmerScope(std::unordered_map<std::string, DotLiteral> cur_scope);
-  ShimmerScope(ShimmerScope upper_scope, ShimmerScope cur_scope);
+  Scope current_scope;
+  ShimmerScope(Scope cur_scope);
+  ShimmerScope(ShimmerScope* up_scope, Scope cur_scope);
   ShimmerScope(); // Default constructor
-  DotLiteral get_variable_by_name();
+  DotLiteral get_variable_by_name(std::string var_name);
 };
+
 #endif

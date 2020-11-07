@@ -10,6 +10,7 @@ DotTree parse(std::vector<DotToken> tokens) {
   DotStatement to_add;
   bool in_params = false;
   bool separated = true;
+  bool is_id_token = false;
   std::vector<ShimmerParam> params;
   std::vector<DotToken> tokens_for_recursion;
   for (int i = 0; i < tokens.size(); i++) {
@@ -26,33 +27,52 @@ DotTree parse(std::vector<DotToken> tokens) {
       params.clear();
       statements.push_back(to_add);
     }
-    else if (this_token.get_token_type().compare("DotIdentifier") == 0 && in_params) {
-      if (separated) {
-        int sub_expr_layer = 0;
-        int j = i;
-        while(true) {
-          tokens_for_recursion.push_back(tokens.at(j));
-          j++;
-          if (tokens.at(j).get_token_type().compare("DotRParen") == 0 ) {
-          sub_expr_layer--;
-          if (sub_expr_layer == 0) {
-              break;
-            }
-          
-          }
-          if (tokens.at(j).get_token_type().compare("DotLParen") == 0) {
-            sub_expr_layer++;
-          }
-        }
-        if (j > tokens.size()) {
-          throw std::runtime_error("Missing closing parenthesis.");
-        }
-        tokens_for_recursion.push_back(tokens.at(j));
-        i = j;
-        DotTree parsed = parse(tokens_for_recursion);
-        DotStatement to_push = parsed.get_tree().at(0);
-        ShimmerParam param = ShimmerParam(to_push);
+    else if (this_token.get_token_type().compare("DotIDLiteralSign") == 0) {
+      is_id_token = true;
+    }
+    else if (is_id_token) {
+      if (this_token.get_token_type().compare("DotIdentifier") == 0) {
+        ShimmerParam param = ShimmerParam(DotLiteral(this_token));
         params.push_back(param);
+      }
+      else {
+        throw std::runtime_error(std::string("Unexpected token, should be identifier at: ") + this_token.get_contents())
+      } 
+    }
+    else if (this_token.get_token_type().compare("DotIdentifier") == 0 && in_params) {
+      if (tokens.at(i+1).get_token_type().compare("DotLParen") == 0) {
+        if (separated) {
+          int sub_expr_layer = 0;
+          int j = i;
+          while(true) {
+            tokens_for_recursion.push_back(tokens.at(j));
+            j++; 
+            if (j == tokens.size()) {
+              throw std::runtime_error("Missing closing parenthesis.");
+            }
+            if (tokens.at(j).get_token_type().compare("DotRParen") == 0 ) {
+            sub_expr_layer--;
+            if (sub_expr_layer == 0) {
+                break;
+              }
+            
+            }
+            if (tokens.at(j).get_token_type().compare("DotLParen") == 0) {
+              sub_expr_layer++;
+            }
+          }
+          
+          tokens_for_recursion.push_back(tokens.at(j));
+          i = j;
+          DotTree parsed = parse(tokens_for_recursion);
+          DotStatement to_push = parsed.get_tree().at(0);
+          ShimmerParam param = ShimmerParam(to_push);
+          params.push_back(param);
+        }
+        else {
+          ShimmerParam param = ShimmerParam(this_token);
+          params.push_back(param);
+        }
       }
       else {
         throw std::runtime_error(std::string("Missing a comma at token: ") + this_token.get_contents());
@@ -81,20 +101,23 @@ DotTree parse(std::vector<DotToken> tokens) {
       separated = true;
     }
   }
+  if (in_params) { 
+    throw std::runtime_error("Missing closing parenthesis.");
+  }
   DotTree toReturn = DotTree(statements); 
   return toReturn;
 }
 
 #ifdef DEBUG
 const char* param_recursive_str(ShimmerParam to_convert) {
-  if(to_convert.get_is_literal()) {
+  if (to_convert.get_param_type() == LITERAL) {
     DotLiteral liter = to_convert.get_literal_val();
     std::cout << liter.type << "\n";
     if (liter.type == TypeString || liter.type == TypeInt) {
       return liter.get_str().c_str();
     }
   }
-  else {
+  else if (to_convert.get_param_type() == STATEMENT) {
     for (ShimmerParam i : to_convert.get_statement_val().get_params()) {
       std::cout << param_recursive_str(i) << "\n";
     }
