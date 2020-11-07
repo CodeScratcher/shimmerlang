@@ -6,7 +6,7 @@
 #include <any>
 #include <unordered_map>
 
-typedef Scope std::unordered_map<std::string, DotLiteral>
+typedef Scope std::unordered_map<std::string, DotLiteral>;
 
 enum DotTypes {
   TypeString,
@@ -32,7 +32,6 @@ class DotToken {
     int parsed_contents;
     int get_parsed_contents();
     std::string get_token_type();
-    int get_parsed_contents();
     bool is_of_type(std::string type);
     std::string to_string();
 };

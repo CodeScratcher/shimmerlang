@@ -2,21 +2,21 @@
 #include <string>
 #include "ShimmerClasses.h"
 
-typedef enum state_enum {NONE, INT, STR, ID} State;
+typedef enum {NONE, ID, INT, STR} State;
 
 class Lexer {
   public:
     Lexer();
     std::vector<DotToken> lex(std::string str);
-    void test_make_token();
+    bool currently_in_token();
+    void finish_current_token();
+    void clear_current_token();
+    DotToken make_token();
+    const char* lex_to_str(std::vector<DotToken> lexed);
+    const char* lex_test();
 
   private:
+    char string_delimiter;
     std::string current_token_contents;
-    char string_watch_out_for;
-    State currently_in;
-
-    void append_to_current_token(char& ch);
-    void finish_current_token();
-    DotToken make_token();
-    //void test_make_token(); made public for testing
+    State now_in;
 };
