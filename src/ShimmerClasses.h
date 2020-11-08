@@ -101,7 +101,7 @@ class DotStatement {
     void set_params(std::vector<ShimmerParam> param);
     void set_identifier(std::string ident);
 
-    DotLiteral eval(ShimmerScope scope);
+    DotLiteral eval(ShimmerScope* scope);
 
   private:
     void error_on_missing_params(int minimum, std::string message);

@@ -104,14 +104,14 @@ void DotStatement::set_identifier(std::string ident) {
   identifier = ident;
 }
 
-DotLiteral DotStatement::eval(ShimmerScope scope) {
+DotLiteral DotStatement::eval(ShimmerScope* scope) {
   for (int i = 0; i < params.size(); i++) {
     if (params.at(i).is_of_type(STATEMENT)) {
       DotLiteral x = params.at(i).get_statement_val().eval(scope);
       params.at(i) = ShimmerParam(x);
     }
     else if (params.at(i).is_of_type(IDENTIFIER)) {
-      DotLiteral x = scope.get_variable(params.at(i).get_identifier_val().get_contents());
+      DotLiteral x = scope->get_variable(params.at(i).get_identifier_val().get_contents());
       params.at(i) = ShimmerParam(x);
     }
   }
@@ -168,7 +168,7 @@ DotLiteral DotStatement::eval(ShimmerScope scope) {
     error_on_missing_params(1, "Can't define without a variable to define");
     error_on_missing_params(2, "Needs a value to define");
     error_on_extra_params(2, "Too many params");
-    scope.declare_variable(params.at(0).get_literal_val().get_id().get_contents(), params.at(1).get_literal_val());
+    scope->declare_variable(params.at(0).get_literal_val().get_id().get_contents(), params.at(1).get_literal_val());
   }
 
   return DotLiteral(0);
