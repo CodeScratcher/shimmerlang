@@ -11,7 +11,7 @@
 DotToken::DotToken() {
   // Default constructor does nothing
 }
-
+DotIdentifier::DotIdentifier() {}
 std::string DotToken::get_contents() {
   return contents;
 }
@@ -104,10 +104,14 @@ void DotStatement::set_identifier(std::string ident) {
   identifier = ident;
 }
 
-DotLiteral DotStatement::eval() {
+DotLiteral DotStatement::eval(ShimmerScope scope) {
   for (int i = 0; i < params.size(); i++) {
     if (params.at(i).is_of_type(STATEMENT)) {
-      DotLiteral x = params.at(i).get_statement_val().eval();
+      DotLiteral x = params.at(i).get_statement_val().eval(scope);
+      params.at(i) = ShimmerParam(x);
+    }
+    else if (params.at(i).is_of_type(IDENTIFIER)) {
+      DotLiteral x = scope.get_variable(params.at(i).get_identifier_val().get_contents());
       params.at(i) = ShimmerParam(x);
     }
   }
@@ -115,31 +119,71 @@ DotLiteral DotStatement::eval() {
     std::cout << "Read readme.md\n";
   }
   else if (std::string("print").compare(identifier) == 0) {
+    error_on_missing_params(1, "Not enough params to print");
+
     std::cout << params.at(0).get_literal_val().get_str() << "\n";
   }
   else if (std::string("add").compare(identifier) == 0) {
+    error_on_missing_params(2, "Not enought params to add");
+    error_on_extra_params(2, "Too many params to add, use mulitple calls instead");
+
     return DotLiteral(params.at(0).get_literal_val().get_int() + \
                       params.at(1).get_literal_val().get_int());
   }
   else if (std::string("sub").compare(identifier) == 0) {
+    error_on_missing_params(2, "Not enought params to subtract");
+    error_on_extra_params(2, "Too many params to subtract, use mulitple calls instead");
+
     return DotLiteral(params.at(0).get_literal_val().get_int() - \
                       params.at(1).get_literal_val().get_int());
   }
   else if (std::string("mult").compare(identifier) == 0) {
+    error_on_missing_params(2, "Not enought params to multiply");
+    error_on_extra_params(2, "Too many params to mulitply, use mulitple calls instead");
+
     return DotLiteral(params.at(0).get_literal_val().get_int() * \
                       params.at(1).get_literal_val().get_int());
   }
   else if (std::string("div").compare(identifier) == 0) {
+    error_on_missing_params(2, "Not enought params to divide");
+    error_on_extra_params(2, "Too many params to divide, use mulitple calls instead");
+
+    if(params.at(1).get_literal_val().get_int() == 0) {
+      throw std::runtime_error("Division by zero is illegal");
+    } 
+
     return DotLiteral(params.at(0).get_literal_val().get_int() / \
                       params.at(1).get_literal_val().get_int());
   }
   else if(std::string("input").compare(identifier) == 0) {
+    error_on_missing_params(1, "Not enough params");
+    error_on_extra_params(1, "Too many params");
+
     std::cout << params.at(0).get_literal_val().get_str();
     std::string buffer;
     std::getline(std::cin, buffer);
     return DotLiteral(buffer);
   }
+  else if (std::string("define").compare(identifier) == 0) {
+    error_on_missing_params(1, "Can't define without a variable to define");
+    error_on_missing_params(2, "Needs a value to define");
+    error_on_extra_params(2, "Too many params");
+    scope.declare_variable(params.at(0).get_literal_val().get_id().get_contents(), params.at(1).get_literal_val());
+  }
+
   return DotLiteral(0);
+}
+
+void DotStatement::error_on_missing_params(int minimum, std::string message) {
+  if (params.size() < minimum) {
+    throw std::runtime_error(message);
+  }
+}
+
+void DotStatement::error_on_extra_params(int maximum, std::string message) {
+  if (params.size() > maximum) {
+    throw std::runtime_error(message);
+  }
 }
 
 DotTree::DotTree() {
@@ -206,20 +250,17 @@ DotIdentifier DotLiteral::get_id() {
 }
 
 ShimmerParam::ShimmerParam(DotLiteral literal_value) {
-  is_literal = true;
-  is_id = false;
+  param_type = LITERAL;
   literal_val = literal_value;
 }
 
 ShimmerParam::ShimmerParam(DotStatement statement_value) {
-  is_literal = false;
-  is_id = false;
+  param_type = STATEMENT;
   statement_val = statement_value;
 }
 
 ShimmerParam::ShimmerParam(DotIdentifier identifier_value) {
-  is_literal = false;
-  is_id = true;
+  param_type = IDENTIFIER;
   identifier_val = identifier_value;
 }
 
@@ -239,7 +280,7 @@ DotStatement ShimmerParam::get_statement_val() {
   return statement_val;
 }
 
-DotStatement ShimmerParam::get_identifier_val() {
+DotIdentifier ShimmerParam::get_identifier_val() {
   return identifier_val;
 }
 
@@ -257,11 +298,27 @@ ShimmerScope::ShimmerScope(ShimmerScope* up_scope, Scope cur_scope) {
   current_scope = cur_scope;
 }
 
-DotLiteral ShimmerScope::get_variable_by_name(std::string var_name) {
-  if (current_scope.find(key) != current_scope.end) {
+DotLiteral ShimmerScope::get_variable(std::string var_name) {
+  if (current_scope.find(var_name) != current_scope.end()) {
     return current_scope.at(var_name);
   }
   else {
-    return *upper_scope.get_variable_by_name(var_name);
+    if (upper_scope != nullptr) {
+      return upper_scope->get_variable(var_name);
+    }
+    else {
+      throw std::runtime_error("Variable not found: " + var_name);
+    }
   }
+}
+void ShimmerScope::set_variable(std::string var_name, DotLiteral val) {
+  if (current_scope.find(var_name) != current_scope.end()) {
+    current_scope.at(var_name) = val;
+  }
+  else {
+    upper_scope->set_variable(var_name, val);
+  }
+}
+void ShimmerScope::declare_variable(std::string var_name, DotLiteral val) {
+  current_scope[var_name] = val;
 }

@@ -10,7 +10,7 @@
 
 std::vector<DotToken> tokens;
 
-int interpret_program(char* program_name);
+bool interpret_program(char* program_name);
 void interpret_shell();
 
 int execute(std::string str, std::string loc);
@@ -27,12 +27,13 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-int interpret_program(char* program_name) {
+bool interpret_program(char* program_name) {
   std::ifstream file;
   file.open(program_name);
 
   if (!file) {
     std::cout << "Error while opening file.";
+    return false;
   }
   else {
     std::stringstream buffer;

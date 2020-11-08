@@ -20,7 +20,7 @@ fi
 
 if [[ $answer == "R" ]]; then
   if make; then
-    build/shimmerlang;
+    build/shimmerlang test.shmr;
   fi
 fi
 

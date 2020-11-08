@@ -63,12 +63,12 @@ std::vector<DotToken> lex(std::string str) {
       this_token = DotRParen();
       to_return.push_back(this_token);
     }
-    else if (std::regex_search(&ch, std::regex("[a-zA-Z]")) && now_in == NONE) {
+    else if (std::regex_search(&ch, std::regex("[a-zA-Z_]")) && now_in == NONE) {
      // std::cout << "Starting an identifier with char: " << ch << "\n";
       now_in = ID;
       current_token_contents.push_back(ch);
     }
-    else if (std::regex_search(&ch, std::regex("[a-zA-Z0-9]")) && now_in == ID) {
+    else if (std::regex_search(&ch, std::regex("[a-zA-Z0-9_]")) && now_in == ID) {
       //std::cout << "Continuing identifier with char: " << ch << "\n";
       current_token_contents.push_back(ch);
       //std::cout << "Current contents: " << current_token_contents << "\n";
@@ -77,8 +77,7 @@ std::vector<DotToken> lex(std::string str) {
       now_in = STR;
       string_watch_out_for = ch;
     }
-    else if (std::regex_search(&ch, std::regex("[0-9]")) && \
-             now_in != STR && now_in != ID) {
+    else if (std::regex_search(&ch, std::regex("[0-9]")) && now_in != STR && now_in != ID) {
       now_in = INT;
       current_token_contents.push_back(ch);
     }
@@ -141,6 +140,10 @@ std::vector<DotToken> lex(std::string str) {
     }
   }
 
+  if (now_in == STR) {
+    throw std::runtime_error(std::string("Unclosed string: ") + current_token_contents);
+  }
+
   return to_return;
 }
 
@@ -149,7 +152,7 @@ DotToken make_token(State now_in, std::string current_token_contents) {
   if(now_in == INT)  return DotInt(current_token_contents);
   if(now_in == ID)   return DotIdentifier(current_token_contents);
   if(now_in == NONE) return DotString("");
-  else throw std::runtime_error("illegal state: " + std::to_string(now_in));
+  else throw std::runtime_error("Internal error: Illegal state: " + std::to_string(now_in));
 }
 
 #ifdef DEBUG

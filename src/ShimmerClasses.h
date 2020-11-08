@@ -14,7 +14,7 @@ enum DotTypes {
   TypeId
 };
 
-typedef enum { NONE, LITERAL, STATEMENT, IDENTIFIER } ParamType;
+typedef enum { NONETYPE, LITERAL, STATEMENT, IDENTIFIER } ParamType;
 
 class ShimmerScope;
 class DotTree;
@@ -84,6 +84,7 @@ class DotString : public DotToken {
 class DotIdentifier : public DotToken {
   public:
     DotIdentifier(std::string content);
+    DotIdentifier();
 };
 
 class DotStatement {
@@ -100,7 +101,11 @@ class DotStatement {
     void set_params(std::vector<ShimmerParam> param);
     void set_identifier(std::string ident);
 
-    DotLiteral eval();
+    DotLiteral eval(ShimmerScope scope);
+
+  private:
+    void error_on_missing_params(int minimum, std::string message);
+    void error_on_extra_params(int maximum, std::string message);
 };
 
 class DotTree {
@@ -140,7 +145,7 @@ class ShimmerParam {
     ShimmerParam(DotStatement statement_value);
     ShimmerParam(DotIdentifier identifier_value);
 
-    ParamType param_type = NONE;
+    ParamType param_type = NONETYPE;
     ParamType get_param_type();
     bool is_of_type(ParamType type);
 
@@ -162,7 +167,9 @@ class ShimmerScope {
     ShimmerScope* upper_scope;
     Scope current_scope;
 
-    DotLiteral get_variable_by_name(std::string var_name);
+    void declare_variable(std::string var_name, DotLiteral val);
+    DotLiteral get_variable(std::string var_name);
+    void set_variable(std::string var_name, DotLiteral val);
 };
 
 #endif

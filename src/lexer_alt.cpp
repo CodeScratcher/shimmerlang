@@ -4,7 +4,7 @@
 #include <regex>
 #include "ShimmerClasses.h"
 #include "text_effects.h"
-#include "lexer.h"
+#include "lexer_alt.h"
 
 Lexer::Lexer() {
   current_token_contents = "";

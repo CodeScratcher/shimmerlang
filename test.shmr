@@ -1,1 +1,3 @@
-print("Hello, world!")
+define($x, input("What should I remember? "))
+print("I have remembered your input and will now print it back")
+print(x)
