@@ -6,8 +6,6 @@
 #include <any>
 #include <unordered_map>
 
-typedef Scope std::unordered_map<std::string, DotLiteral>;
-
 enum DotTypes {
   TypeString,
   TypeInt,
@@ -24,14 +22,21 @@ class DotIdentifier;
 class DotLiteral;
 class DotStatement;
 class ShimmerParam;
+
+typedef std::unordered_map<std::string, DotLiteral> Scope;
+
 class DotToken {
   public:
-    std::string contents;
-    std::string token_type;
     DotToken();
+
+    std::string contents;
     int parsed_contents;
+    std::string token_type;
+
+    std::string get_contents();
     int get_parsed_contents();
     std::string get_token_type();
+
     bool is_of_type(std::string type);
     std::string to_string();
 };
@@ -45,24 +50,6 @@ class DotRParen : public DotToken  {
   public:
     DotRParen();
 };
-class DotIDLiteralSign : public DotToken  {
-  public:
-    DotIDLiteralSign();
-};
-class DotIdentifier : public DotToken {
-  public:
-    DotIdentifier(std::string content);
-};
-
-class DotString : public DotToken {
-  public:
-    DotString(std::string content);
-};
-
-class DotInt : public DotToken {
-  public:
-    DotInt(std::string content);
-};
 
 class DotLBrace : public DotToken  {
   public:
@@ -74,50 +61,77 @@ class DotRBrace : public DotToken  {
     DotRBrace();
 };
 
+class DotIDLiteralSign : public DotToken  {
+  public:
+    DotIDLiteralSign();
+};
+
 class DotComma : public DotToken  {
   public:
     DotComma();
 };
+
+class DotInt : public DotToken {
+  public:
+    DotInt(std::string content);
+};
+
+class DotString : public DotToken {
+  public:
+    DotString(std::string content);
+};
+
+class DotIdentifier : public DotToken {
+  public:
+    DotIdentifier(std::string content);
+};
+
 class DotStatement {
   public:
+    DotStatement();
+    DotStatement(std::string ident, std::vector<ShimmerParam> param);
+
     std::vector<ShimmerParam> params;
     std::string identifier;
-    DotStatement(std::string ident, std::vector<ShimmerParam> param);
-    DotStatement();
+
     std::vector<ShimmerParam> get_params();
     std::string get_identifier();
-    void set_identifier(std::string ident);
+
     void set_params(std::vector<ShimmerParam> param);
+    void set_identifier(std::string ident);
+
     DotLiteral eval();
 };
 
 class DotTree {
   public:
-    DotTree(std::vector<DotStatement> statement);
     DotTree();
-    std::vector<DotStatement> statements;
+    DotTree(std::vector<DotStatement> statement);
+    std::vector<DotStatement> tree;
     std::vector<DotStatement> get_tree();
 };
 
 class DotLiteral {
   public:
     DotLiteral();
+    DotLiteral(int val);
+    DotLiteral(std::string val);
+    DotLiteral(DotTree val);
+    DotLiteral(DotIdentifier val);
+
     int type;
-    std::string str_value;
-    bool bool_value;
     int int_value;
+    bool bool_value;
+    std::string str_value;
     DotTree func_value;
     DotIdentifier id_value;
-    DotLiteral(int val);
-    DotLiteral(DotIdentifier val);
-    DotLiteral(std::string val);
-    DotLiteral(DotTree function);
+
     int get_type();
     int get_int();
-    DotTree get_func();
     bool get_bool();
-    DotIdentifier get_id();
     std::string get_str();
+    DotTree get_func();
+    DotIdentifier get_id();
 };
 
 class ShimmerParam {
@@ -128,6 +142,7 @@ class ShimmerParam {
 
     ParamType param_type = NONE;
     ParamType get_param_type();
+    bool is_of_type(ParamType type);
 
     DotLiteral literal_val;
     DotStatement statement_val;
@@ -139,12 +154,15 @@ class ShimmerParam {
 };
 
 class ShimmerScope {
-  ShimmerScope* upper_scope;
-  Scope current_scope;
-  ShimmerScope(Scope cur_scope);
-  ShimmerScope(ShimmerScope* up_scope, Scope cur_scope);
-  ShimmerScope(); // Default constructor
-  DotLiteral get_variable_by_name(std::string var_name);
+  public:
+    ShimmerScope(); // Default constructor
+    ShimmerScope(Scope cur_scope);
+    ShimmerScope(ShimmerScope* up_scope, Scope cur_scope);
+
+    ShimmerScope* upper_scope;
+    Scope current_scope;
+
+    DotLiteral get_variable_by_name(std::string var_name);
 };
 
 #endif
