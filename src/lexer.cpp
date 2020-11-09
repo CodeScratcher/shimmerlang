@@ -71,16 +71,16 @@ std::vector<DotToken> lex(std::string str) {
       this_token = DotRParen();
       to_return.push_back(this_token);
     }
-    else if (std::regex_search(&ch, std::regex("[a-zA-Z_]")) && now_in == NONE) {
+    else if (std::regex_search(std::string(1, ch), std::regex("[a-zA-Z_]")) && now_in == NONE) {
       now_in = ID;
       current_token_contents.push_back(ch);
     }
-    else if (std::regex_search(&ch, std::regex("[a-zA-Z0-9_]")) && now_in == ID) {
+    else if (std::regex_search(std::string(1, ch), std::regex("[a-zA-Z0-9_]")) && now_in == ID) {
       //std::cout << "Continuing identifier with char: " << ch << "\n";
       current_token_contents.push_back(ch);
       //std::cout << "Current contents: " << current_token_contents << "\n";
     }
-    else if (std::regex_search(&ch, std::regex("[0-9]")) && now_in != STR && now_in != ID) {
+    else if (std::regex_search(std::string(1, ch), std::regex("[0-9]")) && now_in != STR && now_in != ID) {
       now_in = INT;
       current_token_contents.push_back(ch);
     }
