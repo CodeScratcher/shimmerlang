@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <regex>
-#ifdef BENCHMARK
+#if defined BENCHMARK || defined DEBUG
 #include <fstream>
 #include <sstream>
 #endif
@@ -19,7 +19,7 @@ std::vector<DotToken> lex(std::string str) {
 
   for (int i = 0; i < str.length(); i++) {
     char ch = str.at(i);
-    std::cout << i << ": "<< ch << "\n";
+
     if (now_in != STR && (ch == ' ' || ch == '\t' || ch == '\n')) {
       if (current_token_contents != "") {
         this_token = make_token(now_in, current_token_contents);
@@ -30,8 +30,13 @@ std::vector<DotToken> lex(std::string str) {
       current_token_contents = "";
       continue;
     }
-    if (now_in == STR) {
-      if (ch == string_watch_out_for) {
+
+    if (ch == '\'' || ch == '"') {
+      if (now_in == NONE) {
+        now_in = STR;
+        string_watch_out_for = ch;
+      }
+      else if (now_in == STR && ch == string_watch_out_for) {
         this_token = make_token(now_in, current_token_contents);
         now_in = NONE;
         current_token_contents = "";
@@ -40,6 +45,9 @@ std::vector<DotToken> lex(std::string str) {
       else {
         current_token_contents.push_back(ch);
       }
+    }
+    else if (now_in == STR) {
+      current_token_contents.push_back(ch);
     }
     else if (ch == '(') {
       if (current_token_contents != "") {
@@ -64,7 +72,6 @@ std::vector<DotToken> lex(std::string str) {
       to_return.push_back(this_token);
     }
     else if (std::regex_search(&ch, std::regex("[a-zA-Z_]")) && now_in == NONE) {
-     // std::cout << "Starting an identifier with char: " << ch << "\n";
       now_in = ID;
       current_token_contents.push_back(ch);
     }
@@ -72,11 +79,6 @@ std::vector<DotToken> lex(std::string str) {
       //std::cout << "Continuing identifier with char: " << ch << "\n";
       current_token_contents.push_back(ch);
       //std::cout << "Current contents: " << current_token_contents << "\n";
-    }
-    else if ((ch == '\'' || ch == '"') && now_in == NONE) {
-      now_in = STR;
-      std::cout << current_token_contents;
-      string_watch_out_for = ch;
     }
     else if (std::regex_search(&ch, std::regex("[0-9]")) && now_in != STR && now_in != ID) {
       now_in = INT;
@@ -179,9 +181,19 @@ const char* lex_to_str(std::vector<DotToken> lexed) {
 }
 
 const char* lex_test() {
-  std::vector<DotToken> lexed = lex("print(\"A string with bad '\")");
-  std::cout << "Lexed successfully. Entered testing.\n\n";
-  return lex_to_str(lexed);
+  std::ifstream file;
+  file.open("test.shmr");
+
+  if (!file) {
+    std::cout << "Error while opening file.";
+  }
+  else {
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    std::vector<DotToken> lexed = lex(buffer.str());
+    std::cout << "Lexed successfully. Entered testing.\n\n";
+    return lex_to_str(lexed);
+  }
 }
 
 #endif
