@@ -164,6 +164,12 @@ DotLiteral DotStatement::eval(ShimmerScope* scope) {
     std::getline(std::cin, buffer);
     return DotLiteral(buffer);
   }
+  else if (std::string("get").compare(identifier) == 0) {
+    return scope->get_variable(params.at(0).get_literal_val().get_id().get_contents());
+  }
+  else if (std::string("set").compare(identifier) == 0) {
+    scope->set_variable(params.at(0).get_literal_val().get_id().get_contents(), params.at(1).get_literal_val());
+  }
   else if (std::string("define").compare(identifier) == 0) {
     error_on_missing_params(1, "Can't define without a variable to define");
     error_on_missing_params(2, "Needs a value to define");

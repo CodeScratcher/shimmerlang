@@ -19,7 +19,7 @@ std::vector<DotToken> lex(std::string str) {
 
   for (int i = 0; i < str.length(); i++) {
     char ch = str.at(i);
-    // std::cout << i << ": "<< ch << "\n";
+    std::cout << i << ": "<< ch << "\n";
     if (now_in != STR && (ch == ' ' || ch == '\t' || ch == '\n')) {
       if (current_token_contents != "") {
         this_token = make_token(now_in, current_token_contents);
@@ -73,8 +73,9 @@ std::vector<DotToken> lex(std::string str) {
       current_token_contents.push_back(ch);
       //std::cout << "Current contents: " << current_token_contents << "\n";
     }
-    else if (ch == '\'' || ch == '"') {
+    else if ((ch == '\'' || ch == '"') && now_in == NONE) {
       now_in = STR;
+      std::cout << current_token_contents;
       string_watch_out_for = ch;
     }
     else if (std::regex_search(&ch, std::regex("[0-9]")) && now_in != STR && now_in != ID) {
@@ -87,7 +88,6 @@ std::vector<DotToken> lex(std::string str) {
         now_in = NONE;
         to_return.push_back(this_token);
       }
-
       current_token_contents = "";
       this_token = DotIDLiteralSign();
       to_return.push_back(this_token);
@@ -126,16 +126,16 @@ std::vector<DotToken> lex(std::string str) {
       to_return.push_back(this_token);
     }
     else {
-      std::string suspect = "";
+      std::string suspect = "this shouldn't be printed; there was an internal error";
 
       if (ch < ' ') {
         suspect = "char code DEC " + std::to_string((int) ch);
       }
       else {
-        suspect = std::string(&ch);
+        suspect = std::string(1, ch);
       }
 
-      std::string message = "Unknown character <" + suspect + ">";
+      std::string message = "Unknown or unexpected character <" + suspect + ">";
       throw std::runtime_error(message);
     }
   }
@@ -156,6 +156,7 @@ DotToken make_token(State now_in, std::string current_token_contents) {
 }
 
 #ifdef DEBUG
+
 const char* lex_to_str(std::vector<DotToken> lexed) {
   std::string str;
   std::cout << "       " << BOLD("Name") << "\t\t" << BOLD("Type \n");
@@ -176,13 +177,17 @@ const char* lex_to_str(std::vector<DotToken> lexed) {
 
   return str.c_str();
 }
+
 const char* lex_test() {
-  std::vector<DotToken> lexed = lex("print(add(4, div(6, 2)))");
+  std::vector<DotToken> lexed = lex("print(\"A string with bad '\")");
   std::cout << "Lexed successfully. Entered testing.\n\n";
   return lex_to_str(lexed);
 }
+
 #endif
+
 #ifdef BENCHMARK
+
 int main() {
   std::ifstream file;
     file.open("lexerbenchmark.shmr");
@@ -196,4 +201,5 @@ int main() {
       lex(buffer.str());
     }
 }
+
 #endif

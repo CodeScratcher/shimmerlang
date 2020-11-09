@@ -144,6 +144,7 @@ void print_debug_info(DotTree x) {
     }
   }
 }
+
 const char* parse_test() {
   DotTree x = parse(lex("print(add(sub(2, 1), sub(3, add(1, 1))))"));
   std::cout << "Parsing done." << "\n";

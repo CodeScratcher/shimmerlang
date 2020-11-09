@@ -10,11 +10,11 @@
 #define STYLE_YELLOW     "\x1b[93m"
 #define STYLE_BLUE       "\x1b[34m"
 #define STYLE_MAGENTA    "\x1b[35m"
+#define STYLE_LAVENDER   "\x1b[95m"
 #define STYLE_CYAN       "\x1b[36m"
 #define STYLE_L_RED      "\x1b[91m"
 #define STYLE_L_GREEN    "\x1b[92m"
 #define STYLE_L_BLUE     "\x1b[94m"
-#define STYLE_L_MAGENTA  "\x1b[95m"
 #define STYLE_L_CYAN     "\x1b[96m"
 
 #define BOLD(str)       STYLE_BOLD       << str << STYLE_CLEAR
