@@ -1,6 +1,10 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#if defined BENCHMARK || defined DEBUG
+#include <fstream>
+#include <sstream>
+#endif
 #include "parser.h"
 #include "lexer.h"
 #include "ShimmerClasses.h"
@@ -30,6 +34,7 @@ DotTree parse(std::vector<DotToken> tokens) {
       to_add.set_params(params);
       params.clear();
       statements.push_back(to_add);
+			to_add = DotStatement();
     }
     else if (this_token.get_token_type().compare("DotIDLiteralSign") == 0) {
       is_id_token = true;
@@ -73,6 +78,7 @@ DotTree parse(std::vector<DotToken> tokens) {
           DotStatement to_push = parsed.get_tree().at(0);
           ShimmerParam param = ShimmerParam(to_push);
           params.push_back(param);
+					tokens_for_recursion.clear();
         }
         else {
             std::string message = "Missing a comma at token: " + this_token.get_contents();
@@ -132,27 +138,40 @@ const char* param_recursive_str(ShimmerParam to_convert) {
   }
   else if (to_convert.get_param_type() == STATEMENT) {
     for (ShimmerParam i : to_convert.get_statement_val().get_params()) {
-      std::cout << param_recursive_str(i) << "\n";
+      print_statement_info(i.get_statement_val());
     }
     return "Param recursive";
   }
 }
-
+void print_statement_info(DotStatement i) {
+	std::cout << i.get_identifier() << "\n";
+	for (ShimmerParam j : i.get_params()){
+		std::cout << param_recursive_str(j) << "\n";
+	}
+}
 void print_debug_info(DotTree x) {
   for (DotStatement i : x.get_tree()) {
-    for (ShimmerParam j : i.get_params()){
-      std::cout << param_recursive_str(j) << "\n";
-    }
+		print_statement_info(i);
   }
 }
 
 const char* parse_test() {
-  DotTree x = parse(lex("print(add(sub(2, 1), sub(3, add(1, 1))))"));
-  std::cout << "Parsing done." << "\n";
+	std::ifstream file;
+  file.open("test.shmr");
 
-  print_debug_info(x);  
+  if (!file) {
+    std::cout << "Error while opening file.";
+  }
+  else {
+		std::stringstream buffer;
+    buffer << file.rdbuf();
+		DotTree x = parse(lex(buffer.str()));
+		std::cout << "Parsing done." << "\n";
 
-  return "Test complete";
+		print_debug_info(x);  
+
+		return "Test complete";
+	}
 }
 
 #endif

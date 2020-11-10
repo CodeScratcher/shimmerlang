@@ -158,7 +158,6 @@ DotLiteral DotStatement::eval(ShimmerScope* scope) {
   else if(std::string("input").compare(identifier) == 0) {
     error_on_missing_params(1, "Not enough params");
     error_on_extra_params(1, "Too many params");
-
     std::cout << params.at(0).get_literal_val().get_str();
     std::string buffer;
     std::getline(std::cin, buffer);
