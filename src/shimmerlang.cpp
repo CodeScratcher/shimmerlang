@@ -63,7 +63,7 @@ int execute(std::string str, std::string loc) {
     return true;
   }
   catch (std::runtime_error& err) {
-    std::cout << RED("Error in " << loc << ": " << err.what() << "\n");
+    std::cout << RED("In file " << loc << " on line " << err.what() << "\n\n");
     return false;
   }
 }

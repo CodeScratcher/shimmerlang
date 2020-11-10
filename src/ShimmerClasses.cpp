@@ -6,10 +6,14 @@
 #include <unordered_map>
 
 #include "ShimmerClasses.h"
+#include "parser.h"
 #include "eval.h"
 
 DotToken::DotToken() {
   // Default constructor does nothing
+}
+int DotToken::get_line_number() {
+  return line_number;
 }
 DotIdentifier::DotIdentifier() {}
 std::string DotToken::get_contents() {
@@ -28,53 +32,61 @@ bool DotToken::is_of_type(std::string type) {
   return token_type.compare(type) == 0;
 }
 
-DotLParen::DotLParen() {
+DotLParen::DotLParen(int line) {
+  line_number = line;
   token_type = "DotLParen";
   // DotLParen will always be a '('
   contents = "(";
 }
 
-DotRParen::DotRParen() {
+DotRParen::DotRParen(int line) {
+  line_number = line;
   token_type = "DotRParen";
   // DotRParen will always be a ')'
   contents = ")";
 }
 
-DotLBrace::DotLBrace() {
+DotLBrace::DotLBrace(int line) {
+  line_number = line;
   token_type = "DotLBrace";
   // DotLBrace will always be a '{'
   contents = "{";
 }
 
-DotRBrace::DotRBrace() {
+DotRBrace::DotRBrace(int line) {
+  line_number = line;
   token_type = "DotRBrace";
   // DotRBrace will always be a '}'
   contents = "}";
 }
 
-DotIDLiteralSign::DotIDLiteralSign() {
+DotIDLiteralSign::DotIDLiteralSign(int line) {
+  line_number = line;
   token_type = "DotIDLiteralSign";
   contents = "$";
 }
 
-DotComma::DotComma() {
+DotComma::DotComma(int line) {
+  line_number = line;
   token_type = "DotComma";
   // DotComma will always be a ','
   contents = ",";
 }
 
-DotInt::DotInt(std::string content) {
+DotInt::DotInt(int line, std::string content) {
+  line_number = line;
   token_type = "DotInt";
   contents = content;
   parsed_contents = std::stoi(content);
 }
 
-DotString::DotString(std::string content) {
+DotString::DotString(int line, std::string content) {
+  line_number = line;
   token_type = "DotString";
   contents = content;
 }
 
-DotIdentifier::DotIdentifier(std::string content) {
+DotIdentifier::DotIdentifier(int line, std::string content) {
   token_type = "DotIdentifier";
   contents = content;
 }
@@ -149,6 +161,7 @@ DotLiteral DotStatement::eval(ShimmerScope* scope) {
     error_on_extra_params(2, "Too many params to divide, use mulitple calls instead");
 
     if(params.at(1).get_literal_val().get_int() == 0) {
+      print_statement_info(*this);
       throw std::runtime_error("Division by zero is illegal");
     } 
 
@@ -164,13 +177,19 @@ DotLiteral DotStatement::eval(ShimmerScope* scope) {
     return DotLiteral(buffer);
   }
   else if (std::string("get").compare(identifier) == 0) {
+    error_on_missing_params(1, "Need something to get");
+    error_on_extra_params(1, "Too many params");
     return scope->get_variable(params.at(0).get_literal_val().get_id().get_contents());
   }
   else if (std::string("set").compare(identifier) == 0) {
+    error_on_missing_params(1, "Can't set without a variable to set");
+    error_on_missing_params(2, "Need a value to set variable to");
+    error_on_extra_params(2, "Too many params");
     scope->set_variable(params.at(0).get_literal_val().get_id().get_contents(), params.at(1).get_literal_val());
   }
   else if (std::string("define").compare(identifier) == 0) {
-    error_on_missing_params(1, "Can't define without a variable to define");
+    
+    error_on_missing_params(params.at(0).get_line_number(), 1, "Can't define without a variable to define");
     error_on_missing_params(2, "Needs a value to define");
     error_on_extra_params(2, "Too many params");
     scope->declare_variable(params.at(0).get_literal_val().get_id().get_contents(), params.at(1).get_literal_val());
@@ -179,15 +198,19 @@ DotLiteral DotStatement::eval(ShimmerScope* scope) {
   return DotLiteral(0);
 }
 
-void DotStatement::error_on_missing_params(int minimum, std::string message) {
-  if (params.size() < minimum) {
-    throw std::runtime_error(message);
+void DotStatement::error_on_missing_params(int line, int min, std::string msg) {
+  print_statement_info(*this);
+  std::cout << "\n";
+  if (params.size() < min) {
+    throw std::runtime_error(std::string("?:\n\t") + msg);
   }
 }
 
-void DotStatement::error_on_extra_params(int maximum, std::string message) {
-  if (params.size() > maximum) {
-    throw std::runtime_error(message);
+void DotStatement::error_on_extra_params(int line, int max, std::string msg) {
+  print_statement_info(*this);
+  std::cout << "\n";
+  if (params.size() > max) {
+    throw std::runtime_error(std::string("?:\n\t") + msg);
   }
 }
 

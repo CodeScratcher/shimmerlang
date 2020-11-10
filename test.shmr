@@ -1,6 +1,1 @@
-define($add_sub_mult, ($num1, $num2){
-	print(add(num1, num2))
-	print(sub(num1, num2))
-	print(mult(num1, num2))
-})
-add_sub_mult(input("What is the first number?") input("What is the second number?"))
+print(add(3, sub(2, 4, add(3, 2))))

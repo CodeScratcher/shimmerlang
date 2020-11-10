@@ -27,7 +27,9 @@ DotTree parse(std::vector<DotToken> tokens) {
     }
     else if (this_token.get_token_type().compare("DotRParen") == 0) {
       if (!in_params) {
-        throw std::runtime_error("Unexpected right parenthesis.");
+        std::string message = "Unexpected right parenthesis.";
+        std::string line = std::to_string(this_token.get_line_number()) + ":\n\t";
+        throw std::runtime_error(line + message);
       }
       in_params = false;
       separated = true;
@@ -41,12 +43,14 @@ DotTree parse(std::vector<DotToken> tokens) {
     }
     else if (is_id_token) {
       if (this_token.get_token_type().compare("DotIdentifier") == 0) {
-        ShimmerParam param(DotLiteral(DotIdentifier(this_token.get_contents())));
+        ShimmerParam param(DotLiteral(DotIdentifier(this_token.get_line_number(), this_token.get_contents())));
         params.push_back(param);
         is_id_token = false;
       }
       else {
-        throw std::runtime_error(std::string("Unexpected token, should be identifier at: ") + this_token.get_contents());
+        std::string message = "Expected identifier but got: " + this_token.get_contents();
+        std::string line = std::to_string(this_token.get_line_number()) + ":\n\t";
+        throw std::runtime_error(line + message);
       } 
     }
     else if (this_token.get_token_type().compare("DotIdentifier") == 0 && in_params) {
@@ -58,17 +62,19 @@ DotTree parse(std::vector<DotToken> tokens) {
             tokens_for_recursion.push_back(tokens.at(j));
             j++; 
             if (j == tokens.size()) {
-              throw std::runtime_error("Missing closing parenthesis.");
+              std::string message = "Missing closing parenthesis.";
+              std::string line = std::to_string(this_token.get_line_number()) + ":\n\t";
+              throw std::runtime_error(line + message);
             }
             if (tokens.at(j).get_token_type().compare("DotRParen") == 0 ) {
-            --sub_expr_layer;
+            sub_expr_layer--;
             if (sub_expr_layer == 0) {
                 break;
             }
             
             }
             if (tokens.at(j).get_token_type().compare("DotLParen") == 0) {
-              ++sub_expr_layer;
+              sub_expr_layer++;
             }
           }
           
@@ -82,18 +88,20 @@ DotTree parse(std::vector<DotToken> tokens) {
         }
         else {
             std::string message = "Missing a comma at token: " + this_token.get_contents();
-            throw std::runtime_error(message);
+            std::string line = std::to_string(this_token.get_line_number()) + ":\n\t";
+            throw std::runtime_error(line + message);
         }
       }
       else {
         if (separated) {
-          ShimmerParam param = ShimmerParam(DotIdentifier(this_token.get_contents()));
+          ShimmerParam param = ShimmerParam(DotIdentifier(this_token.get_line_number(), this_token.get_contents()));
           params.push_back(param);
           separated = false;
         }
         else {
           std::string message = "Missing a comma at token: " + this_token.get_contents();
-          throw std::runtime_error(message);
+          std::string line = std::to_string(this_token.get_line_number()) + ":\n\t";
+          throw std::runtime_error(line + message);
         }
       }
     }
@@ -104,7 +112,9 @@ DotTree parse(std::vector<DotToken> tokens) {
         separated = false;
       }
       else {
-        throw std::runtime_error(std::string("Missing a comma at token: ") + this_token.get_contents());
+        std::string message = "Missing a comma at token: " + this_token.get_contents();
+        std::string line = std::to_string(this_token.get_line_number()) + ":\n\t";
+        throw std::runtime_error(line + message);
       }
     }
     else if (this_token.get_token_type().compare("DotString") == 0) {
@@ -113,25 +123,27 @@ DotTree parse(std::vector<DotToken> tokens) {
       separated = false;
       }
       else {
-        throw std::runtime_error(std::string("Missing a comma at token: ")+ this_token.get_contents());
+        std::string message = "Missing a comma at token: " + this_token.get_contents();
+        std::string line = std::to_string(this_token.get_line_number()) + ":\n\t";
+        throw std::runtime_error(line + message);
       }
     }
     else if (this_token.get_token_type().compare("DotComma") == 0) {
       separated = true;
     }
   }
-  if (in_params) { 
-    throw std::runtime_error("Missing closing parenthesis.");
+  if (in_params) {
+    std::string message = "Missing closing parenthesis.";
+    std::string line = "end:\n\t";
+    throw std::runtime_error(line + message);
   }
   DotTree toReturn = DotTree(statements); 
   return toReturn;
 }
 
-#ifdef DEBUG
 const char* param_recursive_str(ShimmerParam to_convert) {
   if (to_convert.get_param_type() == LITERAL) {
     DotLiteral liter = to_convert.get_literal_val();
-    std::cout << liter.type << "\n";
     if (liter.type == TypeString || liter.type == TypeInt) {
       return liter.get_str().c_str();
     }
@@ -143,17 +155,21 @@ const char* param_recursive_str(ShimmerParam to_convert) {
     return "Param recursive";
   }
 }
+
 void print_statement_info(DotStatement i) {
-	std::cout << i.get_identifier() << "\n";
-	for (ShimmerParam j : i.get_params()){
-		std::cout << param_recursive_str(j) << "\n";
+	std::cout << i.get_identifier() << "->";
+	for (ShimmerParam j : i.get_params()) {
+		std::cout << param_recursive_str(j) << " ";
 	}
 }
+
 void print_debug_info(DotTree x) {
   for (DotStatement i : x.get_tree()) {
 		print_statement_info(i);
   }
 }
+
+#ifdef DEBUG
 
 const char* parse_test() {
 	std::ifstream file;

@@ -16,23 +16,24 @@ enum DotTypes {
 
 typedef enum { NONETYPE, LITERAL, STATEMENT, IDENTIFIER } ParamType;
 
-class ShimmerScope;
-class DotTree;
 class DotIdentifier;
-class DotLiteral;
 class DotStatement;
+class DotTree;
+class DotLiteral;
 class ShimmerParam;
+class ShimmerScope;
 
 typedef std::unordered_map<std::string, DotLiteral> Scope;
 
 class DotToken {
   public:
     DotToken();
-
+    int line_number;
     std::string contents;
     int parsed_contents;
     std::string token_type;
 
+    int get_line_number();
     std::string get_contents();
     int get_parsed_contents();
     std::string get_token_type();
@@ -43,47 +44,47 @@ class DotToken {
 
 class DotLParen : public DotToken  {
   public:
-    DotLParen();
+    DotLParen(int line);
 };
 
 class DotRParen : public DotToken  {
   public:
-    DotRParen();
+    DotRParen(int line);
 };
 
 class DotLBrace : public DotToken  {
   public:
-    DotLBrace();
+    DotLBrace(int line);
 };
 
 class DotRBrace : public DotToken  {
   public:
-    DotRBrace();
+    DotRBrace(int line);
 };
 
 class DotIDLiteralSign : public DotToken  {
   public:
-    DotIDLiteralSign();
+    DotIDLiteralSign(int line);
 };
 
 class DotComma : public DotToken  {
   public:
-    DotComma();
+    DotComma(int line);
 };
 
 class DotInt : public DotToken {
   public:
-    DotInt(std::string content);
+    DotInt(int line, std::string content);
 };
 
 class DotString : public DotToken {
   public:
-    DotString(std::string content);
+    DotString(int line, std::string content);
 };
 
 class DotIdentifier : public DotToken {
   public:
-    DotIdentifier(std::string content);
+    DotIdentifier(int line, std::string content);
     DotIdentifier();
 };
 

@@ -16,13 +16,18 @@ std::vector<DotToken> lex(std::string str) {
   std::string current_token_contents = "";
   char string_watch_out_for;
   State now_in = NONE;
+  int current_line = 1;
 
   for (int i = 0; i < str.length(); i++) {
     char ch = str.at(i);
 
     if (now_in != STR && (ch == ' ' || ch == '\t' || ch == '\n')) {
+      if (ch == '\n') {
+        current_line++;
+      }
+
       if (current_token_contents != "") {
-        this_token = make_token(now_in, current_token_contents);
+        this_token = make_token(now_in, current_token_contents, current_line);
         now_in = NONE;
         to_return.push_back(this_token);
       }
@@ -37,7 +42,7 @@ std::vector<DotToken> lex(std::string str) {
         string_watch_out_for = ch;
       }
       else if (now_in == STR && ch == string_watch_out_for) {
-        this_token = make_token(now_in, current_token_contents);
+        this_token = make_token(now_in, current_token_contents, current_line);
         now_in = NONE;
         current_token_contents = "";
         to_return.push_back(this_token);
@@ -51,24 +56,24 @@ std::vector<DotToken> lex(std::string str) {
     }
     else if (ch == '(') {
       if (current_token_contents != "") {
-        this_token = make_token(now_in, current_token_contents);
+        this_token = make_token(now_in, current_token_contents, current_line);
         now_in = NONE;
         to_return.push_back(this_token);
       }
 
       current_token_contents = "";
-      this_token = DotLParen();
+      this_token = DotLParen(current_line);
       to_return.push_back(this_token);
     }
     else if (ch == ')') {
       if (current_token_contents != "") {
-        this_token = make_token(now_in, current_token_contents);
+        this_token = make_token(now_in, current_token_contents, current_line);
         now_in = NONE;
         to_return.push_back(this_token);
       }
   
       current_token_contents = "";
-      this_token = DotRParen();
+      this_token = DotRParen(current_line);
       to_return.push_back(this_token);
     }
     else if (std::regex_search(std::string(1, ch), std::regex("[a-zA-Z_]")) && now_in == NONE) {
@@ -86,45 +91,45 @@ std::vector<DotToken> lex(std::string str) {
     }
     else if (ch == '$') {
       if (current_token_contents != "") {
-        this_token = make_token(now_in, current_token_contents);
+        this_token = make_token(now_in, current_token_contents, current_line);
         now_in = NONE;
         to_return.push_back(this_token);
       }
       current_token_contents = "";
-      this_token = DotIDLiteralSign();
+      this_token = DotIDLiteralSign(current_line);
       to_return.push_back(this_token);
     }
     else if (ch == '{') {
       if (current_token_contents != "") {
-        this_token = make_token(now_in, current_token_contents);
+        this_token = make_token(now_in, current_token_contents, current_line);
         now_in = NONE;
         to_return.push_back(this_token);
       }
 
       current_token_contents = "";
-      this_token = DotLBrace();
+      this_token = DotLBrace(current_line);
       to_return.push_back(this_token);
     }
     else if (ch == '}') {
       if (current_token_contents != "") {
-        this_token = make_token(now_in, current_token_contents);
+        this_token = make_token(now_in, current_token_contents, current_line);
         now_in = NONE;
         to_return.push_back(this_token);
       }
 
       current_token_contents = "";
-      this_token = DotRBrace();
+      this_token = DotRBrace(current_line);
       to_return.push_back(this_token);
     }
     else if (ch == ',') {
       if (current_token_contents != "") {
-        this_token = make_token(now_in, current_token_contents);
+        this_token = make_token(now_in, current_token_contents, current_line);
         now_in = NONE;
         to_return.push_back(this_token);
       }
 
       current_token_contents = "";
-      this_token = DotComma();
+      this_token = DotComma(current_line);
       to_return.push_back(this_token);
     }
     else {
@@ -138,22 +143,25 @@ std::vector<DotToken> lex(std::string str) {
       }
 
       std::string message = "Unknown or unexpected character <" + suspect + ">";
-      throw std::runtime_error(message);
+      std::string line = std::to_string(current_line) + ":\n\t";
+      throw std::runtime_error(line + message);
     }
   }
 
   if (now_in == STR) {
-    throw std::runtime_error(std::string("Unclosed string: ") + current_token_contents);
+      std::string message = "Unclosed string: " + current_token_contents;
+      std::string line = std::to_string(current_line) + ":\n\t";
+      throw std::runtime_error(line + message);
   }
 
   return to_return;
 }
 
-DotToken make_token(State now_in, std::string current_token_contents) {
-  if(now_in == STR)  return DotString(current_token_contents);
-  if(now_in == INT)  return DotInt(current_token_contents);
-  if(now_in == ID)   return DotIdentifier(current_token_contents);
-  if(now_in == NONE) return DotString("");
+DotToken make_token(State now_in, std::string current_token_contents, int current_line) {
+  if(now_in == STR)  return DotString(current_line, current_token_contents);
+  if(now_in == INT)  return DotInt(current_line, current_token_contents);
+  if(now_in == ID)   return DotIdentifier(current_line, current_token_contents);
+  if(now_in == NONE) return DotString(current_line, "");
   else throw std::runtime_error("Internal error: Illegal state: " + std::to_string(now_in));
 }
 
