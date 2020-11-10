@@ -232,7 +232,10 @@ int DotLiteral::get_type() {
 }
 
 int DotLiteral::get_int() {
-  return int_value;
+	 if (type == TypeString) {
+    return std::stoi(str_value);
+  }
+  else return int_value;
 }
 
 bool DotLiteral::get_bool() {
