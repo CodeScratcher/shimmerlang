@@ -127,71 +127,83 @@ DotLiteral DotStatement::eval(ShimmerScope* scope) {
       params.at(i) = ShimmerParam(x);
     }
   }
+
   if(std::string("help").compare(identifier) == 0) {
     std::cout << "Read readme.md\n";
   }
   else if (std::string("print").compare(identifier) == 0) {
-    error_on_missing_params(1, "Not enough params to print");
+    int line = params.at(0).get_literal_val().get_line_number();
+    error_on_missing_params(line, 1, "Not enough params to print");
 
     std::cout << params.at(0).get_literal_val().get_str() << "\n";
   }
   else if (std::string("add").compare(identifier) == 0) {
-    error_on_missing_params(2, "Not enought params to add");
-    error_on_extra_params(2, "Too many params to add, use mulitple calls instead");
+    int line = params.at(0).get_literal_val().get_line_number();
+    error_on_missing_params(line, 2, "Not enought params to add");
+    error_on_extra_params(line, 2, "Too many params to add");
 
     return DotLiteral(params.at(0).get_literal_val().get_int() + \
                       params.at(1).get_literal_val().get_int());
   }
   else if (std::string("sub").compare(identifier) == 0) {
-    error_on_missing_params(2, "Not enought params to subtract");
-    error_on_extra_params(2, "Too many params to subtract, use mulitple calls instead");
+    int line = params.at(0).get_literal_val().get_line_number();
+    error_on_missing_params(line, 2, "Not enought params to subtract");
+    error_on_extra_params(line, 2, "Too many params to subtract");
 
     return DotLiteral(params.at(0).get_literal_val().get_int() - \
                       params.at(1).get_literal_val().get_int());
   }
   else if (std::string("mult").compare(identifier) == 0) {
-    error_on_missing_params(2, "Not enought params to multiply");
-    error_on_extra_params(2, "Too many params to mulitply, use mulitple calls instead");
+    int line = params.at(0).get_literal_val().get_line_number();
+    error_on_missing_params(line, 2, "Not enought params to multiply");
+    error_on_extra_params(line, 2, "Too many params to mulitply");
 
     return DotLiteral(params.at(0).get_literal_val().get_int() * \
                       params.at(1).get_literal_val().get_int());
   }
   else if (std::string("div").compare(identifier) == 0) {
-    error_on_missing_params(2, "Not enought params to divide");
-    error_on_extra_params(2, "Too many params to divide, use mulitple calls instead");
+    int line = params.at(0).get_literal_val().get_line_number();
+    error_on_missing_params(line, 2, "Not enought params to divide");
+    error_on_extra_params(line, 2, "Too many params to divide");
 
     if(params.at(1).get_literal_val().get_int() == 0) {
       print_statement_info(*this);
-      throw std::runtime_error("Division by zero is illegal");
+      std::string message = "Division by zero is illegal";
+      std::string line_str = std::to_string(line) + ":\n\t";
+      throw std::runtime_error(line_str + message);
     } 
 
     return DotLiteral(params.at(0).get_literal_val().get_int() / \
                       params.at(1).get_literal_val().get_int());
   }
   else if(std::string("input").compare(identifier) == 0) {
-    error_on_missing_params(1, "Not enough params");
-    error_on_extra_params(1, "Too many params");
+    int line = params.at(0).get_literal_val().get_line_number();
+    error_on_missing_params(line, 1, "Not enough params");
+    error_on_extra_params(line, 1, "Too many params");
     std::cout << params.at(0).get_literal_val().get_str();
     std::string buffer;
     std::getline(std::cin, buffer);
     return DotLiteral(buffer);
   }
   else if (std::string("get").compare(identifier) == 0) {
-    error_on_missing_params(1, "Need something to get");
-    error_on_extra_params(1, "Too many params");
+    int line = params.at(0).get_literal_val().get_line_number();
+    error_on_missing_params(line, 1, "Need something to get");
+    error_on_extra_params(line, 1, "Too many params");
     return scope->get_variable(params.at(0).get_literal_val().get_id().get_contents());
   }
   else if (std::string("set").compare(identifier) == 0) {
-    error_on_missing_params(1, "Can't set without a variable to set");
-    error_on_missing_params(2, "Need a value to set variable to");
-    error_on_extra_params(2, "Too many params");
-    scope->set_variable(params.at(0).get_literal_val().get_id().get_contents(), params.at(1).get_literal_val());
+    int line = params.at(0).get_literal_val().get_line_number();
+    error_on_missing_params(line, 1, "Can't set without a variable to set");
+    error_on_missing_params(line, 2, "Need a value to set variable to");
+    error_on_extra_params(line, 2, "Too many params");
+    scope->set_variable(params.at(0).get_literal_val().get_id().get_contents(), \
+                        params.at(1).get_literal_val());
   }
   else if (std::string("define").compare(identifier) == 0) {
-    
-    error_on_missing_params(params.at(0).get_line_number(), 1, "Can't define without a variable to define");
-    error_on_missing_params(2, "Needs a value to define");
-    error_on_extra_params(2, "Too many params");
+    int line = params.at(0).get_literal_val().get_line_number();
+    error_on_missing_params(line, 1, "Can't define without a variable to define");
+    error_on_missing_params(line, 2, "Needs a value to define");
+    error_on_extra_params(line, 2, "Too many params");
     scope->declare_variable(params.at(0).get_literal_val().get_id().get_contents(), params.at(1).get_literal_val());
   }
 
@@ -202,7 +214,7 @@ void DotStatement::error_on_missing_params(int line, int min, std::string msg) {
   print_statement_info(*this);
   std::cout << "\n";
   if (params.size() < min) {
-    throw std::runtime_error(std::string("?:\n\t") + msg);
+    throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);
   }
 }
 
@@ -210,7 +222,7 @@ void DotStatement::error_on_extra_params(int line, int max, std::string msg) {
   print_statement_info(*this);
   std::cout << "\n";
   if (params.size() > max) {
-    throw std::runtime_error(std::string("?:\n\t") + msg);
+    throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);
   }
 }
 
@@ -230,22 +242,22 @@ DotLiteral::DotLiteral() {
   // Default constructor does nothing
 }
 
-DotLiteral::DotLiteral(int val) {
+DotLiteral::DotLiteral(int line, int val) {
   type = TypeInt;
   int_value = val;
 }
 
-DotLiteral::DotLiteral(std::string val) {
+DotLiteral::DotLiteral(int line, std::string val) {
   type = TypeString;
   str_value = val;
 }
 
-DotLiteral::DotLiteral(DotTree val) {
+DotLiteral::DotLiteral(int line, DotTree val) {
   type = TypeFunc;
   func_value = val;
 }
 
-DotLiteral::DotLiteral(DotIdentifier val) {
+DotLiteral::DotLiteral(int line, DotIdentifier val) {
   type = TypeId;
   id_value = val;
 }

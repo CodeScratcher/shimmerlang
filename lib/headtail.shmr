@@ -1,0 +1,14 @@
+// car
+define(car, (list) {
+	return(array_at(list, 1))
+})
+
+// cdr
+define(cdr_backend, (list, num) {
+	if(not(eq(num, 1)), () {
+		return(array_at(list, num))
+	})
+})
+
+define(cdr, (list) {
+})

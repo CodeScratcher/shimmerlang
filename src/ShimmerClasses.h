@@ -105,8 +105,8 @@ class DotStatement {
     DotLiteral eval(ShimmerScope* scope);
 
   private:
-    void error_on_missing_params(int minimum, std::string message);
-    void error_on_extra_params(int maximum, std::string message);
+    void error_on_missing_params(int line, int min, std::string msg);
+    void error_on_extra_params(int line, int max, std::string msg);
 };
 
 class DotTree {
@@ -120,10 +120,10 @@ class DotTree {
 class DotLiteral {
   public:
     DotLiteral();
-    DotLiteral(int val);
-    DotLiteral(std::string val);
-    DotLiteral(DotTree val);
-    DotLiteral(DotIdentifier val);
+    DotLiteral(int line, int val);
+    DotLiteral(int line, std::string val);
+    DotLiteral(int line, DotTree val);
+    DotLiteral(int line, DotIdentifier val);
 
     int type;
     int int_value;
