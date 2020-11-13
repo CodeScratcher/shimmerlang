@@ -194,6 +194,7 @@ const char* lex_test() {
 
   if (!file) {
     std::cout << "Error while opening file.";
+    return "Error while opening file.";
   }
   else {
     std::stringstream buffer;

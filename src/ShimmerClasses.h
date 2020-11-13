@@ -119,11 +119,9 @@ class DotStatement {
 
     std::vector<ShimmerParam> get_params();
     ShimmerParam get_expr();
-    void get_identifier(); // TODO
 
     void set_params(std::vector<ShimmerParam> param);
     void set_expr(ShimmerParam exp);
-    void set_identifier(); // TODO
 
     DotLiteral eval(ShimmerScope* scope);
 

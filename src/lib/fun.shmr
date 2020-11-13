@@ -1,0 +1,6 @@
+define(foo, (){
+    foo
+})
+define(do_what_i_said, (){
+    print("No way!")
+})

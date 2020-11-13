@@ -16,7 +16,7 @@ DotToken::DotToken() {
 int DotToken::get_line_number() {
   return line_number;
 }
-DotIdentifier::DotIdentifier() {}
+
 std::string DotToken::get_contents() {
   return contents;
 }
@@ -87,6 +87,11 @@ DotString::DotString(int line, std::string content) {
   contents = content;
 }
 
+
+DotIdentifier::DotIdentifier() {
+  // Default constructor does nothing
+}
+
 DotIdentifier::DotIdentifier(int line, std::string content) {
   token_type = "DotIdentifier";
   contents = content;
@@ -109,20 +114,12 @@ ShimmerParam DotStatement::get_expr() {
   return expr;
 }
 
-void DotStatement::get_identifier() { // TODO
-
-}
-
 void DotStatement::set_params(std::vector<ShimmerParam> param) {
   params = param;
 }
 
 void DotStatement::set_expr(ShimmerParam expr) {
   this->expr = expr;
-}
-
-void DotStatement::set_identifier() { // TODO
-
 }
 
 DotLiteral DotStatement::eval(ShimmerScope* scope) {
