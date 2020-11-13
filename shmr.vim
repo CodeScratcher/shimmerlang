@@ -7,7 +7,7 @@ if exists("b:current_syntax")
   finish
 endif
 
-syn keyword shmrLanguageKeywords if ifElse define $
+syn keyword shmrLanguageKeywords if if_else define $
 syn match shmrNumber '\d\+'
 
 syn region shmrString start='"' end='"'

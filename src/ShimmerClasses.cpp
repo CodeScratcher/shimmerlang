@@ -6,7 +6,8 @@
 #include <unordered_map>
 
 #include "ShimmerClasses.h"
-#include "parser.h"
+// #include "parser.h"
+#include "tree_print.h"
 #include "eval.h"
 
 DotToken::DotToken() {
@@ -20,7 +21,7 @@ std::string DotToken::get_contents() {
   return contents;
 }
 
-int DotToken::get_parsed_contents(){
+int DotToken::get_parsed_contents() {
   return parsed_contents;
 }
 
@@ -95,8 +96,8 @@ DotStatement::DotStatement() {
   // Default constructor does nothing
 }
 
-DotStatement::DotStatement(std::string ident, std::vector<ShimmerParam> param) {
-  identifier = ident;
+DotStatement::DotStatement(ShimmerParam exp, std::vector<ShimmerParam> param) {
+  expr = exp;
   params = param;
 }
 
@@ -104,16 +105,24 @@ std::vector<ShimmerParam> DotStatement::get_params() {
   return params;
 }
 
-std::string DotStatement::get_identifier() {
-  return identifier;
+ShimmerParam DotStatement::get_expr() {
+  return expr;
+}
+
+void DotStatement::get_identifier() { // TODO
+
 }
 
 void DotStatement::set_params(std::vector<ShimmerParam> param) {
   params = param;
 }
 
-void DotStatement::set_identifier(std::string ident) {
-  identifier = ident;
+void DotStatement::set_expr(ShimmerParam expr) {
+  this->expr = expr;
+}
+
+void DotStatement::set_identifier() { // TODO
+
 }
 
 DotLiteral DotStatement::eval(ShimmerScope* scope) {
@@ -127,91 +136,13 @@ DotLiteral DotStatement::eval(ShimmerScope* scope) {
       params.at(i) = ShimmerParam(x);
     }
   }
-
-  if(std::string("help").compare(identifier) == 0) {
-    std::cout << "Read readme.md\n";
-  }
-  else if (std::string("print").compare(identifier) == 0) {
-    int line = params.at(0).get_literal_val().get_line_number();
-    error_on_missing_params(line, 1, "Not enough params to print");
-
-    std::cout << params.at(0).get_literal_val().get_str() << "\n";
-  }
-  else if (std::string("add").compare(identifier) == 0) {
-    int line = params.at(0).get_literal_val().get_line_number();
-    error_on_missing_params(line, 2, "Not enought params to add");
-    error_on_extra_params(line, 2, "Too many params to add");
-
-    return DotLiteral(params.at(0).get_literal_val().get_int() + \
-                      params.at(1).get_literal_val().get_int());
-  }
-  else if (std::string("sub").compare(identifier) == 0) {
-    int line = params.at(0).get_literal_val().get_line_number();
-    error_on_missing_params(line, 2, "Not enought params to subtract");
-    error_on_extra_params(line, 2, "Too many params to subtract");
-
-    return DotLiteral(params.at(0).get_literal_val().get_int() - \
-                      params.at(1).get_literal_val().get_int());
-  }
-  else if (std::string("mult").compare(identifier) == 0) {
-    int line = params.at(0).get_literal_val().get_line_number();
-    error_on_missing_params(line, 2, "Not enought params to multiply");
-    error_on_extra_params(line, 2, "Too many params to mulitply");
-
-    return DotLiteral(params.at(0).get_literal_val().get_int() * \
-                      params.at(1).get_literal_val().get_int());
-  }
-  else if (std::string("div").compare(identifier) == 0) {
-    int line = params.at(0).get_literal_val().get_line_number();
-    error_on_missing_params(line, 2, "Not enought params to divide");
-    error_on_extra_params(line, 2, "Too many params to divide");
-
-    if(params.at(1).get_literal_val().get_int() == 0) {
-      print_statement_info(*this);
-      std::string message = "Division by zero is illegal";
-      std::string line_str = std::to_string(line) + ":\n\t";
-      throw std::runtime_error(line_str + message);
-    } 
-
-    return DotLiteral(params.at(0).get_literal_val().get_int() / \
-                      params.at(1).get_literal_val().get_int());
-  }
-  else if(std::string("input").compare(identifier) == 0) {
-    int line = params.at(0).get_literal_val().get_line_number();
-    error_on_missing_params(line, 1, "Not enough params");
-    error_on_extra_params(line, 1, "Too many params");
-    std::cout << params.at(0).get_literal_val().get_str();
-    std::string buffer;
-    std::getline(std::cin, buffer);
-    return DotLiteral(buffer);
-  }
-  else if (std::string("get").compare(identifier) == 0) {
-    int line = params.at(0).get_literal_val().get_line_number();
-    error_on_missing_params(line, 1, "Need something to get");
-    error_on_extra_params(line, 1, "Too many params");
-    return scope->get_variable(params.at(0).get_literal_val().get_id().get_contents());
-  }
-  else if (std::string("set").compare(identifier) == 0) {
-    int line = params.at(0).get_literal_val().get_line_number();
-    error_on_missing_params(line, 1, "Can't set without a variable to set");
-    error_on_missing_params(line, 2, "Need a value to set variable to");
-    error_on_extra_params(line, 2, "Too many params");
-    scope->set_variable(params.at(0).get_literal_val().get_id().get_contents(), \
-                        params.at(1).get_literal_val());
-  }
-  else if (std::string("define").compare(identifier) == 0) {
-    int line = params.at(0).get_literal_val().get_line_number();
-    error_on_missing_params(line, 1, "Can't define without a variable to define");
-    error_on_missing_params(line, 2, "Needs a value to define");
-    error_on_extra_params(line, 2, "Too many params");
-    scope->declare_variable(params.at(0).get_literal_val().get_id().get_contents(), params.at(1).get_literal_val());
-  }
-
-  return DotLiteral(0);
+	/* TODO: Create evaluator inc. functions */
+  return DotLiteral(-1, 0); // line is -1 because we can't figure out the line number
 }
 
 void DotStatement::error_on_missing_params(int line, int min, std::string msg) {
-  print_statement_info(*this);
+  //print_statement_info(*this);
+  pretty_print(*this, " ");
   std::cout << "\n";
   if (params.size() < min) {
     throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);
@@ -219,7 +150,8 @@ void DotStatement::error_on_missing_params(int line, int min, std::string msg) {
 }
 
 void DotStatement::error_on_extra_params(int line, int max, std::string msg) {
-  print_statement_info(*this);
+  //print_statement_info(*this);
+  pretty_print(*this, " ");
   std::cout << "\n";
   if (params.size() > max) {
     throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);
@@ -292,14 +224,18 @@ DotIdentifier DotLiteral::get_id() {
   return id_value;
 }
 
-ShimmerParam::ShimmerParam(DotLiteral literal_value) {
-  param_type = LITERAL;
-  literal_val = literal_value;
+ShimmerParam::ShimmerParam() {
+  // Default constructor does nothing
 }
 
-ShimmerParam::ShimmerParam(DotStatement statement_value) {
+ShimmerParam::ShimmerParam(DotLiteral& literal_value) {
+  param_type = LITERAL;
+  literal_val = &literal_value;
+}
+
+ShimmerParam::ShimmerParam(DotStatement& statement_value) {
   param_type = STATEMENT;
-  statement_val = statement_value;
+  statement_val = &statement_value;
 }
 
 ShimmerParam::ShimmerParam(DotIdentifier identifier_value) {
@@ -316,11 +252,11 @@ bool ShimmerParam::is_of_type(ParamType type) {
 }
 
 DotLiteral ShimmerParam::get_literal_val() {
-  return literal_val;
+  return *literal_val;
 }
 
 DotStatement ShimmerParam::get_statement_val() {
-  return statement_val;
+  return *statement_val;
 }
 
 DotIdentifier ShimmerParam::get_identifier_val() {

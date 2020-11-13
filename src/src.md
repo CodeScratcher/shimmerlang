@@ -4,6 +4,7 @@ for the Shimmer programming language.
 
 ## eval.cpp
 The implementation of the evaluator which takes a node tree and runs it.
+**NOTE: the actual work happens in ShimmerClasses.cpp, in the function DotStatement::eval**
 
 ## eval.h
 The declarations for the evaluator.

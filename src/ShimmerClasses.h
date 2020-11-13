@@ -88,19 +88,42 @@ class DotIdentifier : public DotToken {
     DotIdentifier();
 };
 
+class ShimmerParam {
+  public:
+		ShimmerParam();
+    ShimmerParam(DotLiteral& literal_value);
+    ShimmerParam(DotStatement& statement_value);
+    ShimmerParam(DotIdentifier identifier_value);
+
+    ParamType param_type = NONETYPE;
+    ParamType get_param_type();
+    bool is_of_type(ParamType type);
+
+    DotLiteral*  literal_val;
+    DotStatement* statement_val;
+    DotIdentifier identifier_val;
+
+    DotLiteral get_literal_val();
+    DotStatement get_statement_val();
+    DotIdentifier get_identifier_val();
+};
+
 class DotStatement {
   public:
     DotStatement();
-    DotStatement(std::string ident, std::vector<ShimmerParam> param);
+    DotStatement(ShimmerParam exp, std::vector<ShimmerParam> param);
 
     std::vector<ShimmerParam> params;
-    std::string identifier;
+    ShimmerParam expr;
+    // TODO: add identifier value
 
     std::vector<ShimmerParam> get_params();
-    std::string get_identifier();
+    ShimmerParam get_expr();
+    void get_identifier(); // TODO
 
     void set_params(std::vector<ShimmerParam> param);
-    void set_identifier(std::string ident);
+    void set_expr(ShimmerParam exp);
+    void set_identifier(); // TODO
 
     DotLiteral eval(ShimmerScope* scope);
 
@@ -119,11 +142,11 @@ class DotTree {
 
 class DotLiteral {
   public:
-    DotLiteral();
-    DotLiteral(int line, int val);
-    DotLiteral(int line, std::string val);
-    DotLiteral(int line, DotTree val);
-    DotLiteral(int line, DotIdentifier val);
+    explicit DotLiteral();
+    explicit DotLiteral(int line, int val);
+    explicit DotLiteral(int line, std::string val);
+    explicit DotLiteral(int line, DotTree val);
+    explicit DotLiteral(int line, DotIdentifier val);
 
     int type;
     int int_value;
@@ -140,24 +163,6 @@ class DotLiteral {
     DotIdentifier get_id();
 };
 
-class ShimmerParam {
-  public:
-    ShimmerParam(DotLiteral literal_value);
-    ShimmerParam(DotStatement statement_value);
-    ShimmerParam(DotIdentifier identifier_value);
-
-    ParamType param_type = NONETYPE;
-    ParamType get_param_type();
-    bool is_of_type(ParamType type);
-
-    DotLiteral literal_val;
-    DotStatement statement_val;
-    DotIdentifier identifier_val;
-
-    DotLiteral get_literal_val();
-    DotStatement get_statement_val();
-    DotIdentifier get_identifier_val();
-};
 
 class ShimmerScope {
   public:
