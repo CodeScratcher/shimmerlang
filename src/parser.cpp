@@ -17,8 +17,9 @@ DotTree parse(std::vector<DotToken> tokens) {
   bool is_id_token = false;
   std::vector<ShimmerParam> params;
   std::vector<DotToken> tokens_for_recursion;
-
+  lex_to_str(tokens);
   for (int i = 0; i < tokens.size(); i++) {
+    
     DotToken this_token = tokens.at(i);
     //DotToken next_token = tokens.at(i+1);
 
@@ -58,7 +59,7 @@ DotTree parse(std::vector<DotToken> tokens) {
       } 
     }
     else if (this_token.is_of_type("DotIdentifier") && in_params) {
-      if (tokens.at(i+1).is_of_type("DotLParen") == 0) {///////////next_token
+      if (tokens.at(i+1).is_of_type("DotLParen")) {///////////next_token
         if (separated) {
           int sub_expr_layer = 0;
           int j = i;
@@ -88,6 +89,7 @@ DotTree parse(std::vector<DotToken> tokens) {
 					tokens_for_recursion.clear();
         }
         else {
+          std::cout << "Location #1\n";
           std::string message = "Missing a comma at token: " + this_token.get_contents();
           throw_error(message, this_token.get_line_number());
         }
@@ -100,6 +102,7 @@ DotTree parse(std::vector<DotToken> tokens) {
           separated = false;
         }
         else {
+          std::cout << "Location #2\n";
           std::string message = "Missing a comma at token: " + this_token.get_contents();
           throw_error(message, this_token.get_line_number());
         }
@@ -109,7 +112,7 @@ DotTree parse(std::vector<DotToken> tokens) {
       if (separated) {
         int line = this_token.get_line_number();
 
-        if (tokens.at(i+1).is_of_type("DotLParen")) {////////////////next_token
+        if (tokens.at(i+1).is_of_type("DotLParen")){////////////////next_token
           std::string message = "Int cannot be called: " + this_token.get_contents();
           throw_error(message, this_token.get_line_number());
         }
@@ -120,6 +123,7 @@ DotTree parse(std::vector<DotToken> tokens) {
         separated = false;
       }
       else {
+        std::cout << "Location #3\n";
         std::string message = "Missing a comma at token: " + this_token.get_contents();
         throw_error(message, this_token.get_line_number());
       }
@@ -139,16 +143,19 @@ DotTree parse(std::vector<DotToken> tokens) {
         separated = false;
       }
       else {
+        std::cout << "Location #4\n";
         std::string message = "Missing a comma at token: " + this_token.get_contents();
         throw_error(message, this_token.get_line_number());
       }
     }
     else if (this_token.is_of_type("DotComma")) {
+      std::cout << "Comma\n";
       separated = true;
     }
   }
+
   if (in_params) {
-    throw_error("Missing closing parenthesis.", "last");
+    throw_error("Missing closing parenthesis.", "end");
   }
   DotTree toReturn = DotTree(statements); 
   return toReturn;

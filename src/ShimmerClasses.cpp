@@ -123,6 +123,7 @@ void DotStatement::set_expr(ShimmerParam expr) {
 }
 
 DotLiteral DotStatement::eval(ShimmerScope* scope) {
+  pretty_print(*this);
   for (int i = 0; i < params.size(); i++) {
     if (params.at(i).is_of_type(STATEMENT)) {
       DotLiteral x = params.at(i).get_statement_val().eval(scope);
@@ -139,7 +140,7 @@ DotLiteral DotStatement::eval(ShimmerScope* scope) {
 
 void DotStatement::error_on_missing_params(int line, int min, std::string msg) {
   //print_statement_info(*this);
-  pretty_print(*this, " ");
+  pretty_print(*this);
   std::cout << "\n";
   if (params.size() < min) {
     throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);
@@ -148,7 +149,7 @@ void DotStatement::error_on_missing_params(int line, int min, std::string msg) {
 
 void DotStatement::error_on_extra_params(int line, int max, std::string msg) {
   //print_statement_info(*this);
-  pretty_print(*this, " ");
+  pretty_print(*this);
   std::cout << "\n";
   if (params.size() > max) {
     throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);

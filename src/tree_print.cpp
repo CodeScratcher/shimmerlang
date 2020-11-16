@@ -83,48 +83,56 @@
  *
 **/
 
-void pretty_print(DotTree tree, std::string prefix) {
+void pretty_print(DotTree tree) {
   if (tree.tree.size() > 0) {
     for (DotStatement statement : tree.get_tree()) {
-      pretty_print(statement, prefix);
+      for (ShimmerParam param : statement.get_params()) {
+        pretty_print(param);
+      }
     }
   }
 }
 
-void pretty_print(DotStatement sub_tree, std::string prefix) {
-  if (sub_tree.get_params().size() > 0) {
-    for (ShimmerParam param : sub_tree.get_params()) {
-      pretty_print(param, prefix);
-    }
+void pretty_print(DotStatement statement, int indent) {
+  std::cout << "Now printing a Statement\n";
+  for (ShimmerParam param : statement.get_params()) {
+    pretty_print(param, indent);
   }
 }
 
-void pretty_print(ShimmerParam sub_tree, std::string prefix) {
-    std::cout << prefix << " |________ ";
+void pretty_print(ShimmerParam param, int indent) {
+  std::cout << "Now printing a Param\n";
+  for (int i = 0; i < indent; i++) {
+    std::cout << "  ";
+  }
 
-    switch (sub_tree.get_param_type()) {
-      case NONETYPE:
-        std::cout << "<param has no type!>\n";
-        break;
+  switch(param.get_param_type()) {
+    case NONETYPE:
+      std::cout << "<untyped param>\n";
+      break;
 
-      case LITERAL:
-        pretty_print(sub_tree.get_literal_val());
-        break;
+    case LITERAL:
+      std::cout << "There was a LITERAL\n";
+      pretty_print(param.get_literal_val());
+      break;
 
-      case STATEMENT:
-        pretty_print(sub_tree.get_statement_val(), prefix + "           ");
-        break;
+    case STATEMENT:
+      std::cout << "There was a STATEMENT\n";
+      pretty_print(param.get_statement_val(), indent);
+      break;
 
-      case IDENTIFIER:
-        std::cout << sub_tree.get_identifier_val().get_contents() << "\n";
-        break;
+    case IDENTIFIER:
+      std::cout << "There was a IDENTIFIER\n";
+      std::cout << param.get_identifier_val().get_contents() << "\n";
+      break;
 
-      default:
-        throw std::runtime_error("Illegal param type!");
-    }
+    default:
+      throw std::runtime_error("Illegal param type!");
+  }
 }
 
 void pretty_print(DotLiteral lit) {
+  std::cout << "Now printing a Literal\n";
   int literal_type = lit.get_type();
 
   switch (literal_type) {
