@@ -10,57 +10,78 @@
 #include "ShimmerClasses.h"
 
 DotTree parse(std::vector<DotToken> tokens) {
+  Expectation expectation = VALUE;
   std::vector<DotStatement> statements;
   DotStatement to_add;
-  bool in_params = false;
-  bool separated = true;
-  bool is_id_token = false;
-  std::vector<ShimmerParam> params;
-  std::vector<DotToken> tokens_for_recursion;
-  lex_to_str(tokens);
-  for (int i = 0; i < tokens.size(); i++) {
-    
-    DotToken this_token = tokens.at(i);
-    //DotToken next_token = tokens.at(i+1);
+  DotIdentifier id;
+  std::vector<DotParam> params;
+  for (int this_token_id = 0; this_token_id < tokens.size(); this_token_id++) {
+    DotToken this_token = tokens.at(this_token_id);
 
-    if (this_token.is_of_type("DotIdentifier") && !in_params) {
-      DotIdentifier x(this_token.get_line_number(), this_token.get_contents());
-      ShimmerParam y(x);
-      to_add.set_expr(y);
-    }
-    else if (this_token.is_of_type("DotLParen") && !in_params) {
-      in_params = true;
-    }
-    else if (this_token.is_of_type("DotRParen")) {
-      if (!in_params) {
-        throw_error("Unexpected right parenthesis.", this_token.get_line_number());
-      }
-
-      in_params = false;
-      separated = true;
-      to_add.set_params(params);
-      params.clear();
-      statements.push_back(to_add);
-			to_add = DotStatement();
-    }
-    else if (this_token.is_of_type("DotIDLiteralSign")) {
-      is_id_token = true;
-    }
-    else if (is_id_token) {
+    if (expectation == VALUE) {
       if (this_token.is_of_type("DotIdentifier")) {
-        DotIdentifier x(this_token.get_line_number(), this_token.get_contents());
-        DotLiteral y(this_token.get_line_number(), x);
-        params.push_back(ShimmerParam(y));
-        is_id_token = false;
+        expectation = VALUE_OR_PARENS;
+        id = this_token;
+      }
+      else if (this_token.is_of_type("DotInt")) {
+        // Todo: Add straight value support (useful for functions)
+      }
+      else if (this_token.is_of_type("DotString")) {
+        // Todo: Add straight value support (useful for functions)
       }
       else {
-        std::string message = "Expected identifier but got: " + this_token.get_contents();
+        std::string message = "Unexpected token: " + this_token.get_contents();
         throw_error(message, this_token.get_line_number());
-      } 
+      }
     }
-    else if (this_token.is_of_type("DotIdentifier") && in_params) {
-      if (tokens.at(i+1).is_of_type("DotLParen")) {///////////next_token
-        if (separated) {
+    else if (expectation == VALUE_OR_PARENS) {
+      if (this_token.is_of_type("DotLParen")) {
+        expectation = PARAM;
+        to_add.set_expr(ShimmerParam(id));
+      }
+      else if (this_token.is_of_type("DotInt")) {
+        // Todo: Add straight value support (useful for functions)
+      }
+      else if (this_token.is_of_type("DotString")) {
+        // Todo: Add straight value support (useful for functions)
+      }
+      else {
+        std::string message = "Unexpected token: " + this_token.get_contents();
+        throw_error(message, this_token.get_line_number());
+      }
+    }
+    else if (expectation == COMMA) {
+      if (!this_token.is_of_type("DotComma")) {
+        std::string message = "Unexpected token: " + this_token.get_contents();
+        throw_error(message, this_token.get_line_number());
+      }
+    }
+    else if (expectation == PARAM) {
+      if (this_token.is_of_type("DotInt")) {
+        DotLiteral lit(this_token.get_parsed_contents(), this_token.get_line_number());
+        params.push_back(ShimmerParam(lit));
+        expectation = COMMA;
+      }
+      else if (this_token.is_of_type("DotString")) {
+        params.push_back(ShimmerParam(DotLiteral(this_token.get_contents())));
+        expectation = COMMA;
+      }
+      else if (this_token.is_of_type("DotRParen")) {
+        to_add.set_params(params);
+        statements.push_back(to_add);
+        params.clear();
+        expectation = VALUE;
+        to_add = DotStatement();
+      }
+    }
+    std::cout << "Now on iteration #" << std::to_string(this_token_id) << " of for loop.\n";
+    std::cout << "This token's type: " << this_token.get_token_type() << "\n";
+    std::cout << "This token's contents: " << this_token.get_contents() << "\n\n";
+  }
+}
+/*
+Old code for look ahead
+if (separated) {
           int sub_expr_layer = 0;
           int j = i;
           while(true) {
@@ -87,80 +108,7 @@ DotTree parse(std::vector<DotToken> tokens) {
           ShimmerParam param = ShimmerParam(to_push);
           params.push_back(param);
 					tokens_for_recursion.clear();
-        }
-        else {
-          std::cout << "Location #1\n";
-          std::string message = "Missing a comma at token: " + this_token.get_contents();
-          throw_error(message, this_token.get_line_number());
-        }
-      }
-      else {
-        if (separated) {
-          DotIdentifier x(this_token.get_line_number(), this_token.get_contents());
-          ShimmerParam y(x);
-          params.push_back(y);
-          separated = false;
-        }
-        else {
-          std::cout << "Location #2\n";
-          std::string message = "Missing a comma at token: " + this_token.get_contents();
-          throw_error(message, this_token.get_line_number());
-        }
-      }
-    }
-    else if (this_token.is_of_type("DotInt")) {
-      if (separated) {
-        int line = this_token.get_line_number();
-
-        if (tokens.at(i+1).is_of_type("DotLParen")){////////////////next_token
-          std::string message = "Int cannot be called: " + this_token.get_contents();
-          throw_error(message, this_token.get_line_number());
-        }
-
-        DotLiteral x(line, this_token.get_parsed_contents());
-        ShimmerParam y(x);
-        params.push_back(y);
-        separated = false;
-      }
-      else {
-        std::cout << "Location #3\n";
-        std::string message = "Missing a comma at token: " + this_token.get_contents();
-        throw_error(message, this_token.get_line_number());
-      }
-    }
-    else if (this_token.is_of_type("DotString")) {
-      if (separated) {
-        int line = this_token.get_line_number();
-
-        if (tokens.at(i+1).is_of_type("DotLParen")) {//////////////next_token
-          std::string message = "String cannot be called: " + this_token.get_contents();
-          throw_error(message, this_token.get_line_number());
-        }
-
-        DotLiteral x(line, this_token.get_contents());
-        ShimmerParam y(x);
-        params.push_back(y);
-        separated = false;
-      }
-      else {
-        std::cout << "Location #4\n";
-        std::string message = "Missing a comma at token: " + this_token.get_contents();
-        throw_error(message, this_token.get_line_number());
-      }
-    }
-    else if (this_token.is_of_type("DotComma")) {
-      std::cout << "Comma\n";
-      separated = true;
-    }
-  }
-
-  if (in_params) {
-    throw_error("Missing closing parenthesis.", "end");
-  }
-  DotTree toReturn = DotTree(statements); 
-  return toReturn;
-}
-
+*/
 void throw_error(std::string msg, std::string line) {
   std::string line_str = line + ":\n\t";
   throw std::runtime_error(line_str + msg);
