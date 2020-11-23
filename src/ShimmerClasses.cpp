@@ -13,8 +13,9 @@
 DotToken::DotToken() {
   // Default constructor does nothing
 }
-int DotToken::get_line_number() {
-  return line_number;
+
+int DotToken::get_line() {
+  return line;
 }
 
 std::string DotToken::get_contents() {
@@ -33,56 +34,60 @@ bool DotToken::is_of_type(std::string type) {
   return token_type.compare(type) == 0;
 }
 
+bool DotToken::not_of_type(std::string type) {
+  return token_type.compare(type) != 0;
+}
+
 DotLParen::DotLParen(int line) {
-  line_number = line;
+  this->line = line;
   token_type = "DotLParen";
   // DotLParen will always be a '('
   contents = "(";
 }
 
 DotRParen::DotRParen(int line) {
-  line_number = line;
+  this->line = line;
   token_type = "DotRParen";
   // DotRParen will always be a ')'
   contents = ")";
 }
 
 DotLBrace::DotLBrace(int line) {
-  line_number = line;
+  this->line = line;
   token_type = "DotLBrace";
   // DotLBrace will always be a '{'
   contents = "{";
 }
 
 DotRBrace::DotRBrace(int line) {
-  line_number = line;
+  this->line = line;
   token_type = "DotRBrace";
   // DotRBrace will always be a '}'
   contents = "}";
 }
 
 DotIDLiteralSign::DotIDLiteralSign(int line) {
-  line_number = line;
+  this->line = line;
   token_type = "DotIDLiteralSign";
   contents = "$";
 }
 
 DotComma::DotComma(int line) {
-  line_number = line;
+  this->line = line;
   token_type = "DotComma";
   // DotComma will always be a ','
   contents = ",";
 }
 
 DotInt::DotInt(int line, std::string content) {
-  line_number = line;
+  this->line = line;
   token_type = "DotInt";
   contents = content;
   parsed_contents = std::stoi(content);
 }
 
 DotString::DotString(int line, std::string content) {
-  line_number = line;
+  this->line = line;
   token_type = "DotString";
   contents = content;
 }

@@ -3,6 +3,7 @@
 #include "ShimmerClasses.h"
 
 typedef enum {NONE, ID, INT, STR} State;
+std::string str_repr(State state);
 
 std::vector<DotToken> lex(std::string str);
 DotToken make_token(State now_in, std::string current_token_contents, int line);

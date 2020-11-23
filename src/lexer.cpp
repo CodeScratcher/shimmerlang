@@ -7,6 +7,7 @@
 #include <sstream>
 #endif
 #include "ShimmerClasses.h"
+#include "errors.h"
 #include "text_effects.h"
 #include "lexer.h"
 
@@ -133,25 +134,21 @@ std::vector<DotToken> lex(std::string str) {
       to_return.push_back(this_token);
     }
     else {
-      std::string suspect = "this shouldn't be printed; there was an internal error";
+      std::string suspect;
 
       if (ch < ' ') {
-        suspect = "char code DEC " + std::to_string((int) ch);
+        suspect = "char code in DEC: \"" + std::to_string((int) ch) + "\"";
       }
       else {
-        suspect = std::string(1, ch);
+        suspect = "\"" + std::string(1, ch) + "\"";
       }
 
-      std::string message = "Unknown or unexpected character <" + suspect + ">";
-      std::string line = std::to_string(current_line) + ":\n\t";
-      throw std::runtime_error(line + message);
+      throw_error("Unknown or unexpected character: ", suspect, current_line);
     }
   }
 
   if (now_in == STR) {
-      std::string message = "Unclosed string: " + current_token_contents;
-      std::string line = std::to_string(current_line) + ":\n\t";
-      throw std::runtime_error(line + message);
+      throw_error("Unclosed string: ", current_token_contents, current_line);
   }
 
   return to_return;
@@ -162,7 +159,26 @@ DotToken make_token(State now_in, std::string current_token_contents, int curren
   if(now_in == INT)  return DotInt(current_line, current_token_contents);
   if(now_in == ID)   return DotIdentifier(current_line, current_token_contents);
   if(now_in == NONE) return DotString(current_line, "");
-  else throw std::runtime_error("Internal error: Illegal state: " + std::to_string(now_in));
+  throw_error("Internal error: Illegal state: ", str_repr(now_in), current_line);
+}
+
+std::string str_repr(State state) {
+  switch (state) {
+    case NONE:
+      return "NONE";
+
+    case ID:
+      return "ID";
+
+    case INT:
+      return "INT";
+
+    case STR:
+      return "STR";
+
+    default:
+      throw_error("Internal error: Illegal state: ", std::to_string(state), "unknown");
+  }
 }
 
 #ifdef DEBUG

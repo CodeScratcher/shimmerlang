@@ -1,2 +1,1 @@
-print("Hello there.
-You good?")
+hi(add(3, 4))

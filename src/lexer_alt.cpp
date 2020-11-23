@@ -3,6 +3,7 @@
 #include <vector>
 #include <regex>
 #include "ShimmerClasses.h"
+#include "errors.h"
 #include "text_effects.h"
 #include "lexer_alt.h"
 

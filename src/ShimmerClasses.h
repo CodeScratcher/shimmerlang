@@ -28,17 +28,18 @@ typedef std::unordered_map<std::string, DotLiteral> Scope;
 class DotToken {
   public:
     DotToken();
-    int line_number;
+    int line;
     std::string contents;
     int parsed_contents;
     std::string token_type;
 
-    int get_line_number();
+    int get_line();
     std::string get_contents();
     int get_parsed_contents();
     std::string get_token_type();
 
     bool is_of_type(std::string type);
+    bool not_of_type(std::string type);
     std::string to_string();
 };
 

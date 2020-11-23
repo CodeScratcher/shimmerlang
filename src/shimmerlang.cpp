@@ -59,7 +59,9 @@ void interpret_shell() {
 
 int execute(std::string str, std::string loc) {
   try {
-    eval(parse(lex(str)));
+    Parser parser;
+    DotTree parsed = parser.parse(lex(str));
+    eval(parsed);
     return true;
   }
   catch (std::runtime_error& err) {
