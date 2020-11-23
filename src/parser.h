@@ -2,6 +2,7 @@
 #include "ShimmerClasses.h"
 
 typedef enum {
+<<<<<<< HEAD
   NAME_OR_LITERAL, PARAM, COMMA, VAR_VALUE, FURTHER_FUNC
 } Expectation;
 
@@ -30,6 +31,14 @@ class Parser {
     void further_func_expectation();
     void param_expectation();
 };
+=======
+  VALUE, PARAM, COMMA, VALUE_OR_PARENS
+} Expectation;
+
+DotTree parse(std::vector<DotToken>);
+void throw_error(std::string msg, std::string line);
+void throw_error(std::string msg, int line);
+>>>>>>> origin/master
 
 void print_debug_info(DotTree x);
 const char* param_recursive_str(ShimmerParam to_convert);
