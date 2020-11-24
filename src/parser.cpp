@@ -10,7 +10,6 @@
 #include "lexer.h"
 #include "ShimmerClasses.h"
 
-<<<<<<< HEAD
 Parser::Parser() {
   expectation = NAME_OR_LITERAL;
 }
@@ -152,80 +151,7 @@ void Parser::param_expectation() {
   }
 }
 
-=======
-DotTree parse(std::vector<DotToken> tokens) {
-  Expectation expectation = VALUE;
-  std::vector<DotStatement> statements;
-  DotStatement to_add;
-  DotIdentifier id;
-  std::vector<DotParam> params;
-  for (int this_token_id = 0; this_token_id < tokens.size(); this_token_id++) {
-    DotToken this_token = tokens.at(this_token_id);
-
-    if (expectation == VALUE) {
-      if (this_token.is_of_type("DotIdentifier")) {
-        expectation = VALUE_OR_PARENS;
-        id = this_token;
-      }
-      else if (this_token.is_of_type("DotInt")) {
-        // Todo: Add straight value support (useful for functions)
-      }
-      else if (this_token.is_of_type("DotString")) {
-        // Todo: Add straight value support (useful for functions)
-      }
-      else {
-        std::string message = "Unexpected token: " + this_token.get_contents();
-        throw_error(message, this_token.get_line_number());
-      }
-    }
-    else if (expectation == VALUE_OR_PARENS) {
-      if (this_token.is_of_type("DotLParen")) {
-        expectation = PARAM;
-        to_add.set_expr(ShimmerParam(id));
-      }
-      else if (this_token.is_of_type("DotInt")) {
-        // Todo: Add straight value support (useful for functions)
-      }
-      else if (this_token.is_of_type("DotString")) {
-        // Todo: Add straight value support (useful for functions)
-      }
-      else {
-        std::string message = "Unexpected token: " + this_token.get_contents();
-        throw_error(message, this_token.get_line_number());
-      }
-    }
-    else if (expectation == COMMA) {
-      if (!this_token.is_of_type("DotComma")) {
-        std::string message = "Unexpected token: " + this_token.get_contents();
-        throw_error(message, this_token.get_line_number());
-      }
-    }
-    else if (expectation == PARAM) {
-      if (this_token.is_of_type("DotInt")) {
-        DotLiteral lit(this_token.get_parsed_contents(), this_token.get_line_number());
-        params.push_back(ShimmerParam(lit));
-        expectation = COMMA;
-      }
-      else if (this_token.is_of_type("DotString")) {
-        params.push_back(ShimmerParam(DotLiteral(this_token.get_contents())));
-        expectation = COMMA;
-      }
-      else if (this_token.is_of_type("DotRParen")) {
-        to_add.set_params(params);
-        statements.push_back(to_add);
-        params.clear();
-        expectation = VALUE;
-        to_add = DotStatement();
-      }
-    }
-    std::cout << "Now on iteration #" << std::to_string(this_token_id) << " of for loop.\n";
-    std::cout << "This token's type: " << this_token.get_token_type() << "\n";
-    std::cout << "This token's contents: " << this_token.get_contents() << "\n\n";
-  }
-}
->>>>>>> origin/master
-/*
-Old code for look ahead
+/* Old code for look ahead
 if (separated) {
           int sub_expr_layer = 0;
           int j = i;
@@ -254,18 +180,7 @@ if (separated) {
           params.push_back(param);
 					tokens_for_recursion.clear();
 */
-<<<<<<< HEAD
-=======
-void throw_error(std::string msg, std::string line) {
-  std::string line_str = line + ":\n\t";
-  throw std::runtime_error(line_str + msg);
-}
 
-void throw_error(std::string msg, int line) {
-  std::string line_str = std::to_string(line) + ":\n\t";
-  throw std::runtime_error(line_str + msg);
-}
->>>>>>> origin/master
 
 const char* param_recursive_str(ShimmerParam to_convert) {
   if (to_convert.get_param_type() == LITERAL) {
