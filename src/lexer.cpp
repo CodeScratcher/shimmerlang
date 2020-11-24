@@ -185,20 +185,37 @@ std::string str_repr(State state) {
 
 const char* lex_to_str(std::vector<DotToken> lexed) {
   std::string str;
-  std::cout << "       " << BOLD("Name") << "\t\t" << BOLD("Type \n");
+  std::cout << BOLD("       Name\t\t\tType\t\t\tLine\n");
+
   for(DotToken i : lexed) {
     std::string token_contents = i.get_contents();
     std::string token_type = i.get_token_type();
-    int token_length = token_contents.length();
+    int token_line = i.get_line();
 
-    std::string padding = "\t";
+    int token_contents_length = token_contents.length();
+    int token_type_length = token_type.length();
+
+    std::string token_line_str = std::to_string(token_line);
+
     str.append(token_contents);
 
-    if (token_length < 4) {
-      padding = "\t\t";
+    int num_of_tabs;
+
+    std::cout << "\t\t" << token_contents;
+
+    num_of_tabs = -((token_contents_length + 8) / 4) + 6;
+    for (int i = 0; i < num_of_tabs; i++) {
+      std::cout << "\t";
     }
 
-    std::cout << "Found: " << token_contents << padding << token_type << "\n";
+    std::cout << token_type;
+
+    num_of_tabs = -((token_type_length + 8) / 4) + 6;
+    for (int i = 0; i < num_of_tabs; i++) {
+      std::cout << "\t";
+    }
+
+    std::cout << token_line_str << "\n";
   }
 
   return str.c_str();
