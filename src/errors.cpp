@@ -1,10 +1,6 @@
 #include <stdexcept>
 #include "errors.h"
 
-typedef enum {
-  TODO // TODO
-} Error;
-
 void throw_error(std::string msg, std::string line) {
   throw std::runtime_error(line + ":\n\t" + msg);
 }
