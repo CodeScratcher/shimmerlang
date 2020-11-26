@@ -1,5 +1,38 @@
 #include <stdexcept>
+#include <string>
 #include "errors.h"
+
+BaseError::BaseError(std::string what_, std::string line_) {
+  m_line = std::stoi(line_);
+  m_what = line_ + ":\n\t" + what_;
+}
+
+BaseError::BaseError(std::string what_, int line_) {
+  m_line = line_;
+  m_what = std::to_string(line_) +  + ":\n\t" + what_;
+}
+
+BaseError::BaseError(std::string what1, std::string what2, std::string line_) {
+  m_line = std::stoi(line_);
+  m_what = line_ + ":\n\t" + what1 + what2;
+}
+
+BaseError::BaseError(std::string what1, std::string what2, int line_) {
+  m_line = line_;
+  m_what = std::to_string(line_) + what1 + what2;
+}
+
+std::string BaseError::what() {
+  return m_what;
+}
+
+std::string BaseError::line_as_string() {
+  return std::to_string(m_line);
+}
+
+int BaseError::line() {
+  return m_line;
+}
 
 void throw_error(std::string msg, std::string line) {
   throw std::runtime_error(line + ":\n\t" + msg);

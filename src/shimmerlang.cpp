@@ -7,15 +7,17 @@
 #include "lexer.h"
 #include "parser.h"
 #include "eval.h"
-#include <cstring>
-std::vector<DotToken> tokens;
 
 bool interpret_program(char* program_name);
 void interpret_shell();
 
 int execute(std::string str, std::string loc);
+
 int main(int argc, char* argv[]) {
-  std::string message = strcat(strcat("Shimmerlang version", NUMBER), "Licensed under the MIT license. \n");
+  std::string message = "Shimmerlang version " + std::to_string(NUMBER) + \
+                        "Licensed under the MIT license.\n";
+  //std::string message = strcat(strcat("Shimmerlang version", NUMBER), "Licensed under the MIT license. \n");
+
   if (argc > 1) {
     if (!interpret_program(argv[1])) {
       return 1;
