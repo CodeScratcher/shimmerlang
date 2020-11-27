@@ -14,6 +14,12 @@ class BaseError : public std::runtime_error {
     int m_line;
     int line();
     std::string line_as_string();
+
+  private:
+    std::string construct_helper(std::string what_, std::string line_);
+    std::string construct_helper(std::string what_, int line_);
+    std::string construct_helper(std::string what1, std::string what2, std::string line_);
+    std::string construct_helper(std::string what1, std::string what2, int line_);
 };
 
 class KeyboardInterruptError : public BaseError {};
