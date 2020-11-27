@@ -15,34 +15,35 @@ if [[ $answer == "c" ]] || [[ $answer == "C" ]]; then
 	make
   #g++ -Isrc -c -Wall -Werror -fpic src/DotClasses.cpp -o dot.o
   #g++ -shared dot.o -o build/libdot.so
-fi
 
-if [[ $answer == "d" ]]; then
+elif [[ $answer == "d" ]]; then
   gdb build/shimmerlang
-fi
 
-if [[ $answer == "D" ]]; then
+elif [[ $answer == "D" ]]; then
   if make; then
     gdb build/shimmerlang
   fi
-fi
 
-if [[ $answer == "t" ]]; then
-	build/shimmerlang test.shmr;
-fi
+else
+  read -p "Which version? " ver
 
-if [[ $answer == "T" ]]; then
-  if make; then
-    build/shimmerlang test.shmr;
+  if [[ $answer == "t" ]]; then
+    build/shimmerlang $ver test.shmr;
   fi
-fi
 
-if [[ $answer == "r" ]]; then
-	build/shimmerlang;
-fi
+  if [[ $answer == "T" ]]; then
+    if make; then
+      build/shimmerlang $ver test.shmr;
+    fi
+  fi
 
-if [[ $answer == "R" ]]; then
-  if make; then
-    build/shimmerlang;
+  if [[ $answer == "r" ]]; then
+    build/shimmerlang $ver;
+  fi
+
+  if [[ $answer == "R" ]]; then
+    if make; then
+      build/shimmerlang $ver;
+    fi
   fi
 fi

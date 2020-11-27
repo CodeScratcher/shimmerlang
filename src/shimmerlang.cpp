@@ -14,12 +14,16 @@ void interpret_shell();
 int execute(std::string str, std::string loc);
 
 int main(int argc, char* argv[]) {
-  std::string message = "Shimmerlang version " + std::to_string(VER) + \
-                        "Licensed under the MIT license.\n";
-  //std::string message = strcat(strcat("Shimmerlang version", VER), "Licensed under the MIT license. \n");
+  if (argc < 2) {
+    std::cout << RED("Error: needs a version number.\n");
+    return 1;
+  }
 
-  if (argc > 1) {
-    if (!interpret_program(argv[1])) {
+  std::string message = "Shimmerlang version " + std::string(argv[1]) + \
+                        " Licensed under the MIT license.\n";
+
+  if (argc > 2) {
+    if (!interpret_program(argv[2])) {
       return 1;
     }
   }

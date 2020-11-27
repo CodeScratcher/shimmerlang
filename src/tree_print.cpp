@@ -59,12 +59,16 @@
 **/
 
 void pretty_print(DotTree tree) {
+  std::cout << "Printing a DotTree\n";
+
   for (DotStatement st : tree.get_tree()) {
     pretty_print(st);
   }
 }
 
 void pretty_print(DotStatement statement) {
+  std::cout << "Printing a DotStatement\n";
+
   for (ShimmerParam pa : statement.get_params()) {
     std::vector<bool> flags(100, true);
     pretty_print(pa, flags, 0, false);
@@ -73,6 +77,8 @@ void pretty_print(DotStatement statement) {
 
 void pretty_print(ShimmerParam param, std::vector<bool> is_exploring,
                   int depth, bool is_last) {
+  std::cout << "Printing a ShimmerParam\n";
+
   if (param.not_of_type(STATEMENT)) {
     if (depth == 0) {
       pretty_print(param);
@@ -101,18 +107,20 @@ void pretty_print(ShimmerParam param, std::vector<bool> is_exploring,
     }
   }
 
-  int it = 0;
+  int param_id = 0;
 
   DotStatement st = param.get_statement_val();
 
   for (ShimmerParam pa : st.get_params()) {
-    pretty_print(pa, is_exploring, depth + 1, it++ == (st.get_params().size()) - 1);
+    pretty_print(pa, is_exploring, depth + 1, param_id++ == (st.get_params().size()) - 1);
   }
 
   is_exploring.at(depth) = true;
 }
 
 void pretty_print(ShimmerParam param) {
+  std::cout << "Printing a ShimmerParam VALUE\n";
+
   switch(param.get_param_type()) {
     case NONETYPE:
       std::cout << "<untyped param>\n";
@@ -134,7 +142,8 @@ void pretty_print(ShimmerParam param) {
 }
 
 void pretty_print(DotLiteral lit) {
-  std::cout << "Now printing a Literal\n";
+  std::cout << "Printing a DotLiteral\n";
+
   int literal_type = lit.get_type();
 
   switch (literal_type) {

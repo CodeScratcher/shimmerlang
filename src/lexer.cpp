@@ -201,7 +201,7 @@ const char* lex_to_str(std::vector<DotToken> lexed) {
 
     int num_of_tabs;
 
-    std::cout << "\t\t" << token_contents;
+    std::cout << "\t   " << token_contents;
 
     num_of_tabs = -((token_contents_length + 8) / 4) + 6;
     for (int i = 0; i < num_of_tabs; i++) {
