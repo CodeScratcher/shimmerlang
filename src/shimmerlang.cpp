@@ -14,9 +14,9 @@ void interpret_shell();
 int execute(std::string str, std::string loc);
 
 int main(int argc, char* argv[]) {
-  std::string message = "Shimmerlang version " + std::to_string(NUMBER) + \
+  std::string message = "Shimmerlang version " + std::to_string(VER) + \
                         "Licensed under the MIT license.\n";
-  //std::string message = strcat(strcat("Shimmerlang version", NUMBER), "Licensed under the MIT license. \n");
+  //std::string message = strcat(strcat("Shimmerlang version", VER), "Licensed under the MIT license. \n");
 
   if (argc > 1) {
     if (!interpret_program(argv[1])) {
