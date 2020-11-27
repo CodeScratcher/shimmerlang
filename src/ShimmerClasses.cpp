@@ -254,6 +254,10 @@ bool ShimmerParam::is_of_type(ParamType type) {
   return get_param_type() == type;
 }
 
+bool ShimmerParam::not_of_type(ParamType type) {
+  return get_param_type() != type;
+}
+
 DotLiteral ShimmerParam::get_literal_val() {
   return *literal_val;
 }

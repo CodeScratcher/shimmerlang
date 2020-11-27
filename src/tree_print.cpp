@@ -4,31 +4,6 @@
 #include "tree_print.h"
 #include "ShimmerClasses.h"
 
-// Copied from SO
-/*
-  void printBT(const std::string& prefix, const BSTNode* node, bool isLeft)
-  {
-      if( node != nullptr )
-      {
-          std::cout << prefix;
-
-          std::cout << (isLeft ? "├──" : "└──" );
-
-          // print the value of the node
-          std::cout << node->m_val << std::endl;
-
-          // enter the next tree level - left and right branch
-          printBT( prefix + (isLeft ? "│   " : "    "), node->m_left, true);
-          printBT( prefix + (isLeft ? "│   " : "    "), node->m_right, false);
-      }
-  }
-
-  void printBT(const BSTNode* node)
-  {
-      printBT("", node, false);    
-  }
-*/
-
 // Sample/Expected Tree
 /*
  * a
@@ -83,6 +58,109 @@
  *
 **/
 
+void pretty_print(DotTree tree) {
+  for (DotStatement st : tree.get_tree()) {
+    pretty_print(st);
+  }
+}
+
+void pretty_print(DotStatement statement) {
+  for (ShimmerParam pa : statement.get_params()) {
+    std::vector<bool> flags(100, true);
+    pretty_print(pa, flags, 0, false);
+  }
+}
+
+void pretty_print(ShimmerParam param, std::vector<bool> is_exploring,
+                  int depth, bool is_last) {
+  if (param.not_of_type(STATEMENT)) {
+    if (depth == 0) {
+      pretty_print(param);
+    }
+    else if (is_last) { 
+      std::cout << "\u2514\u2500\u2500\u2500 ";
+      pretty_print(param);
+      std::cout << "\n";
+      is_exploring.at(depth) = false;
+    } 
+    else { 
+      std::cout << "\u251c\u2500\u2500\u2500 ";
+      pretty_print(param);
+      std::cout << "\n"; 
+    }
+
+    return;
+  }
+
+  for (int i = 1; i < depth; i++) {
+    if (is_exploring.at(i)) {
+      std::cout << "\u2502\t\t\t";
+    }
+    else {
+      std::cout << " \t\t\t";
+    }
+  }
+
+  int it = 0;
+
+  DotStatement st = param.get_statement_val();
+
+  for (ShimmerParam pa : st.get_params()) {
+    pretty_print(pa, is_exploring, depth + 1, it++ == (st.get_params().size()) - 1);
+  }
+
+  is_exploring.at(depth) = true;
+}
+
+void pretty_print(ShimmerParam param) {
+  switch(param.get_param_type()) {
+    case NONETYPE:
+      std::cout << "<untyped param>\n";
+      break;
+
+    case LITERAL:
+      std::cout << "There was a LITERAL\n";
+      pretty_print(param.get_literal_val());
+      break;
+
+    case IDENTIFIER:
+      std::cout << "There was a IDENTIFIER\n";
+      std::cout << param.get_identifier_val().get_contents() << "\n";
+      break;
+
+    default:
+      throw std::runtime_error("Illegal param type!");
+  }
+}
+
+void pretty_print(DotLiteral lit) {
+  std::cout << "Now printing a Literal\n";
+  int literal_type = lit.get_type();
+
+  switch (literal_type) {
+    case TypeString:
+      std::cout << lit.get_str() << "\n";
+      break;
+
+    case TypeInt:
+      std::cout << std::to_string(lit.get_int()) << "\n";
+      break;
+
+    case TypeBool:
+      throw std::runtime_error("Hasn't been implemented yet: pretty printing bools");
+      break;
+
+    case TypeFunc:
+      throw std::runtime_error("Hasn't been implemented yet: pretty printing funcs");
+      break;
+
+    case TypeId:
+      throw std::runtime_error("Hasn't been implemented yet: pretty printing IDs");
+      break;
+  }
+}
+
+/*
 void pretty_print(DotTree tree) {
   if (tree.tree.size() > 0) {
     for (DotStatement statement : tree.get_tree()) {
@@ -157,3 +235,4 @@ void pretty_print(DotLiteral lit) {
       break;
   }
 }
+*/

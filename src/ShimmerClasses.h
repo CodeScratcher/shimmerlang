@@ -99,6 +99,7 @@ class ShimmerParam {
     ParamType param_type = NONETYPE;
     ParamType get_param_type();
     bool is_of_type(ParamType type);
+    bool not_of_type(ParamType type);
 
     DotLiteral*  literal_val;
     DotStatement* statement_val;
