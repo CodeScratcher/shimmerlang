@@ -10,11 +10,23 @@
 #include "lexer.h"
 #include "ShimmerClasses.h"
 
-Parser::Parser() {
+// Parser constructor
+Parser::Parser(std::vector<DotToken> _tokens) {
   expectation = NAME_OR_LITERAL;
+	tokens = _tokens;
+  to_return = DotTree(std::vector<DotStatement>{});
 }
 
-DotTree Parser::parse(std::vector<DotToken> _tokens) {
+Parser::Parser(std::vector<DotToken> _tokens, ShimmerParam start) {
+  expectation = STATEMENT_OR_CALL;
+	tokens = _tokens;
+  to_return = DotTree(std::vector<DotStatement>{});
+  std::cout << "to_return.size() before: " << to_return.get_tree().size() << "\n";
+	to_return.get_tree()[0].set_expr(start);
+  std::cout << "to_return.size() after: " << to_return.get_tree().size() << "\n";
+}
+
+DotTree Parser::parse() {
   // for (DotToken i : _tokens) {
   //   std::cout << "This token's type: " << i.get_token_type() << "\n";
   //   std::cout << "This token's contents: " << i.get_contents() << "\n";
@@ -22,8 +34,6 @@ DotTree Parser::parse(std::vector<DotToken> _tokens) {
   // }
   // DotTree temp;
   // return temp;
-  tokens = _tokens;
-  to_return = DotTree(std::vector<DotStatement>());
 
   for (this_token_id = 0; this_token_id < tokens.size(); this_token_id++) {
     this_token = tokens.at(this_token_id);
@@ -31,8 +41,8 @@ DotTree Parser::parse(std::vector<DotToken> _tokens) {
     if (expectation == NAME_OR_LITERAL) {
       name_or_literal_expectation();
     }
-    else if (expectation == VAR_VALUE) {
-      var_val_expectation();
+    else if (expectation == STATEMENT_OR_CALL) {
+      statement_or_call_expectation();
     }
     else if (expectation == COMMA) {
       comma_expectation();
@@ -55,7 +65,7 @@ DotTree Parser::parse(std::vector<DotToken> _tokens) {
 
 void Parser::name_or_literal_expectation() {
   if (this_token.is_of_type("DotIdentifier")) {
-    expectation = VAR_VALUE;
+    expectation = STATEMENT_OR_CALL;
     id = DotIdentifier(this_token.get_line(), this_token.get_contents());
   }
   else if (this_token.is_of_type("DotInt")) {
@@ -69,7 +79,7 @@ void Parser::name_or_literal_expectation() {
   }
 }
 
-void Parser::var_val_expectation() {
+void Parser::statement_or_call_expectation() {
   if (this_token.is_of_type("DotLParen")) {
     expectation = PARAM;
     to_add.set_expr(ShimmerParam(id));
@@ -80,11 +90,9 @@ void Parser::var_val_expectation() {
   else if (this_token.is_of_type("DotString")) {
     // Todo: Add straight value support (useful for functions)
   }
-  /*else if (this_token.is_of_type("DotIdentifier")) {
-    // something
-  }*/ // what about this here?
   else {
-    throw_error("Expected definition but got: ", this_token.get_contents(), this_token.get_line());
+    throw_error("Expected variable definition but got: ", \
+                this_token.get_contents(), this_token.get_line());
   }
 }
 

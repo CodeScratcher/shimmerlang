@@ -1,1 +1,9 @@
-print(div(add(3, 4), 6))
+define($walrus, (variable, value){
+	set(variable, value)
+	variable
+})
+/*
+foo() -> this is a function
+vs
+foo bar -> this is two statements
+*/

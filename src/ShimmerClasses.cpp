@@ -128,6 +128,7 @@ void DotStatement::set_expr(ShimmerParam expr) {
 }
 
 DotLiteral DotStatement::eval(ShimmerScope* scope) {
+  std::cout << "DotStatement::eval called\n";
   pretty_print(*this);
   for (int i = 0; i < params.size(); i++) {
     if (params.at(i).is_of_type(STATEMENT)) {

@@ -25,25 +25,24 @@ elif [[ $answer == "D" ]]; then
   fi
 
 else
-  read -p "Which version? " ver
 
   if [[ $answer == "t" ]]; then
-    build/shimmerlang $ver test.shmr;
+    build/shimmerlang test.shmr;
   fi
 
   if [[ $answer == "T" ]]; then
     if make; then
-      build/shimmerlang $ver test.shmr;
+      build/shimmerlang test.shmr;
     fi
   fi
 
   if [[ $answer == "r" ]]; then
-    build/shimmerlang $ver;
+    build/shimmerlang;
   fi
 
   if [[ $answer == "R" ]]; then
     if make; then
-      build/shimmerlang $ver;
+      build/shimmerlang;
     fi
   fi
 fi

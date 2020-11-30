@@ -1,6 +1,8 @@
 #ifndef TEXT_EFFECTS_H
 #define TEXT_EFFECTS_H
 
+#if defined(unix) || defined(__unix__) || defined(__unix)
+
 #define STYLE_CLEAR      "\x1b[0m"
 #define STYLE_BOLD       "\x1b[1m"
 #define STYLE_UNDERLINED "\x1b[4m"
@@ -31,5 +33,24 @@
 #define L_BLUE(str)     STYLE_L_BLUE     << str << STYLE_CLEAR
 #define L_MAGENTA(str)  STYLE_L_MAGENTA  << str << STYLE_CLEAR
 #define L_CYAN(str)     STYLE_L_CYAN     << str << STYLE_CLEAR
+
+#else
+
+#define BOLD(str)       str
+#define UNDERLINED(str) str
+#define RED(str)        str
+#define GREEN(str)      str
+#define ORANGE(str)     str
+#define YELLOW(str)     str
+#define BLUE(str)       str
+#define MAGENTA(str)    str
+#define CYAN(str)       str
+#define L_RED(str)      str
+#define L_GREEN(str)    str
+#define L_BLUE(str)     str
+#define L_MAGENTA(str)  str
+#define L_CYAN(str)     str
+
+#endif
 
 #endif

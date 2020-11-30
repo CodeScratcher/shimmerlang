@@ -2,7 +2,7 @@
 #include "ShimmerClasses.h"
 
 typedef enum {
-  NAME_OR_LITERAL, PARAM, COMMA, VAR_VALUE, FURTHER_FUNC
+  NAME_OR_LITERAL, PARAM, COMMA, STATEMENT_OR_CALL, FURTHER_FUNC
 } Expectation;
 
 class Parser {
@@ -21,11 +21,12 @@ class Parser {
 
     DotTree to_return;
 
-    Parser();
-    DotTree parse(std::vector<DotToken>);
+    Parser(std::vector<DotToken> _tokens);
+    Parser(std::vector<DotToken> _tokens, ShimmerParam start);
+    DotTree parse();
 
     void name_or_literal_expectation();
-    void var_val_expectation();
+    void statement_or_call_expectation();
     void comma_expectation();
     void further_func_expectation();
     void param_expectation();

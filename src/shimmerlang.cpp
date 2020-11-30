@@ -14,21 +14,16 @@ void interpret_shell();
 int execute(std::string str, std::string loc);
 
 int main(int argc, char* argv[]) {
-  if (argc < 2) {
-    std::cout << RED("Error: needs a version number.\n");
-    return 1;
-  }
-
-  std::string message = "Shimmerlang version " + std::string(argv[1]) + \
+  std::string message = "Shimmerlang version " + std::string(VER) + \
                         " Licensed under the MIT license.\n";
 
-  if (argc > 2) {
-    if (!interpret_program(argv[2])) {
+  if (argc > 1) {
+    if (!interpret_program(argv[1])) {
       return 1;
     }
   }
   else {
-    std::cout << message;
+    std::cout << L_CYAN(message);
     interpret_shell();
   }
 
@@ -40,7 +35,7 @@ bool interpret_program(char* program_name) {
   file.open(program_name);
 
   if (!file) {
-    std::cout << "Error while opening file.";
+    std::cout << RED("Error while opening file.");
     return false;
   }
   else {
@@ -67,9 +62,12 @@ void interpret_shell() {
 
 int execute(std::string str, std::string loc) {
   try {
-    Parser parser;
+    Parser parserlex(str);
+    std::cout << "Parser object created\n";
     DotTree parsed = parser.parse(lex(str));
+    std::cout << "Parsed lexed str\n";
     eval(parsed);
+    std::cout << "Evaluated parsed lexed str\n";
     return true;
   }
   catch (std::runtime_error& err) {

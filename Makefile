@@ -9,7 +9,9 @@ CXXFLAGS := -std=c++17 -Isrc -D DEBUG -g -o build/shimmerlang
 
 .ONESHELL:
 build:
-	g++ $(CXXFLAGS) $(SRC_FILES)
+	@echo -e "Compiling...\n";
+	read -p "Which version? " VER;
+	g++ $(CXXFLAGS) -D VER=\"$$VER\" $(SRC_FILES);
 
 lib:
 	@g++ -Isrc -c -Wall -Werror -fpic src/ShimmerClasses.cpp -o dot.o; \
