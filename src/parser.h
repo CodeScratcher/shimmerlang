@@ -10,10 +10,11 @@ class Parser {
     ShimmerParam current_expr;
     Expectation expectation;
     DotStatement to_add;
-    DotIdentifier id;
+    ShimmerParam expr;
     int this_token_id;
 
     DotToken this_token;
+    DotToken next_token;
     std::vector<DotToken> tokens;
 
     std::vector<DotStatement> statements;
@@ -30,6 +31,9 @@ class Parser {
     void comma_expectation();
     void further_func_expectation();
     void param_expectation();
+
+    void print_tokens();
+    void print_token(int i);
 };
 
 void print_debug_info(DotTree x);

@@ -106,9 +106,9 @@ DotStatement::DotStatement() {
   // Default constructor does nothing
 }
 
-DotStatement::DotStatement(ShimmerParam exp, std::vector<ShimmerParam> param) {
-  expr = exp;
-  params = param;
+DotStatement::DotStatement(ShimmerParam _expr, std::vector<ShimmerParam> _params) {
+  expr = _expr;
+  params = _params;
 }
 
 std::vector<ShimmerParam> DotStatement::get_params() {

@@ -1,4 +1,4 @@
-define(l_list, (heads, tails){
+define(l_list, (heads, tails) {
 	<
 		$heads = heads,
 		$tails = tails,
@@ -11,6 +11,7 @@ define(l_list, (heads, tails){
 		$
 	>
 })
+
 define(l_list_end, (heads) {
 	<
 		$heads = heads,

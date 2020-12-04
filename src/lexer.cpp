@@ -22,6 +22,38 @@ std::vector<DotToken> lex(std::string str) {
   for (int i = 0; i < str.length(); i++) {
     char ch = str.at(i);
 
+    if (ch == '/') {
+      now_in = CMNT1;
+      continue;
+    }
+    else if (now_in == CMNT1) {
+      if (ch != '*') {
+        throw_error("Missing asterisk at comment starting delimiter.", current_line);
+      }
+
+      now_in = CMNT2;
+      continue;
+    }
+    else if (now_in == CMNT2) {
+      now_in == CMNT3;
+      continue;
+    }
+    else if (now_in == CMNT3) {
+      if (ch == '*') {
+        now_in = CMNT4;
+      }
+
+      continue;
+    }
+    else if (now_in == CMNT4) {
+      if (ch != '/') {
+        throw_error("Missing slash at comment ending delimiter.", current_line);
+      }
+
+      now_in = NONE;
+      continue;
+    }
+
     if (now_in != STR && (ch == ' ' || ch == '\t' || ch == '\n')) {
       if (ch == '\n') {
         current_line++;
@@ -32,7 +64,7 @@ std::vector<DotToken> lex(std::string str) {
         now_in = NONE;
         to_return.push_back(this_token);
       }
-  
+
       current_token_contents = "";
       continue;
     }
@@ -155,10 +187,10 @@ std::vector<DotToken> lex(std::string str) {
 }
 
 DotToken make_token(State now_in, std::string current_token_contents, int current_line) {
-  if(now_in == STR)  return DotString(current_line, current_token_contents);
-  if(now_in == INT)  return DotInt(current_line, current_token_contents);
-  if(now_in == ID)   return DotIdentifier(current_line, current_token_contents);
-  if(now_in == NONE) return DotString(current_line, "");
+  if (now_in == STR)   return DotString(current_line, current_token_contents);
+  if (now_in == INT)   return DotInt(current_line, current_token_contents);
+  if (now_in == ID)    return DotIdentifier(current_line, current_token_contents);
+  if (now_in == NONE)  return DotString(current_line, "");
   throw_error("Internal error: Illegal state: ", str_repr(now_in), current_line);
 }
 

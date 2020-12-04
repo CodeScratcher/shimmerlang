@@ -62,16 +62,19 @@ void interpret_shell() {
 
 int execute(std::string str, std::string loc) {
   try {
-    Parser parserlex(str);
-    std::cout << "Parser object created\n";
-    DotTree parsed = parser.parse(lex(str));
-    std::cout << "Parsed lexed str\n";
+    Parser parser(lex(str));
+    std::cout << "Lexed str.\n";
+    std::cout << "Parser object created.\n";
+    DotTree parsed = parser.parse();
+    std::cout << "Parsed lexed str.\n";
     eval(parsed);
     std::cout << "Evaluated parsed lexed str\n";
+  
     return true;
   }
   catch (std::runtime_error& err) {
     std::cout << RED("In file " << loc << " on line " << err.what() << "\n\n");
+  
     return false;
   }
 }

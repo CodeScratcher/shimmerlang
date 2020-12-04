@@ -113,7 +113,7 @@ class ShimmerParam {
 class DotStatement {
   public:
     DotStatement();
-    DotStatement(ShimmerParam exp, std::vector<ShimmerParam> param);
+    DotStatement(ShimmerParam _expr, std::vector<ShimmerParam> _params);
 
     std::vector<ShimmerParam> params;
     ShimmerParam expr;

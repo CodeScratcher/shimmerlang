@@ -2,7 +2,7 @@
 #include <string>
 #include "ShimmerClasses.h"
 
-typedef enum {NONE, ID, INT, STR} State;
+typedef enum {NONE, CMNT1, CMNT2, CMNT3, CMNT4, ID, INT, STR} State;
 std::string str_repr(State state);
 
 std::vector<DotToken> lex(std::string str);

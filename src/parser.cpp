@@ -19,24 +19,15 @@ Parser::Parser(std::vector<DotToken> _tokens) {
 
 Parser::Parser(std::vector<DotToken> _tokens, ShimmerParam start) {
   expectation = STATEMENT_OR_CALL;
-	tokens = _tokens;
+  tokens = _tokens;
   to_return = DotTree(std::vector<DotStatement>{});
-  std::cout << "to_return.size() before: " << to_return.get_tree().size() << "\n";
-	to_return.get_tree()[0].set_expr(start);
-  std::cout << "to_return.size() after: " << to_return.get_tree().size() << "\n";
+  expr = start;
 }
 
 DotTree Parser::parse() {
-  // for (DotToken i : _tokens) {
-  //   std::cout << "This token's type: " << i.get_token_type() << "\n";
-  //   std::cout << "This token's contents: " << i.get_contents() << "\n";
-  //   std::cout << "This token's line: " << i.get_line() << "\n\n";
-  // }
-  // DotTree temp;
-  // return temp;
-
   for (this_token_id = 0; this_token_id < tokens.size(); this_token_id++) {
     this_token = tokens.at(this_token_id);
+    next_token = tokens.at(this_token_id + 1);
 
     if (expectation == NAME_OR_LITERAL) {
       name_or_literal_expectation();
@@ -66,7 +57,7 @@ DotTree Parser::parse() {
 void Parser::name_or_literal_expectation() {
   if (this_token.is_of_type("DotIdentifier")) {
     expectation = STATEMENT_OR_CALL;
-    id = DotIdentifier(this_token.get_line(), this_token.get_contents());
+    expr = ShimmerParam(DotIdentifier(this_token.get_line(), this_token.get_contents()));
   }
   else if (this_token.is_of_type("DotInt")) {
     // Todo: Add straight value support (useful for functions)
@@ -82,7 +73,7 @@ void Parser::name_or_literal_expectation() {
 void Parser::statement_or_call_expectation() {
   if (this_token.is_of_type("DotLParen")) {
     expectation = PARAM;
-    to_add.set_expr(ShimmerParam(id));
+    to_add.set_expr(expr);
   }
   else if (this_token.is_of_type("DotInt")) {
     // Todo: Add straight value support (useful for functions)
@@ -128,9 +119,11 @@ void Parser::further_func_expectation() {
     }
     j++;
   }
-  if (this_token.is_of_type("COMMA")) {
-    // TODO this
-  }
+
+#pragma message "please check parser.cpp line 124"
+  // if (this_token.is_of_type("COMMA")) {
+  //   params.push_back(ShimmerParam(next_token));
+  // }
 }
 
 void Parser::param_expectation() {
@@ -159,34 +152,47 @@ void Parser::param_expectation() {
   }
 }
 
+void Parser::print_tokens() {
+  for (int i = 0; i < tokens.size(); ++i) {
+    print_token(i);
+  }
+}
+
+void Parser::print_token(int i) {
+  std::cout << "This token's index:    " << std::to_string(i) << "\n";
+  std::cout << "This token's type:     " << tokens.at(i).get_token_type() << "\n";
+  std::cout << "This token's contents: " << tokens.at(i).get_contents() << "\n";
+  std::cout << "This token's line:     " << tokens.at(i).get_line() << "\n\n";
+}
+
 /* Old code for look ahead
 if (separated) {
-          int sub_expr_layer = 0;
-          int j = i;
-          while(true) {
-            tokens_for_recursion.push_back(tokens.at(j));
-            j++; 
-            if (j == tokens.size()) {
-              throw_error("Missing closing parenthesis.", this_token.get_line(), this_token.get_line());
-            }
-            if (tokens.at(j).is_of_type("DotRParen")) {
-              sub_expr_layer--;
-              if (sub_expr_layer == 0) {
-                  break;
-              }
-            }
-            if (tokens.at(j).is_of_type("DotLParen")) {
-              sub_expr_layer++;
-            }
-          }
-          
-          tokens_for_recursion.push_back(tokens.at(j));
-          i = j;
-          DotTree parsed = parse(tokens_for_recursion);
-          DotStatement to_push = parsed.get_tree().at(0);
-          ShimmerParam param = ShimmerParam(to_push);
-          params.push_back(param);
-					tokens_for_recursion.clear();
+  int sub_expr_layer = 0;
+  int j = i;
+  while(true) {
+    tokens_for_recursion.push_back(tokens.at(j));
+    j++; 
+    if (j == tokens.size()) {
+      throw_error("Missing closing parenthesis.", this_token.get_line(), this_token.get_line());
+    }
+    if (tokens.at(j).is_of_type("DotRParen")) {
+      sub_expr_layer--;
+      if (sub_expr_layer == 0) {
+          break;
+      }
+    }
+    if (tokens.at(j).is_of_type("DotLParen")) {
+      sub_expr_layer++;
+    }
+  }
+  
+  tokens_for_recursion.push_back(tokens.at(j));
+  i = j;
+  DotTree parsed = parse(tokens_for_recursion);
+  DotStatement to_push = parsed.get_tree().at(0);
+  ShimmerParam param = ShimmerParam(to_push);
+  params.push_back(param);
+  tokens_for_recursion.clear();
 */
 
 
@@ -231,8 +237,8 @@ const char* parse_test() {
   else {
 		std::stringstream buffer;
     buffer << file.rdbuf();
-    Parser parser;
-		DotTree parsed = parser.parse(lex(buffer.str()));
+    Parser parser(lex(buffer.str()));
+		DotTree parsed = parser.parse();
 		std::cout << "Parsing done." << "\n";
 
 		print_debug_info(parsed);  
