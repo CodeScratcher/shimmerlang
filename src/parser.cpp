@@ -24,9 +24,8 @@ Parser::Parser(std::vector<DotToken> _tokens, ShimmerParam start) {
 }
 
 DotTree Parser::parse() {
-
   for (this_token_id = 0; this_token_id < tokens.size(); this_token_id++) {
-    std::cout << "Trying to parse \n";
+    std::cout << "Trying to parse\n";
     this_token = tokens.at(this_token_id);
     if (expectation == NAME_OR_LITERAL) {
       name_or_literal_expectation();
@@ -47,7 +46,8 @@ DotTree Parser::parse() {
     std::cout << "Now on iteration #" << std::to_string(this_token_id) << " of for loop.\n";
     print_token(this_token_id);
   }
-  std::cout << "Finished \n";
+
+  std::cout << "Finished parsing\n";
   to_return = DotTree(statements);
   return to_return;
 }
@@ -145,13 +145,12 @@ void Parser::further_func_expectation() {
     }
   }
   this_token_id = j;
+
   Parser sub_parser = Parser(tokens_for_recursion, current_expr);
-  DotTree tree = sub_parser.parse();
-  std::cout << "=== end sub-parser ===";
-   current_expr = tree.get_tree().at(0);
+  DotTree parsed = sub_parser.parse();
+  std::cout << "=== end sub-parser ===\n";
+  current_expr = parsed.get_tree().at(0);
   tokens_for_recursion.clear();
-  
-  
 }
 
 void Parser::param_expectation() {
@@ -162,6 +161,24 @@ void Parser::param_expectation() {
     current_expr = ShimmerParam(liter);
     expectation = FURTHER_FUNC;
     return;
+  }
+  else if (this_token.is_of_type("DotLParen")) {
+    bool comma_expected = false;
+	  while (true) {
+      this_token = tokens.at(++this_token_id);
+
+      if (comma_expected) {
+        if (this_token.is_of_type("DotRParen")) {
+          break;
+        }
+        if (this_token.not_of_type("DotComma")) {
+          // error
+        }
+      }
+      else {
+        
+      }
+    }
   }
   else if (this_token.is_of_type("DotInt") || \
            this_token.is_of_type("DotString")) {
@@ -186,23 +203,25 @@ void Parser::print_tokens() {
     print_token(i);
   }
 }
+
 const char* get_expectation_name(Expectation expect) 
 {
   switch (expect) 
   {
-    case NAME_OR_LITERAL: return "Name or literal";
-    case PARAM: return "Param";
-    case COMMA: return "Comma";
+    case NAME_OR_LITERAL:   return "Name or literal";
+    case PARAM:             return "Param";
+    case COMMA:             return "Comma";
     case STATEMENT_OR_CALL: return "Statement or call";
-    case FURTHER_FUNC: return "Further func";
+    case FURTHER_FUNC:      return "Further func";
   }
 }
+
 void Parser::print_token(int i) {
-  std::cout << "This token's index:    " << std::to_string(i) << "\n";
-  std::cout << "This token's type:     " << tokens.at(i).get_token_type() << "\n";
-  std::cout << "This token's contents: " << tokens.at(i).get_contents() << "\n";
-  std::cout << "This token's line:     " << tokens.at(i).get_line() << "\n\n";
-  std::cout << "Expecting: " << get_expectation_name(expectation) << "\n";
+  std::cout << "This token's index:       " << std::to_string(i) << "\n";
+  std::cout << "This token's type:        " << tokens.at(i).get_token_type() << "\n";
+  std::cout << "This token's contents:    " << tokens.at(i).get_contents() << "\n";
+  std::cout << "This token's line:        " << tokens.at(i).get_line() << "\n\n";
+  std::cout << "This token's expectation: " << get_expectation_name(expectation) << "\n";
 }
 
 /* Old code for look ahead

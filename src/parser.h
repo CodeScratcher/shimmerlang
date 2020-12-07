@@ -1,3 +1,6 @@
+#ifndef PARSER_H
+#define PARSER_H
+
 #include <vector>
 #include "ShimmerClasses.h"
 
@@ -39,3 +42,5 @@ class Parser {
 void print_debug_info(DotTree x);
 const char* param_recursive_str(ShimmerParam to_convert);
 void print_statement_info(DotStatement i);
+
+#endif

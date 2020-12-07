@@ -97,9 +97,9 @@ DotIdentifier::DotIdentifier() {
   // Default constructor does nothing
 }
 
-DotIdentifier::DotIdentifier(int line, std::string content) {
+DotIdentifier::DotIdentifier(int line, std::string _contents) {
   token_type = "DotIdentifier";
-  contents = content;
+  contents = _contents;
 }
 
 DotStatement::DotStatement() {
@@ -298,6 +298,7 @@ DotLiteral ShimmerScope::get_variable(std::string var_name) {
     }
   }
 }
+
 void ShimmerScope::set_variable(std::string var_name, DotLiteral val) {
   if (current_scope.find(var_name) != current_scope.end()) {
     current_scope.at(var_name) = val;
@@ -306,6 +307,17 @@ void ShimmerScope::set_variable(std::string var_name, DotLiteral val) {
     upper_scope->set_variable(var_name, val);
   }
 }
+
 void ShimmerScope::declare_variable(std::string var_name, DotLiteral val) {
   current_scope[var_name] = val;
+}
+
+ShimmerUnclosedFunc::ShimmerUnclosedFunc(std::vector<DotIdentifier> _params, DotTree _tree) {
+  params = _params;
+  tree = _tree;
+}
+
+ShimmerClosedFunc::ShimmerClosedFunc(ShimmerUnclosedFunc to_close, ShimmerScope* closed_scope) {
+  params = to_close.params;
+  tree = to_close.tree;
 }

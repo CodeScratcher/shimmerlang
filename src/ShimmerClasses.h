@@ -18,7 +18,7 @@ typedef enum { NONETYPE, LITERAL, STATEMENT, IDENTIFIER } ParamType;
 
 class DotIdentifier;
 class DotStatement;
-class DotTree;
+//class DotTree;
 class DotLiteral;
 class ShimmerParam;
 class ShimmerScope;
@@ -89,6 +89,8 @@ class DotIdentifier : public DotToken {
     DotIdentifier();
 };
 
+
+
 class ShimmerParam {
   public:
 		ShimmerParam();
@@ -101,7 +103,7 @@ class ShimmerParam {
     bool is_of_type(ParamType type);
     bool not_of_type(ParamType type);
 
-    DotLiteral*  literal_val;
+    DotLiteral* literal_val;
     DotStatement* statement_val;
     DotIdentifier identifier_val;
 
@@ -176,6 +178,21 @@ class ShimmerScope {
     void declare_variable(std::string var_name, DotLiteral val);
     DotLiteral get_variable(std::string var_name);
     void set_variable(std::string var_name, DotLiteral val);
+};
+
+class ShimmerUnclosedFunc {
+	public:
+		std::vector<DotIdentifier> params;
+    DotTree tree;
+		ShimmerUnclosedFunc(std::vector<DotIdentifier> _params, DotTree _tree);
+};
+
+class ShimmerClosedFunc {
+	public:
+		std::vector<DotIdentifier> params;
+    DotTree tree;
+    ShimmerScope* closed_scope;
+		ShimmerClosedFunc(ShimmerUnclosedFunc to_close, ShimmerScope* closed_scope);
 };
 
 #endif
