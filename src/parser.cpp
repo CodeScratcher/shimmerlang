@@ -14,21 +14,20 @@
 Parser::Parser(std::vector<DotToken> _tokens) {
   expectation = NAME_OR_LITERAL;
 	tokens = _tokens;
-  to_return = DotTree(std::vector<DotStatement>{});
+  
 }
 
 Parser::Parser(std::vector<DotToken> _tokens, ShimmerParam start) {
   expectation = STATEMENT_OR_CALL;
   tokens = _tokens;
-  to_return = DotTree(std::vector<DotStatement>{});
   expr = start;
 }
 
 DotTree Parser::parse() {
-  for (this_token_id = 0; this_token_id < tokens.size(); this_token_id++) {
-    this_token = tokens.at(this_token_id);
-    next_token = tokens.at(this_token_id + 1);
 
+  for (this_token_id = 0; this_token_id < tokens.size(); this_token_id++) {
+    std::cout << "Trying to parse \n";
+    this_token = tokens.at(this_token_id);
     if (expectation == NAME_OR_LITERAL) {
       name_or_literal_expectation();
     }
@@ -46,11 +45,10 @@ DotTree Parser::parse() {
     }
 
     std::cout << "Now on iteration #" << std::to_string(this_token_id) << " of for loop.\n";
-    std::cout << "This token's type: " << this_token.get_token_type() << "\n";
-    std::cout << "This token's contents: " << this_token.get_contents() << "\n";
-    std::cout << "This token's line: " << this_token.get_line() << "\n\n";
+    print_token(this_token_id);
   }
-
+  std::cout << "Finished \n";
+  to_return = DotTree(statements);
   return to_return;
 }
 
@@ -105,34 +103,65 @@ void Parser::comma_expectation() {
 }
 
 void Parser::further_func_expectation() {
+  if (this_token.is_of_type("DotComma")) {
+     params.push_back(ShimmerParam(current_expr));
+     return;
+  }
+  if (this_token.is_of_type("DotRParen")) {
+    params.push_back(ShimmerParam(current_expr));
+    to_add.set_params(params);
+    statements.push_back(to_add);
+    params.clear();
+    expectation = NAME_OR_LITERAL;
+    to_add = DotStatement();
+    return;
+  }
+  else if (!this_token.is_of_type("DotLParen")) {
+    throw_error("Expected parenthesis or comma but got:", this_token.get_contents(), this_token.get_line());
+  }
   std::vector<DotToken> tokens_for_recursion;
 
   int sub_expr_layer = 0;
   int j = this_token_id;
+  std::cout << "=== sub-parser === \n";
   while (true) {
     DotToken tok = tokens.at(j);
+    tokens_for_recursion.push_back(tok);
+    tok = tokens.at(j);
+    if (tok.is_of_type("DotRParen")) {
+      sub_expr_layer--;
+      std::cout << sub_expr_layer;
+      if (sub_expr_layer == 0) {
+        break;
+      }
+    }
     if (tok.is_of_type("DotLParen")) {
       sub_expr_layer++;
-    }
-    else if (tok.is_of_type("DotRParen")) {
-      sub_expr_layer--;
+      std::cout << sub_expr_layer;
     }
     j++;
+    if (j == tokens.size()) {
+      throw_error("Missing closing parenthesis.", this_token.get_contents(), this_token.get_line());
+    }
   }
-
-#pragma message "please check parser.cpp line 124"
-  // if (this_token.is_of_type("COMMA")) {
-  //   params.push_back(ShimmerParam(next_token));
-  // }
+  this_token_id = j;
+  Parser sub_parser = Parser(tokens_for_recursion, current_expr);
+  DotTree tree = sub_parser.parse();
+  std::cout << "=== end sub-parser ===";
+   current_expr = tree.get_tree().at(0);
+  tokens_for_recursion.clear();
+  
+  
 }
 
 void Parser::param_expectation() {
   DotLiteral lit;
 
   if (this_token.is_of_type("DotIdentifier")) {
-    lit = DotLiteral(this_token.get_line(), this_token.get_contents());
-    params.push_back(ShimmerParam(lit));
+    DotLiteral liter = DotLiteral(this_token.get_line(), this_token.get_contents());
+    current_expr = ShimmerParam(liter);
     expectation = FURTHER_FUNC;
+    return;
   }
   else if (this_token.is_of_type("DotInt") || \
            this_token.is_of_type("DotString")) {
@@ -157,12 +186,23 @@ void Parser::print_tokens() {
     print_token(i);
   }
 }
-
+const char* get_expectation_name(Expectation expect) 
+{
+  switch (expect) 
+  {
+    case NAME_OR_LITERAL: return "Name or literal";
+    case PARAM: return "Param";
+    case COMMA: return "Comma";
+    case STATEMENT_OR_CALL: return "Statement or call";
+    case FURTHER_FUNC: return "Further func";
+  }
+}
 void Parser::print_token(int i) {
   std::cout << "This token's index:    " << std::to_string(i) << "\n";
   std::cout << "This token's type:     " << tokens.at(i).get_token_type() << "\n";
   std::cout << "This token's contents: " << tokens.at(i).get_contents() << "\n";
   std::cout << "This token's line:     " << tokens.at(i).get_line() << "\n\n";
+  std::cout << "Expecting: " << get_expectation_name(expectation) << "\n";
 }
 
 /* Old code for look ahead

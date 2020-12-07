@@ -11,7 +11,7 @@ CXXFLAGS := -std=c++17 -Isrc -D DEBUG -g -o build/shimmerlang
 build:
 	@echo -e "\e[95mCompiling...\e[0m\n";
 	read -p "Which version? " VER;
-	g++ $(CXXFLAGS) -D VER=\"$$VER\" $(SRC_FILES);
+	$(CXX) $(CXXFLAGS) -D VER=\"$$VER\" $(SRC_FILES);
 
 lib:
 	@g++ -Isrc -c -Wall -Werror -fpic src/ShimmerClasses.cpp -o dot.o; \

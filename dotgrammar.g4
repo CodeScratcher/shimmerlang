@@ -7,4 +7,4 @@ paramNames: IDENTIFIER | IDENTIFIER ',' paramNames;
 funcLiteral: '(' paramNames ')' '{' funcCall* '}';
 value: IDENTIFIER | NUMBER | STRING | funcLiteral;
 params: value | value ',' params;
-funcCall : IDENTIFIER '(' params ');';
+funcCall : IDENTIFIER '(' params ')' |;

@@ -112,7 +112,7 @@ void pretty_print(ShimmerParam param, std::vector<bool> is_exploring,
   DotStatement st = param.get_statement_val();
 
   for (ShimmerParam pa : st.get_params()) {
-    pretty_print(pa, is_exploring, depth + 1, param_id++ == (st.get_params().size()) - 1);
+    pretty_print(pa, is_exploring, depth + 1, (param_id++) == (st.get_params().size() - 1));
   }
 
   is_exploring.at(depth) = true;
@@ -135,7 +135,6 @@ void pretty_print(ShimmerParam param) {
       std::cout << "There was a IDENTIFIER\n";
       std::cout << param.get_identifier_val().get_contents() << "\n";
       break;
-
     default:
       throw std::runtime_error("Illegal param type!");
   }
