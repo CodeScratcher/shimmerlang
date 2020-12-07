@@ -174,9 +174,10 @@ void Parser::param_expectation() {
         if (this_token.not_of_type("DotComma")) {
           // error
         }
+        comma_expected = false;
       }
       else {
-        
+        c
       }
     }
   }
