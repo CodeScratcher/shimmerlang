@@ -34,7 +34,7 @@ class Parser {
     void comma_expectation();
     void further_func_expectation();
     void param_expectation();
-
+    ShimmerUnclosedFunc fn_parser();
     void print_tokens();
     void print_token(int i);
 };

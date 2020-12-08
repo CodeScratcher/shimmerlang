@@ -9,7 +9,45 @@
 #include "parser.h"
 #include "lexer.h"
 #include "ShimmerClasses.h"
+ShimmerUnclosedFunc Parser::fn_parser() {
+  bool comma_expected = false;
+  std::vector<DotIdentifier> ids;
+  while (true) {
+    this_token = tokens.at(++this_token_id);
 
+    if (comma_expected) {
+      if (this_token.is_of_type("DotRParen")) {
+        break;
+      }
+      if (this_token.not_of_type("DotComma")) {
+        // error
+      }
+      comma_expected = false;
+    }
+    else {
+      ids.push_back(DotIdentifier(this_token.get_line(), this_token.get_contents()));
+    }
+  }
+  std::vector<DotToken> tokens_for_recursion;
+  this_token = tokens.at(++this_token_id);
+  if (this_token.not_of_type("DotLBrace")) {
+    // error
+  }
+  int fn_layer = 1;
+  while (true) {
+    this_token = tokens.at(++this_token_id);
+    if (this_token.is_of_type("DotRBrace")) {
+      if (--fn_layer == 0) {
+        break;
+      }
+    }
+    if (this_token.is_of_type("DotLBrace")) {
+      fn_layer++;
+    }
+    tokens_for_recursion.push_back(this_token);
+  }
+  DotTree tree = Parser(tokens_for_recursion).parse();
+}
 // Parser constructor
 Parser::Parser(std::vector<DotToken> _tokens) {
   expectation = NAME_OR_LITERAL;
@@ -163,23 +201,7 @@ void Parser::param_expectation() {
     return;
   }
   else if (this_token.is_of_type("DotLParen")) {
-    bool comma_expected = false;
-	  while (true) {
-      this_token = tokens.at(++this_token_id);
-
-      if (comma_expected) {
-        if (this_token.is_of_type("DotRParen")) {
-          break;
-        }
-        if (this_token.not_of_type("DotComma")) {
-          // error
-        }
-        comma_expected = false;
-      }
-      else {
-        c
-      }
-    }
+    fn_parser();
   }
   else if (this_token.is_of_type("DotInt") || \
            this_token.is_of_type("DotString")) {
