@@ -1,0 +1,3 @@
+/home/runner/shimmerlang/CMakeFiles/rebuild_cache.dir
+/home/runner/shimmerlang/CMakeFiles/Tutorial.dir
+/home/runner/shimmerlang/CMakeFiles/edit_cache.dir

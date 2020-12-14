@@ -14,16 +14,16 @@ enum DotTypes {
   TypeId
 };
 
-typedef enum { NONETYPE, LITERAL, STATEMENT, IDENTIFIER } ParamType;
+typedef enum { NONETYPE, LITERAL, STATEMENT, IDENTIFIER, FUNCTION } ParamType;
 
 class DotIdentifier;
 class DotStatement;
-//class DotTree;
+class ShimmerUnclosedFunc;
 class DotLiteral;
 class ShimmerParam;
 class ShimmerScope;
 
-typedef std::unordered_map<std::string, DotLiteral> Scope;
+typedef std::unordered_map<std::string, DotLiteral*> Scope;
 
 class DotToken {
   public:
@@ -89,14 +89,13 @@ class DotIdentifier : public DotToken {
     DotIdentifier();
 };
 
-
-
 class ShimmerParam {
   public:
 		ShimmerParam();
     ShimmerParam(DotLiteral& literal_value);
     ShimmerParam(DotStatement& statement_value);
     ShimmerParam(DotIdentifier identifier_value);
+    ShimmerParam(ShimmerUnclosedFunc& func_value);
 
     ParamType param_type = NONETYPE;
     ParamType get_param_type();
@@ -106,10 +105,12 @@ class ShimmerParam {
     DotLiteral* literal_val;
     DotStatement* statement_val;
     DotIdentifier identifier_val;
+    ShimmerUnclosedFunc* func_val;
 
     DotLiteral get_literal_val();
     DotStatement get_statement_val();
     DotIdentifier get_identifier_val();
+    ShimmerUnclosedFunc get_func_val();
 };
 
 class DotStatement {
@@ -142,30 +143,6 @@ class DotTree {
     std::vector<DotStatement> get_tree();
 };
 
-class DotLiteral {
-  public:
-    explicit DotLiteral();
-    explicit DotLiteral(int line, int val);
-    explicit DotLiteral(int line, std::string val);
-    explicit DotLiteral(int line, DotTree val);
-    explicit DotLiteral(int line, DotIdentifier val);
-
-    int type;
-    int int_value;
-    bool bool_value;
-    std::string str_value;
-    DotTree func_value;
-    DotIdentifier id_value;
-
-    int get_type();
-    int get_int();
-    bool get_bool();
-    std::string get_str();
-    DotTree get_func();
-    DotIdentifier get_id();
-};
-
-
 class ShimmerScope {
   public:
     ShimmerScope(); // Default constructor
@@ -185,6 +162,7 @@ class ShimmerUnclosedFunc {
 		std::vector<DotIdentifier> params;
     DotTree tree;
 		ShimmerUnclosedFunc(std::vector<DotIdentifier> _params, DotTree _tree);
+    ShimmerUnclosedFunc() {}
 };
 
 class ShimmerClosedFunc {
@@ -193,6 +171,30 @@ class ShimmerClosedFunc {
     DotTree tree;
     ShimmerScope* closed_scope;
 		ShimmerClosedFunc(ShimmerUnclosedFunc to_close, ShimmerScope* closed_scope);
+};
+
+class DotLiteral {
+  public:
+    explicit DotLiteral();
+    explicit DotLiteral(int line, int val);
+    explicit DotLiteral(int line, std::string val);
+    // explicit DotLiteral(int line, ShimmerUnclosedFunc val);
+    explicit DotLiteral(int line, DotIdentifier val);
+
+    int type;
+    int int_value;
+    bool bool_value;
+    std::string str_value;
+    ShimmerUnclosedFunc* func_value;
+  
+    DotIdentifier id_value;
+
+    int get_type();
+    int get_int();
+    bool get_bool();
+    std::string get_str();
+    // ShimmerUnclosedFunc get_func();
+    DotIdentifier get_id();
 };
 
 #endif

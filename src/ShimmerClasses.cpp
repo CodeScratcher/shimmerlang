@@ -128,8 +128,8 @@ void DotStatement::set_expr(ShimmerParam expr) {
 }
 
 DotLiteral DotStatement::eval(ShimmerScope* scope) {
-  std::cout << "DotStatement::eval called\n";
   pretty_print(*this);
+
   for (int i = 0; i < params.size(); i++) {
     if (params.at(i).is_of_type(STATEMENT)) {
       DotLiteral x = params.at(i).get_statement_val().eval(scope);
@@ -154,9 +154,9 @@ void DotStatement::error_on_missing_params(int line, int min, std::string msg) {
 }
 
 void DotStatement::error_on_extra_params(int line, int max, std::string msg) {
-  //print_statement_info(*this);
   pretty_print(*this);
   std::cout << "\n";
+
   if (params.size() > max) {
     throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);
   }
@@ -188,10 +188,13 @@ DotLiteral::DotLiteral(int line, std::string val) {
   str_value = val;
 }
 
-DotLiteral::DotLiteral(int line, DotTree val) {
+/* 
+DotLiteral::DotLiteral(int line, ShimmerUnclosedFunc val) {
   type = TypeFunc;
-  func_value = val;
+  static ShimmerUnclosedFunc value = val;
+  func_value = &value;
 }
+*/
 
 DotLiteral::DotLiteral(int line, DotIdentifier val) {
   type = TypeId;
@@ -219,11 +222,11 @@ std::string DotLiteral::get_str() {
   }
   else return str_value;
 }
-
-DotTree DotLiteral::get_func() {
-  return func_value;
+/*
+ShimmerUnclosedFunc DotLiteral::get_func() {
+  return *func_value;
 }
-
+*/
 DotIdentifier DotLiteral::get_id() {
   return id_value;
 }
@@ -245,6 +248,11 @@ ShimmerParam::ShimmerParam(DotStatement& statement_value) {
 ShimmerParam::ShimmerParam(DotIdentifier identifier_value) {
   param_type = IDENTIFIER;
   identifier_val = identifier_value;
+}
+
+ShimmerParam::ShimmerParam(ShimmerUnclosedFunc& func_value) {
+  param_type = FUNCTION;
+  *func_val = func_value;
 }
 
 ParamType ShimmerParam::get_param_type() {
@@ -287,21 +295,21 @@ ShimmerScope::ShimmerScope(ShimmerScope* up_scope, Scope cur_scope) {
 
 DotLiteral ShimmerScope::get_variable(std::string var_name) {
   if (current_scope.find(var_name) != current_scope.end()) {
-    return current_scope.at(var_name);
+    return *current_scope.at(var_name);
   }
   else {
     if (upper_scope != nullptr) {
       return upper_scope->get_variable(var_name);
     }
     else {
-      throw std::runtime_error("Variable not found: " + var_name);
+      throw std::runtime_error("Undefined reference to variable " + var_name);
     }
   }
 }
 
 void ShimmerScope::set_variable(std::string var_name, DotLiteral val) {
   if (current_scope.find(var_name) != current_scope.end()) {
-    current_scope.at(var_name) = val;
+    *current_scope.at(var_name) = val;
   }
   else {
     upper_scope->set_variable(var_name, val);
@@ -309,7 +317,7 @@ void ShimmerScope::set_variable(std::string var_name, DotLiteral val) {
 }
 
 void ShimmerScope::declare_variable(std::string var_name, DotLiteral val) {
-  current_scope[var_name] = val;
+  *current_scope.at(var_name) = val;
 }
 
 ShimmerUnclosedFunc::ShimmerUnclosedFunc(std::vector<DotIdentifier> _params, DotTree _tree) {

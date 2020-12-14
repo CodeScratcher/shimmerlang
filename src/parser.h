@@ -15,7 +15,7 @@ class Parser {
     DotStatement to_add;
     ShimmerParam expr;
     int this_token_id;
-
+    bool first_param;
     DotToken this_token;
     DotToken next_token;
     std::vector<DotToken> tokens;
@@ -28,13 +28,14 @@ class Parser {
     Parser(std::vector<DotToken> _tokens);
     Parser(std::vector<DotToken> _tokens, ShimmerParam start);
     DotTree parse();
+    ShimmerUnclosedFunc parse_fn();
 
     void name_or_literal_expectation();
     void statement_or_call_expectation();
     void comma_expectation();
     void further_func_expectation();
     void param_expectation();
-    ShimmerUnclosedFunc fn_parser();
+
     void print_tokens();
     void print_token(int i);
 };
@@ -42,5 +43,6 @@ class Parser {
 void print_debug_info(DotTree x);
 const char* param_recursive_str(ShimmerParam to_convert);
 void print_statement_info(DotStatement i);
+const char* get_expectation_name(Expectation expect);
 
 #endif

@@ -9,9 +9,25 @@
 #include "parser.h"
 #include "lexer.h"
 #include "ShimmerClasses.h"
-ShimmerUnclosedFunc Parser::fn_parser() {
+
+// Parser constructor
+Parser::Parser(std::vector<DotToken> _tokens) {
+  expectation = NAME_OR_LITERAL;
+	tokens = _tokens;
+  
+}
+
+Parser::Parser(std::vector<DotToken> _tokens, ShimmerParam start) {
+  expectation = STATEMENT_OR_CALL;
+  tokens = _tokens;
+  expr = start;
+}
+
+ShimmerUnclosedFunc Parser::parse_fn() {
   bool comma_expected = false;
   std::vector<DotIdentifier> ids;
+  first_param = true;
+
   while (true) {
     this_token = tokens.at(++this_token_id);
 
@@ -19,20 +35,31 @@ ShimmerUnclosedFunc Parser::fn_parser() {
       if (this_token.is_of_type("DotRParen")) {
         break;
       }
-      if (this_token.not_of_type("DotComma")) {
-        // error
+      else if (this_token.not_of_type("DotComma")) {
+        throw_error("Expected comma but got ", this_token.get_contents(), -1);
       }
-      comma_expected = false;
+      else {
+        comma_expected = false;
+      }
     }
     else {
+      if (first_param && this_token.is_of_type("DotRParen")) {
+        break;
+      }
+
       ids.push_back(DotIdentifier(this_token.get_line(), this_token.get_contents()));
+      comma_expected = true;
+      first_param = false;
     }
   }
+
   std::vector<DotToken> tokens_for_recursion;
   this_token = tokens.at(++this_token_id);
-  if (this_token.not_of_type("DotLBrace")) {
-    // error
-  }
+
+  /* if (this_token.not_of_type("DotLBrace")) {
+    throw_error("")
+  } */
+
   int fn_layer = 1;
   while (true) {
     this_token = tokens.at(++this_token_id);
@@ -46,19 +73,13 @@ ShimmerUnclosedFunc Parser::fn_parser() {
     }
     tokens_for_recursion.push_back(this_token);
   }
-  DotTree tree = Parser(tokens_for_recursion).parse();
-}
-// Parser constructor
-Parser::Parser(std::vector<DotToken> _tokens) {
-  expectation = NAME_OR_LITERAL;
-	tokens = _tokens;
-  
-}
 
-Parser::Parser(std::vector<DotToken> _tokens, ShimmerParam start) {
-  expectation = STATEMENT_OR_CALL;
-  tokens = _tokens;
-  expr = start;
+  std::cout << "=== sub-parser ===\n";
+  DotTree tree = Parser(tokens_for_recursion).parse();
+  std::cout << "=== end sub-parser ===\n";
+  ++this_token_id;
+
+  return ShimmerUnclosedFunc(ids, tree);
 }
 
 DotTree Parser::parse() {
@@ -81,7 +102,6 @@ DotTree Parser::parse() {
       param_expectation();
     }
 
-    std::cout << "Now on iteration #" << std::to_string(this_token_id) << " of for loop.\n";
     print_token(this_token_id);
   }
 
@@ -109,6 +129,7 @@ void Parser::name_or_literal_expectation() {
 void Parser::statement_or_call_expectation() {
   if (this_token.is_of_type("DotLParen")) {
     expectation = PARAM;
+    first_param = true;
     to_add.set_expr(expr);
   }
   else if (this_token.is_of_type("DotInt")) {
@@ -193,15 +214,26 @@ void Parser::further_func_expectation() {
 
 void Parser::param_expectation() {
   DotLiteral lit;
-
-  if (this_token.is_of_type("DotIdentifier")) {
+  if (this_token.is_of_type("DotRParen") && first_param) {
+    to_add.set_params(params);
+    statements.push_back(to_add);
+    params.clear();
+    expectation = NAME_OR_LITERAL;
+    to_add = DotStatement();
+    return;
+  }
+  else if (this_token.is_of_type("DotIdentifier")) {
     DotLiteral liter = DotLiteral(this_token.get_line(), this_token.get_contents());
     current_expr = ShimmerParam(liter);
     expectation = FURTHER_FUNC;
     return;
   }
   else if (this_token.is_of_type("DotLParen")) {
-    fn_parser();
+    static ShimmerUnclosedFunc fn = parse_fn();
+    ShimmerParam param = ShimmerParam(fn);
+    current_expr = ShimmerParam(param);
+    expectation = FURTHER_FUNC;
+    return;
   }
   else if (this_token.is_of_type("DotInt") || \
            this_token.is_of_type("DotString")) {
@@ -219,6 +251,7 @@ void Parser::param_expectation() {
   else {
     throw_error("Expected function parameter but got: ", this_token.get_contents(), this_token.get_line());
   }
+  first_param = false;
 }
 
 void Parser::print_tokens() {
@@ -227,7 +260,15 @@ void Parser::print_tokens() {
   }
 }
 
-const char* get_expectation_name(Expectation expect) 
+void Parser::print_token(int i) {
+  std::cout << "Token #" << std::to_string(i);
+  std::cout << "\tis a " << tokens.at(i).get_token_type();
+  std::cout << "\t\twith contents \"" << tokens.at(i).get_contents();
+  std::cout << "\"\t\ton line " << tokens.at(i).get_line();
+  std::cout << ",\t expected to be a " << get_expectation_name(expectation) << ".\n";
+}
+
+const char* get_expectation_name(Expectation expect)
 {
   switch (expect) 
   {
@@ -237,14 +278,6 @@ const char* get_expectation_name(Expectation expect)
     case STATEMENT_OR_CALL: return "Statement or call";
     case FURTHER_FUNC:      return "Further func";
   }
-}
-
-void Parser::print_token(int i) {
-  std::cout << "This token's index:       " << std::to_string(i) << "\n";
-  std::cout << "This token's type:        " << tokens.at(i).get_token_type() << "\n";
-  std::cout << "This token's contents:    " << tokens.at(i).get_contents() << "\n";
-  std::cout << "This token's line:        " << tokens.at(i).get_line() << "\n\n";
-  std::cout << "This token's expectation: " << get_expectation_name(expectation) << "\n";
 }
 
 /* Old code for look ahead

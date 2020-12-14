@@ -10,7 +10,6 @@
 #include "errors.h"
 #include "text_effects.h"
 #include "lexer.h"
-
 std::vector<DotToken> lex(std::string str) {
   std::vector<DotToken> to_return;
   DotToken this_token;
@@ -35,7 +34,7 @@ std::vector<DotToken> lex(std::string str) {
       continue;
     }
     else if (now_in == CMNT2) {
-      now_in == CMNT3;
+      now_in = CMNT3;
       continue;
     }
     else if (now_in == CMNT3) {
@@ -180,7 +179,19 @@ std::vector<DotToken> lex(std::string str) {
   }
 
   if (now_in == STR) {
-      throw_error("Unclosed string: ", current_token_contents, current_line);
+    throw_error("Unclosed string: ", current_token_contents, current_line);
+  }
+  else if (now_in == CMNT1) {
+    throw_error("Missing asterisk at comment starting delimiter.", current_line);
+  }
+  else if (now_in == CMNT2) {
+    throw_error("Missing comment ending delimiter.", current_line);
+  }
+  else if (now_in == CMNT3) {
+    throw_error("Missing asterisk at comment ending delimiter.", current_line);
+  }
+  else if (now_in == CMNT4) {
+    throw_error("Missing slash at comment ending delimiter.", current_line);
   }
 
   return to_return;
@@ -217,7 +228,7 @@ std::string str_repr(State state) {
 
 const char* lex_to_str(std::vector<DotToken> lexed) {
   std::string str;
-  std::cout << BOLD("       Name\t\t\tType\t\t\tLine\n");
+  std::cout << tc::bold << "       Name\t\t\tType\t\t\tLine\n" << tc::reset;
 
   for(DotToken i : lexed) {
     std::string token_contents = i.get_contents();
