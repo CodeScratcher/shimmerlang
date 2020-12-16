@@ -101,8 +101,6 @@ DotTree Parser::parse() {
     else if (expectation == PARAM) {
       param_expectation();
     }
-
-    print_token(this_token_id);
   }
 
   std::cout << "Finished parsing\n";
@@ -147,6 +145,11 @@ void Parser::statement_or_call_expectation() {
 void Parser::comma_expectation() {
   if (this_token.is_of_type("DotRParen")) {
     to_add.set_params(params);
+    for (ShimmerParam i : to_add.get_params()) {
+      if (i.get_param_type() == LITERAL) {
+        printf("address of param: %p\n", (void*) i.literal_val);
+      }
+    }
     statements.push_back(to_add);
     params.clear();
     expectation = NAME_OR_LITERAL;
@@ -163,21 +166,32 @@ void Parser::comma_expectation() {
 
 void Parser::further_func_expectation() {
   if (this_token.is_of_type("DotComma")) {
-     params.push_back(ShimmerParam(current_expr));
-     return;
+    static ShimmerParam* param = new ShimmerParam(current_expr);
+    params.push_back(*param);
+    return;
   }
   if (this_token.is_of_type("DotRParen")) {
-    params.push_back(ShimmerParam(current_expr));
+    static ShimmerParam* param = new ShimmerParam(current_expr);
+    params.push_back(*param);
+    
     to_add.set_params(params);
+    for (ShimmerParam i : to_add.get_params()) {
+      if (i.get_param_type() == STATEMENT) {
+        printf("address of param: %p\n", (void*) i.statement_val);
+        
+      }
+    }
     statements.push_back(to_add);
     params.clear();
     expectation = NAME_OR_LITERAL;
+    printf("address of to_add: %p\n", (void*) &to_add);
     to_add = DotStatement();
     return;
   }
   else if (!this_token.is_of_type("DotLParen")) {
     throw_error("Expected parenthesis or comma but got:", this_token.get_contents(), this_token.get_line());
   }
+
   std::vector<DotToken> tokens_for_recursion;
 
   int sub_expr_layer = 0;
@@ -188,6 +202,7 @@ void Parser::further_func_expectation() {
     tokens_for_recursion.push_back(tok);
     tok = tokens.at(j);
     if (tok.is_of_type("DotRParen")) {
+      
       sub_expr_layer--;
       std::cout << sub_expr_layer;
       if (sub_expr_layer == 0) {
@@ -203,6 +218,7 @@ void Parser::further_func_expectation() {
       throw_error("Missing closing parenthesis.", this_token.get_contents(), this_token.get_line());
     }
   }
+
   this_token_id = j;
 
   Parser sub_parser = Parser(tokens_for_recursion, current_expr);
@@ -215,6 +231,9 @@ void Parser::further_func_expectation() {
 void Parser::param_expectation() {
   DotLiteral lit;
   if (this_token.is_of_type("DotRParen") && first_param) {
+    for (ShimmerParam i : params) {
+      std::cout << i.get_literal_val().get_str();
+    }
     to_add.set_params(params);
     statements.push_back(to_add);
     params.clear();
@@ -237,16 +256,17 @@ void Parser::param_expectation() {
   }
   else if (this_token.is_of_type("DotInt") || \
            this_token.is_of_type("DotString")) {
-
+    static DotLiteral* literal_val = new DotLiteral;
     if (this_token.is_of_type("DotInt")) {
-      lit = DotLiteral(this_token.get_line(), this_token.get_parsed_contents());
+      literal_val = new DotLiteral(this_token.get_line(), this_token.get_parsed_contents());
     }
     else if (this_token.is_of_type("DotString")) {
-      lit = DotLiteral(this_token.get_line(), this_token.get_contents());
+      literal_val = new DotLiteral(this_token.get_line(), this_token.get_contents());
     }
 
-    params.push_back(ShimmerParam(lit));
+    params.push_back(ShimmerParam(*literal_val));
     expectation = COMMA;
+
   }
   else {
     throw_error("Expected function parameter but got: ", this_token.get_contents(), this_token.get_line());

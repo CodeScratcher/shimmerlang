@@ -3,12 +3,22 @@
 /bin/bash print_options.sh
 read -p "Which option? [cC/dD/tT/rR] " answer
 
+
 compile () {
    export CXX=/usr/bin/clang++
    if [ ! -d build ]; then mkdir build; fi;
    cd build;
    read -p "What version? " VER;
    cmake DBUILD_NUMBER=$VER ../src;
+   make;
+   cd ..;
+}
+d_compile () {
+   export CXX=/usr/bin/clang++
+   if [ ! -d build ]; then mkdir build; fi;
+   cd build;
+   read -p "What version? " VER;
+   cmake -DBUILD_NUMBER=$VER -DCMAKE_BUILD_TYPE=Debug ../src;
    make;
    cd ..;
 }
@@ -22,7 +32,7 @@ elif [[ $answer == "d" ]]; then
   gdb build/shimmerlang
 
 elif [[ $answer == "D" ]]; then
-  if compile; then
+  if d_compile; then
     gdb build/shimmerlang
   fi
 

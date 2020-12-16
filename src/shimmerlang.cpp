@@ -15,8 +15,8 @@ int execute(std::string str, std::string loc);
 
 int main(int argc, char* argv[]) {
   // VER is passed as a macro argument to the compiler
-  std::string message = "Shimmerlang version " + std::string("Not yet") + \
-                        " Licensed under the MIT license.\n";
+  std::string message = "Shimmerlang version " + std::string("(Not yet)") + \
+                        " licensed under the MIT license.\n";
 
   if (argc > 1) {
     if (!interpret_program(argv[1])) {
