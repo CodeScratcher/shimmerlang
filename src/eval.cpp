@@ -7,11 +7,9 @@ int eval(DotTree tree) {
 
   for (DotStatement i : tree.get_tree()) {
     std::cout << "Pretty printing...\n";
-    // pretty_print(i);
     std::cout << "Done.\nEvaluating...\n";
     i.eval(&scope);
     std::cout << "Done.\n";
   }
-
   return 0;
 }

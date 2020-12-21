@@ -148,8 +148,9 @@ static LookupResult lookup_tables(DotStatement statement) {
   }
 
   std::string name = statement.expr.get_identifier_val().get_contents();
+
   if (name == "print") {
-    /*
+    /* ADD THIS????
     for (auto p : statement.get_params()) {
       std::cout << p.get_literal_val().get_str();
     }
@@ -157,47 +158,59 @@ static LookupResult lookup_tables(DotStatement statement) {
     std::cout << statement.get_params().at(0).literal_val->get_str() << "\n";
     return LookupResult(DotLiteral(-1, 0));
   }
-  if (name == "add") {
+  else if (name == "add") {
     
     int val = statement.get_params().at(0).literal_val->get_int() +  statement.get_params().at(1).literal_val->get_int();
     return LookupResult(DotLiteral(-1, val));
   }
+
   return LookupResult();
 }
+
 ShimmerParam::ShimmerParam(const ShimmerParam& param){
-      param_type = param.param_type;
-      printf("%p, %p, %p", literal_val, statement_val, func_val);
-      *literal_val = new DotLiteral(param.literal_val);
-      *statement_val = *param.statement_val;
-      identifier_val = param.identifier_val;
-      *func_val = *param.func_val;
-  } 
+  param_type = param.param_type;
+
+  if (param_type == LITERAL) {
+    literal_val = param.literal_val;
+  }
+  else if (param_type == STATEMENT) {
+    statement_val = param.statement_val;
+  }
+  else if (param_type == FUNCTION) {
+    func_val = param.func_val;
+  }
+  else {
+    identifier_val = param.identifier_val;
+  }
+}
+
 DotLiteral DotStatement::eval(ShimmerScope* scope) {
   // pretty_print(*this);
 
   for (int i = 0; i < params.size(); i++) {
     if (params.at(i).is_of_type(STATEMENT)) {
+      printf("%p \n", params.at(i).statement_val);
       DotLiteral x = params.at(i).get_statement_val().eval(scope);
       // delete[] params.at(i).statement_val;
-      params.at(i) = ShimmerParam(x);
+      // params.at(i) = ShimmerParam(x);
     }
-    else if (params.at(i).is_of_type(IDENTIFIER)) {
-      DotLiteral x = scope->get_variable(params.at(i).get_identifier_val().get_contents());
-      params.at(i) = ShimmerParam(x);
-    }
+    // else if (params.at(i).is_of_type(IDENTIFIER)) {
+    //   DotLiteral x = scope->get_variable(params.at(i).get_identifier_val().get_contents());
+    //   params.at(i) = ShimmerParam(x);
+    // }
   }
 
-  LookupResult res = lookup_tables(*this);
+  // LookupResult res = lookup_tables(*this);
 
-  if (res.found) {
-    return res.value;
-  }
-  else if (false) {
-    /* TODO: Create function to lookup user defined functions and evaluate them */
-  }
-  else {
-    throw_error("Function not found", -1);
-  }
+  // if (res.found) {
+  //   return res.value;
+  // }
+  // else if (false) {
+  //   /* TODO: Create function to lookup user defined functions and evaluate them */
+  // }
+  // else {
+  //   throw_error("Function not found", -1);
+  // }
 
   return DotLiteral(-1, 0); // line is -1 because we can't figure out the line number
 }

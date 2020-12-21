@@ -20,7 +20,7 @@ Parser::Parser(std::vector<DotToken> _tokens) {
 Parser::Parser(std::vector<DotToken> _tokens, ShimmerParam start) {
   expectation = STATEMENT_OR_CALL;
   tokens = _tokens;
-  expr = start;
+  expr = *new ShimmerParam(start);
 }
 
 ShimmerUnclosedFunc Parser::parse_fn() {
@@ -86,6 +86,7 @@ DotTree Parser::parse() {
   for (this_token_id = 0; this_token_id < tokens.size(); this_token_id++) {
     std::cout << "Trying to parse\n";
     this_token = tokens.at(this_token_id);
+
     if (expectation == NAME_OR_LITERAL) {
       name_or_literal_expectation();
     }
@@ -168,13 +169,12 @@ void Parser::further_func_expectation() {
   if (this_token.is_of_type("DotComma")) {
     static ShimmerParam* param = new ShimmerParam(current_expr);
     params.push_back(*param);
-    return;
   }
-  if (this_token.is_of_type("DotRParen")) {
-    static ShimmerParam* param = new ShimmerParam(current_expr);
+  else if (this_token.is_of_type("DotRParen")) {
+  	static ShimmerParam* param = new ShimmerParam(current_expr);
     params.push_back(*param);
-    
     to_add.set_params(params);
+
     for (ShimmerParam i : to_add.get_params()) {
       if (i.get_param_type() == STATEMENT) {
         printf("address of param: %p\n", (void*) i.statement_val);
@@ -202,7 +202,6 @@ void Parser::further_func_expectation() {
     tokens_for_recursion.push_back(tok);
     tok = tokens.at(j);
     if (tok.is_of_type("DotRParen")) {
-      
       sub_expr_layer--;
       std::cout << sub_expr_layer;
       if (sub_expr_layer == 0) {
@@ -222,7 +221,7 @@ void Parser::further_func_expectation() {
   this_token_id = j;
 
   Parser sub_parser = Parser(tokens_for_recursion, current_expr);
-  DotTree parsed = sub_parser.parse();
+  static DotTree parsed = sub_parser.parse();
   std::cout << "=== end sub-parser ===\n";
   current_expr = parsed.get_tree().at(0);
   tokens_for_recursion.clear();
@@ -242,15 +241,14 @@ void Parser::param_expectation() {
     return;
   }
   else if (this_token.is_of_type("DotIdentifier")) {
-    DotLiteral liter = DotLiteral(this_token.get_line(), this_token.get_contents());
+    static DotLiteral liter = DotLiteral(this_token.get_line(), this_token.get_contents());
     current_expr = ShimmerParam(liter);
     expectation = FURTHER_FUNC;
     return;
   }
   else if (this_token.is_of_type("DotLParen")) {
     static ShimmerUnclosedFunc fn = parse_fn();
-    ShimmerParam param = ShimmerParam(fn);
-    current_expr = ShimmerParam(param);
+    current_expr = ShimmerParam(fn);
     expectation = FURTHER_FUNC;
     return;
   }

@@ -1,9 +1,1 @@
-define($walrus, (variable, value){
-	set(variable, value)
-	variable
-})
-/*
-foo() -> this is a function
-vs
-foo bar -> this is two statements
-*/
+print(add(3, 4))
