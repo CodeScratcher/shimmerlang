@@ -192,25 +192,28 @@ DotLiteral DotStatement::eval(ShimmerScope* scope) {
       printf("%p \n", params.at(i).statement_val);
       DotLiteral x = params.at(i).get_statement_val().eval(scope);
       // delete[] params.at(i).statement_val;
-      // params.at(i) = ShimmerParam(x);
+      params.at(i) = ShimmerParam(x);
     }
-    // else if (params.at(i).is_of_type(IDENTIFIER)) {
-    //   DotLiteral x = scope->get_variable(params.at(i).get_identifier_val().get_contents());
-    //   params.at(i) = ShimmerParam(x);
+    else if (params.at(i).is_of_type(IDENTIFIER)) {
+      DotLiteral x = scope->get_variable(params.at(i).get_identifier_val().get_contents());
+      params.at(i) = ShimmerParam(x);
+    }
+    // else if (params.at(i).is_of_type(LITERAL)) {
+    //   std::cout << params.at(i).get_literal_val().get_str();
     // }
   }
 
-  // LookupResult res = lookup_tables(*this);
+  LookupResult res = lookup_tables(*this);
 
-  // if (res.found) {
-  //   return res.value;
-  // }
-  // else if (false) {
-  //   /* TODO: Create function to lookup user defined functions and evaluate them */
-  // }
-  // else {
-  //   throw_error("Function not found", -1);
-  // }
+  if (res.found) {
+    return res.value;
+  }
+  else if (false) {
+    /* TODO: Create function to lookup user defined functions and evaluate them */
+  }
+  else {
+    throw_error("Function not found", -1);
+  }
 
   return DotLiteral(-1, 0); // line is -1 because we can't figure out the line number
 }
