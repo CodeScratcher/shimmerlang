@@ -11,7 +11,9 @@ compile () {
    read -p "What version? " VER;
    cmake DBUILD_NUMBER=$VER ../src;
    make;
+   export BASE=$?
    cd ..;
+   return $BASE;
 }
 d_compile () {
    export CXX=/usr/bin/clang++
@@ -20,7 +22,9 @@ d_compile () {
    read -p "What version? " VER;
    cmake -DBUILD_NUMBER=$VER -DCMAKE_BUILD_TYPE=Debug ../src;
    make;
+   export BASE=$?
    cd ..;
+   return $BASE;
 }
 
 if [[ $answer == "c" ]] || [[ $answer == "C" ]]; then

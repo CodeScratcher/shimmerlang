@@ -10,6 +10,7 @@
 #include "tree_print.h"
 #include "eval.h"
 #include "errors.h"
+
 DotToken::DotToken() {
   // Default constructor does nothing
 }
@@ -116,7 +117,7 @@ std::vector<ShimmerParam> DotStatement::get_params() {
 }
 
 ShimmerParam DotStatement::get_expr() {
-  return expr;
+  return std::forward<ShimmerParam>(expr);
 }
 
 void DotStatement::set_params(std::vector<ShimmerParam> param) {
@@ -127,27 +128,14 @@ void DotStatement::set_expr(ShimmerParam expr) {
   this->expr = expr;
 }
 
-class LookupResult {
-  public:
-    bool found;
 
-    DotLiteral value;
-    LookupResult() {
-      found = false;
-    }
 
-    LookupResult(DotLiteral _value) {
-      found = true;
-      value = _value;
-    }
-};
-
-static LookupResult lookup_tables(DotStatement statement) {
-  if (statement.expr.get_param_type() != IDENTIFIER) {
+ LookupResult DotStatement::lookup_tables() {
+  if (expr.get_param_type() != IDENTIFIER) {
     return LookupResult();
   }
 
-  std::string name = statement.expr.get_identifier_val().get_contents();
+  std::string name = expr.get_identifier_val().get_contents();
 
   if (name == "print") {
     /* ADD THIS????
@@ -155,33 +143,15 @@ static LookupResult lookup_tables(DotStatement statement) {
       std::cout << p.get_literal_val().get_str();
     }
     */
-    std::cout << statement.get_params().at(0).literal_val->get_str() << "\n";
+    std::cout << get_params().at(0).literal_val->get_str() << "\n";
     return LookupResult(DotLiteral(-1, 0));
   }
   else if (name == "add") {
-    
-    int val = statement.get_params().at(0).literal_val->get_int() +  statement.get_params().at(1).literal_val->get_int();
+    int val = get_params().at(0).literal_val->get_int() +  get_params().at(1).literal_val->get_int();
     return LookupResult(DotLiteral(-1, val));
   }
 
   return LookupResult();
-}
-
-ShimmerParam::ShimmerParam(const ShimmerParam& param){
-  param_type = param.param_type;
-
-  if (param_type == LITERAL) {
-    literal_val = param.literal_val;
-  }
-  else if (param_type == STATEMENT) {
-    statement_val = param.statement_val;
-  }
-  else if (param_type == FUNCTION) {
-    func_val = param.func_val;
-  }
-  else {
-    identifier_val = param.identifier_val;
-  }
 }
 
 DotLiteral DotStatement::eval(ShimmerScope* scope) {
@@ -189,7 +159,6 @@ DotLiteral DotStatement::eval(ShimmerScope* scope) {
 
   for (int i = 0; i < params.size(); i++) {
     if (params.at(i).is_of_type(STATEMENT)) {
-      printf("%p \n", params.at(i).statement_val);
       DotLiteral x = params.at(i).get_statement_val().eval(scope);
       // delete[] params.at(i).statement_val;
       params.at(i) = ShimmerParam(x);
@@ -203,7 +172,7 @@ DotLiteral DotStatement::eval(ShimmerScope* scope) {
     // }
   }
 
-  LookupResult res = lookup_tables(*this);
+  LookupResult res = lookup_tables();
 
   if (res.found) {
     return res.value;
@@ -296,11 +265,13 @@ std::string DotLiteral::get_str() {
   }
   else return str_value;
 }
+
 /*
 ShimmerUnclosedFunc DotLiteral::get_func() {
   return *func_value;
 }
 */
+
 DotIdentifier DotLiteral::get_id() {
   return id_value;
 }
@@ -316,6 +287,7 @@ ShimmerParam::ShimmerParam(DotLiteral& literal_value) {
 
 ShimmerParam::ShimmerParam(DotStatement& statement_value) {
   param_type = STATEMENT;
+
   statement_val = &statement_value;
 }
 
@@ -327,6 +299,23 @@ ShimmerParam::ShimmerParam(DotIdentifier identifier_value) {
 ShimmerParam::ShimmerParam(ShimmerUnclosedFunc& func_value) {
   param_type = FUNCTION;
   *func_val = func_value;
+}
+
+ShimmerParam::ShimmerParam(const ShimmerParam& param){
+  param_type = param.param_type;
+
+  if (param_type == LITERAL) {
+    literal_val = param.literal_val;
+  }
+  else if (param_type == STATEMENT) {
+    statement_val = param.statement_val;
+  }
+  else if (param_type == FUNCTION) {
+    func_val = param.func_val;
+  }
+  else {
+    identifier_val = param.identifier_val;
+  }
 }
 
 ParamType ShimmerParam::get_param_type() {

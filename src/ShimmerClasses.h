@@ -22,7 +22,7 @@ class ShimmerUnclosedFunc;
 class DotLiteral;
 class ShimmerParam;
 class ShimmerScope;
-
+class LookupResult;
 typedef std::unordered_map<std::string, DotLiteral*> Scope;
 
 class DotToken {
@@ -96,7 +96,7 @@ class ShimmerParam {
     ShimmerParam(DotStatement& statement_value);
     ShimmerParam(DotIdentifier identifier_value);
     ShimmerParam(ShimmerUnclosedFunc& func_value);
-    ShimmerParam(const ShimmerParam &param);
+    ShimmerParam(const ShimmerParam &param); // will this work?
 
     ParamType param_type = NONETYPE;
     ParamType get_param_type();
@@ -130,6 +130,7 @@ class DotStatement {
     void set_expr(ShimmerParam exp);
 
     DotLiteral eval(ShimmerScope* scope);
+    LookupResult lookup_tables();
 
   private:
     void error_on_missing_params(int line, int min, std::string msg);
@@ -197,5 +198,19 @@ class DotLiteral {
     // ShimmerUnclosedFunc get_func();
     DotIdentifier get_id();
 };
+class LookupResult {
+  public:
+    bool found;
 
+    DotLiteral value;
+    LookupResult() {
+      found = false;
+    }
+
+    LookupResult(DotLiteral _value) {
+      found = true;
+      value = _value;
+    }
+    
+};
 #endif

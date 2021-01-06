@@ -1,6 +1,8 @@
 #include <vector>
 #include <iostream>
 #include <string>
+#include <signal.h>
+
 #if defined BENCHMARK || defined DEBUG
 #include <fstream>
 #include <sstream>
@@ -20,7 +22,7 @@ Parser::Parser(std::vector<DotToken> _tokens) {
 Parser::Parser(std::vector<DotToken> _tokens, ShimmerParam start) {
   expectation = STATEMENT_OR_CALL;
   tokens = _tokens;
-  expr = *new ShimmerParam(start);
+  expr = start;
 }
 
 ShimmerUnclosedFunc Parser::parse_fn() {
@@ -56,9 +58,9 @@ ShimmerUnclosedFunc Parser::parse_fn() {
   std::vector<DotToken> tokens_for_recursion;
   this_token = tokens.at(++this_token_id);
 
-  /* if (this_token.not_of_type("DotLBrace")) {
-    throw_error("")
-  } */
+  if (this_token.not_of_type("DotLBrace")) {
+    throw_error("Expected opening brace for function body.", -1);
+  }
 
   int fn_layer = 1;
   while (true) {
@@ -104,7 +106,6 @@ DotTree Parser::parse() {
     }
   }
 
-  std::cout << "Finished parsing\n";
   to_return = DotTree(statements);
   return to_return;
 }
@@ -150,11 +151,16 @@ void Parser::comma_expectation() {
       if (i.get_param_type() == LITERAL) {
         printf("address of param: %p\n", (void*) i.literal_val);
       }
+      if (i.get_param_type() == STATEMENT) {
+        printf("address of param: %p\n", (void*)i.statement_val);
+      }
     }
+
     statements.push_back(to_add);
     params.clear();
     expectation = NAME_OR_LITERAL;
     to_add = DotStatement();
+
     return;
   }
 
@@ -171,16 +177,18 @@ void Parser::further_func_expectation() {
     params.push_back(*param);
   }
   else if (this_token.is_of_type("DotRParen")) {
+    //////////////////////////////////
   	static ShimmerParam* param = new ShimmerParam(current_expr);
+    printf("new printing: %p\n", (void*) param);
     params.push_back(*param);
     to_add.set_params(params);
 
     for (ShimmerParam i : to_add.get_params()) {
       if (i.get_param_type() == STATEMENT) {
         printf("address of param: %p\n", (void*) i.statement_val);
-        
       }
     }
+  
     statements.push_back(to_add);
     params.clear();
     expectation = NAME_OR_LITERAL;
@@ -196,11 +204,12 @@ void Parser::further_func_expectation() {
 
   int sub_expr_layer = 0;
   int j = this_token_id;
+
   std::cout << "=== sub-parser === \n";
+
   while (true) {
     DotToken tok = tokens.at(j);
     tokens_for_recursion.push_back(tok);
-    tok = tokens.at(j);
     if (tok.is_of_type("DotRParen")) {
       sub_expr_layer--;
       std::cout << sub_expr_layer;
@@ -221,10 +230,10 @@ void Parser::further_func_expectation() {
   this_token_id = j;
 
   Parser sub_parser = Parser(tokens_for_recursion, current_expr);
-  static DotTree parsed = sub_parser.parse();
+  static DotTree* parsed = new DotTree(sub_parser.parse());
   std::cout << "=== end sub-parser ===\n";
-  current_expr = parsed.get_tree().at(0);
-  tokens_for_recursion.clear();
+  static DotStatement res = parsed->get_tree().at(0);
+  current_expr = ShimmerParam(res);
 }
 
 void Parser::param_expectation() {
@@ -241,8 +250,8 @@ void Parser::param_expectation() {
     return;
   }
   else if (this_token.is_of_type("DotIdentifier")) {
-    static DotLiteral liter = DotLiteral(this_token.get_line(), this_token.get_contents());
-    current_expr = ShimmerParam(liter);
+    
+    current_expr = ShimmerParam(DotIdentifier(this_token.get_line(), this_token.get_contents()));
     expectation = FURTHER_FUNC;
     return;
   }

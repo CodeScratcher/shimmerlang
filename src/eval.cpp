@@ -11,5 +11,6 @@ int eval(DotTree tree) {
     i.eval(&scope);
     std::cout << "Done.\n";
   }
+
   return 0;
 }
