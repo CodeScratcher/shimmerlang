@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #endif
+
 #include "errors.h"
 #include "parser.h"
 #include "lexer.h"
@@ -175,6 +176,7 @@ void Parser::further_func_expectation() {
   if (this_token.is_of_type("DotComma")) {
     ShimmerParam* param = new ShimmerParam(current_expr);
     params.push_back(*param);
+    expectation = PARAM;
   }
   else if (this_token.is_of_type("DotRParen")) {
     //////////////////////////////////
@@ -188,7 +190,7 @@ void Parser::further_func_expectation() {
         printf("address of param: %p\n", (void*) i.statement_val);
       }
     }
-  
+    
     statements.push_back(to_add);
     params.clear();
     expectation = NAME_OR_LITERAL;
@@ -197,7 +199,7 @@ void Parser::further_func_expectation() {
     return;
   }
   else if (!this_token.is_of_type("DotLParen")) {
-    throw_error("Expected parenthesis or comma but got:", this_token.get_contents(), this_token.get_line());
+    throw_error("Expected parenthesis or comma but got: ", this_token.get_contents(), this_token.get_line());
   }
 
   std::vector<DotToken> tokens_for_recursion;
@@ -210,22 +212,29 @@ void Parser::further_func_expectation() {
   while (true) {
     DotToken tok = tokens.at(j);
     tokens_for_recursion.push_back(tok);
+
     if (tok.is_of_type("DotRParen")) {
       sub_expr_layer--;
-      std::cout << sub_expr_layer;
+      std::cout << "Encountered DotRParen. New sub_expr_layer: " << sub_expr_layer << "\n";
+
       if (sub_expr_layer == 0) {
         break;
       }
     }
+
     if (tok.is_of_type("DotLParen")) {
       sub_expr_layer++;
-      std::cout << sub_expr_layer;
+      std::cout << "Encountered DotLParen. New sub_expr_layer: " << sub_expr_layer << "\n";
     }
+
     j++;
+
     if (j == tokens.size()) {
-      throw_error("Missing closing parenthesis.", this_token.get_contents(), this_token.get_line());
+      throw_error("Expected closing parentheses but got ", this_token.get_contents(), this_token.get_line());
     }
   }
+
+  lex_to_str(tokens_for_recursion);
 
   this_token_id = j;
 

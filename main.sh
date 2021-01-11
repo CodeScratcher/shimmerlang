@@ -10,18 +10,19 @@ compile () {
    cd build;
    read -p "What version? " VER;
    cmake DBUILD_NUMBER=$VER ../src;
-   make;
+   make -j4;
    export BASE=$?
    cd ..;
    return $BASE;
 }
+
 d_compile () {
    export CXX=/usr/bin/clang++
    if [ ! -d build ]; then mkdir build; fi;
    cd build;
    read -p "What version? " VER;
    cmake -DBUILD_NUMBER=$VER -DCMAKE_BUILD_TYPE=Debug ../src;
-   make;
+   make -j4;
    export BASE=$?
    cd ..;
    return $BASE;

@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <regex>
+#define DEBUG
 #if defined BENCHMARK || defined DEBUG
 #include <fstream>
 #include <sstream>
@@ -10,6 +11,7 @@
 #include "errors.h"
 #include "text_effects.h"
 #include "lexer.h"
+
 std::vector<DotToken> lex(std::string str) {
   std::vector<DotToken> to_return;
   DotToken this_token;
