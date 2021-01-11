@@ -10,7 +10,7 @@ compile () {
    cd build;
    read -p "What version? " VER;
    cmake DBUILD_NUMBER=$VER ../src;
-   make -j4;
+   make;
    export BASE=$?
    cd ..;
    return $BASE;
@@ -22,7 +22,7 @@ d_compile () {
    cd build;
    read -p "What version? " VER;
    cmake -DBUILD_NUMBER=$VER -DCMAKE_BUILD_TYPE=Debug ../src;
-   make -j4;
+   make;
    export BASE=$?
    cd ..;
    return $BASE;
