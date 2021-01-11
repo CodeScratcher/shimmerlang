@@ -173,12 +173,12 @@ void Parser::comma_expectation() {
 
 void Parser::further_func_expectation() {
   if (this_token.is_of_type("DotComma")) {
-    static ShimmerParam* param = new ShimmerParam(current_expr);
+    ShimmerParam* param = new ShimmerParam(current_expr);
     params.push_back(*param);
   }
   else if (this_token.is_of_type("DotRParen")) {
     //////////////////////////////////
-  	static ShimmerParam* param = new ShimmerParam(current_expr);
+  	ShimmerParam* param = new ShimmerParam(current_expr);
     printf("new printing: %p\n", (void*) param);
     params.push_back(*param);
     to_add.set_params(params);
@@ -230,10 +230,10 @@ void Parser::further_func_expectation() {
   this_token_id = j;
 
   Parser sub_parser = Parser(tokens_for_recursion, current_expr);
-  static DotTree* parsed = new DotTree(sub_parser.parse());
+  DotTree* parsed = new DotTree(sub_parser.parse());
   std::cout << "=== end sub-parser ===\n";
-  static DotStatement res = parsed->get_tree().at(0);
-  current_expr = ShimmerParam(res);
+  DotStatement* res = new DotStatement(parsed->get_tree().at(0));
+  current_expr = ShimmerParam(*res);
 }
 
 void Parser::param_expectation() {
@@ -263,7 +263,7 @@ void Parser::param_expectation() {
   }
   else if (this_token.is_of_type("DotInt") || \
            this_token.is_of_type("DotString")) {
-    static DotLiteral* literal_val = new DotLiteral;
+    DotLiteral* literal_val = new DotLiteral;
     if (this_token.is_of_type("DotInt")) {
       literal_val = new DotLiteral(this_token.get_line(), this_token.get_parsed_contents());
     }
