@@ -179,7 +179,6 @@ void Parser::further_func_expectation() {
     expectation = PARAM;
   }
   else if (this_token.is_of_type("DotRParen")) {
-    //////////////////////////////////
   	ShimmerParam* param = new ShimmerParam(current_expr);
     printf("new printing: %p\n", (void*) param);
     params.push_back(*param);
@@ -230,7 +229,7 @@ void Parser::further_func_expectation() {
     j++;
 
     if (j == tokens.size()) {
-      throw_error("Expected closing parentheses but got ", this_token.get_contents(), this_token.get_line());
+      throw_error("Expected closing parentheses but got: ", this_token.get_contents(), this_token.get_line());
     }
   }
 
@@ -243,6 +242,9 @@ void Parser::further_func_expectation() {
   std::cout << "=== end sub-parser ===\n";
   DotStatement* res = new DotStatement(parsed->get_tree().at(0));
   current_expr = ShimmerParam(*res);
+  ShimmerParam* param = new ShimmerParam(current_expr);
+  params.push_back(*param);
+  expectation = COMMA;
 }
 
 void Parser::param_expectation() {

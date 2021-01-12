@@ -128,9 +128,7 @@ void DotStatement::set_expr(ShimmerParam expr) {
   this->expr = expr;
 }
 
-
-
- LookupResult DotStatement::lookup_tables() {
+LookupResult DotStatement::lookup_tables() {
   if (expr.get_param_type() != IDENTIFIER) {
     return LookupResult();
   }
@@ -147,8 +145,29 @@ void DotStatement::set_expr(ShimmerParam expr) {
     return LookupResult(DotLiteral(-1, 0));
   }
   else if (name == "add") {
-    int val = get_params().at(0).literal_val->get_int() +  get_params().at(1).literal_val->get_int();
-    return LookupResult(DotLiteral(-1, val));
+    int operand1 = get_params().at(0).literal_val->get_int();
+    int operand2 = get_params().at(1).literal_val->get_int();
+    return LookupResult(DotLiteral(-1, operand1 + operand2));
+  }
+  else if (name == "sub") {
+    int operand1 = get_params().at(0).literal_val->get_int();
+    int operand2 = get_params().at(1).literal_val->get_int();
+    return LookupResult(DotLiteral(-1, operand1 - operand2));
+  }
+  else if (name == "mul") {
+    int operand1 = get_params().at(0).literal_val->get_int();
+    int operand2 = get_params().at(1).literal_val->get_int();
+    return LookupResult(DotLiteral(-1, operand1 * operand2));
+  }
+  else if (name == "div") {
+    int operand1 = get_params().at(0).literal_val->get_int();
+    int operand2 = get_params().at(1).literal_val->get_int();
+
+    if (operand2 == 0) {
+      throw_error("Division by zero is illegal (and can be punished by up to several seconds of error time)", -1);
+    }
+
+    return LookupResult(DotLiteral(-1, operand1 / operand2));
   }
 
   return LookupResult();

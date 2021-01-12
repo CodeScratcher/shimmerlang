@@ -25,6 +25,10 @@ class ShimmerScope;
 class LookupResult;
 typedef std::unordered_map<std::string, DotLiteral*> Scope;
 
+int pow_int(b, n) {
+  if (n == 0)
+}
+
 class DotToken {
   public:
     DotToken();
@@ -198,6 +202,7 @@ class DotLiteral {
     // ShimmerUnclosedFunc get_func();
     DotIdentifier get_id();
 };
+
 class LookupResult {
   public:
     bool found;
@@ -211,6 +216,6 @@ class LookupResult {
       found = true;
       value = _value;
     }
-    
 };
+
 #endif
