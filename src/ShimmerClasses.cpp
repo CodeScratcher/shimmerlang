@@ -156,6 +156,7 @@ LookupResult DotStatement::lookup_tables() {
   else if (name == "add") {
     int operand1 = get_params().at(0).literal_val->get_int();
     int operand2 = get_params().at(1).literal_val->get_int();
+
     std::cout << "Performing " << std::to_string(operand1) << " + " << std::to_string(operand2) << ".\n";
     std::cout << "The address of the first  operand is: ";
     printf("%p.\n", (void*) &(get_params().at(0)));

@@ -96,7 +96,7 @@ class ShimmerParam {
     ShimmerParam(DotStatement& statement_value);
     ShimmerParam(DotIdentifier identifier_value);
     ShimmerParam(ShimmerUnclosedFunc& func_value);
-    ShimmerParam(const ShimmerParam &param); // will this work?
+    ShimmerParam(const ShimmerParam &param);
 
     ParamType param_type = NONETYPE;
     ParamType get_param_type();
