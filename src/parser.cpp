@@ -267,7 +267,7 @@ void Parser::param_expectation() {
     return;
   }
   else if (this_token.is_of_type("DotLParen")) {
-    static ShimmerUnclosedFunc fn = parse_fn();
+    ShimmerUnclosedFunc fn = parse_fn();
     current_expr = ShimmerParam(fn);
     expectation = FURTHER_FUNC;
     return;

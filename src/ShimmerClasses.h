@@ -25,10 +25,6 @@ class ShimmerScope;
 class LookupResult;
 typedef std::unordered_map<std::string, DotLiteral*> Scope;
 
-int pow_int(b, n) {
-  if (n == 0)
-}
-
 class DotToken {
   public:
     DotToken();
@@ -122,6 +118,7 @@ class DotStatement {
   public:
     DotStatement();
     DotStatement(ShimmerParam _expr, std::vector<ShimmerParam> _params);
+		DotStatement(const DotStatement &statement); 
 
     std::vector<ShimmerParam> params;
     ShimmerParam expr;

@@ -112,6 +112,15 @@ DotStatement::DotStatement(ShimmerParam _expr, std::vector<ShimmerParam> _params
   params = _params;
 }
 
+DotStatement::DotStatement(const DotStatement &statement) {
+	expr = ShimmerParam(statement.expr);
+
+	for (ShimmerParam i : statement.params) {
+    ShimmerParam* sp = new ShimmerParam(i);
+		params.push_back(*sp);
+	}
+}
+
 std::vector<ShimmerParam> DotStatement::get_params() {
   return params;
 }
@@ -136,17 +145,35 @@ LookupResult DotStatement::lookup_tables() {
   std::string name = expr.get_identifier_val().get_contents();
 
   if (name == "print") {
-    /* ADD THIS????
-    for (auto p : statement.get_params()) {
-      std::cout << p.get_literal_val().get_str();
+    for (auto p : get_params()) {
+      std::cout << p.get_literal_val().get_str() << " ";
     }
-    */
-    std::cout << get_params().at(0).literal_val->get_str() << "\n";
+
+    std::cout << "\n";
+
     return LookupResult(DotLiteral(-1, 0));
   }
   else if (name == "add") {
     int operand1 = get_params().at(0).literal_val->get_int();
     int operand2 = get_params().at(1).literal_val->get_int();
+    std::cout << "Performing " << std::to_string(operand1) << " + " << std::to_string(operand2) << ".\n";
+    std::cout << "The address of the first  operand is: ";
+    printf("%p.\n", (void*) &(get_params().at(0)));
+    std::cout << "The address of the second operand is: ";
+    printf("%p.\n", (void*) &(get_params().at(1)));
+    std::cout << "The address of the first  operand's literal_val is: ";
+    printf("%p.\n", (void*) (get_params().at(0).literal_val));
+    std::cout << "The address of the second operand's literal_val is: ";
+    printf("%p.\n", (void*) (get_params().at(1).literal_val));
+    std::cout << "The address of the address of the first  operand's literal_val is: ";
+    printf("%p.\n", (void*) &(get_params().at(0).literal_val));
+    std::cout << "The address of the address of the second operand's literal_val is: ";
+    printf("%p.\n", (void*) &(get_params().at(1).literal_val));
+    std::cout << "The address of the first  operand's int is: ";
+    printf("%p.\n", (void*) &operand1);
+    std::cout << "The address of the second operand's int is: ";
+    printf("%p.\n", (void*) &operand2);
+
     return LookupResult(DotLiteral(-1, operand1 + operand2));
   }
   else if (name == "sub") {
@@ -164,7 +191,7 @@ LookupResult DotStatement::lookup_tables() {
     int operand2 = get_params().at(1).literal_val->get_int();
 
     if (operand2 == 0) {
-      throw_error("Division by zero is illegal (and can be punished by up to several seconds of error time)", -1);
+      throw_error("Division by zero is illegal", -1);
     }
 
     return LookupResult(DotLiteral(-1, operand1 / operand2));
@@ -175,12 +202,29 @@ LookupResult DotStatement::lookup_tables() {
 
 DotLiteral DotStatement::eval(ShimmerScope* scope) {
   // pretty_print(*this);
+	/*
+	* NOTE ABOUT CODE 
+	* Found the issue
+	* There are two objects, but their literal_val is the same 
+	* Maybe do another layer of copying?
+	* After trying, that was not the solution
+	* Did do something
+	* Another issue
+	* All but literal_val is same.
+	* Parser, or evaluator?
+	* Int still broken.
+	* All we need to do is fix this weird int issue.
+	*/
+
+  DotLiteral new_thing;
 
   for (int i = 0; i < params.size(); i++) {
     if (params.at(i).is_of_type(STATEMENT)) {
-      DotLiteral x = params.at(i).get_statement_val().eval(scope);
+			DotStatement new_statement = DotStatement(params.at(i).get_statement_val());
+      new_thing = new_statement.eval(scope);
       // delete[] params.at(i).statement_val;
-      params.at(i) = ShimmerParam(x);
+      params.at(i) = ShimmerParam(new_thing);
+      std::cout << params.at(i).get_literal_val().get_str();
     }
     else if (params.at(i).is_of_type(IDENTIFIER)) {
       DotLiteral x = scope->get_variable(params.at(i).get_identifier_val().get_contents());
@@ -324,7 +368,8 @@ ShimmerParam::ShimmerParam(const ShimmerParam& param){
   param_type = param.param_type;
 
   if (param_type == LITERAL) {
-    literal_val = param.literal_val;
+		const DotLiteral newLiteral = *param.literal_val;
+    literal_val = new DotLiteral(newLiteral);
   }
   else if (param_type == STATEMENT) {
     statement_val = param.statement_val;
