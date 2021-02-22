@@ -92,11 +92,11 @@ class DotIdentifier : public DotToken {
 class ShimmerParam {
   public:
 		ShimmerParam();
-    ShimmerParam(DotLiteral& literal_value);
-    ShimmerParam(DotStatement& statement_value);
+    ShimmerParam(DotLiteral literal_value);
+    ShimmerParam(DotStatement statement_value);
     ShimmerParam(DotIdentifier identifier_value);
     ShimmerParam(ShimmerUnclosedFunc& func_value);
-    ShimmerParam(const ShimmerParam &param);
+    //ShimmerParam(const ShimmerParam &param);
 
     ParamType param_type = NONETYPE;
     ParamType get_param_type();
@@ -185,11 +185,11 @@ class DotLiteral {
     explicit DotLiteral(int line, DotIdentifier val);
 
     int type;
+
     int int_value;
     bool bool_value;
     std::string str_value;
     ShimmerUnclosedFunc* func_value;
-  
     DotIdentifier id_value;
 
     int get_type();

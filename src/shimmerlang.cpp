@@ -7,6 +7,7 @@
 #include "lexer.h"
 #include "parser.h"
 #include "eval.h"
+#include "tree_print.h"
 
 bool interpret_program(char* program_name);
 void interpret_shell();
@@ -17,6 +18,9 @@ int main(int argc, char* argv[]) {
   // VER is passed as a macro argument to the compiler
   std::string message = "Shimmerlang version " + std::string("(Not yet)") + \
                         " licensed under the MIT license.\n";
+
+  // test_pretty_print_literal();
+  // return 0;
 
   if (argc > 1) {
     if (!interpret_program(argv[1])) {

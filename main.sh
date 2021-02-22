@@ -3,7 +3,6 @@
 /bin/bash print_options.sh
 read -p "Which option? [cC/dD/tT/rR] " answer
 
-
 compile () {
    export CXX=/usr/bin/clang++
    if [ ! -d build ]; then mkdir build; fi;

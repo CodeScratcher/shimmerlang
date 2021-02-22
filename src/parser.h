@@ -45,4 +45,6 @@ const char* param_recursive_str(ShimmerParam to_convert);
 void print_statement_info(DotStatement i);
 const char* get_expectation_name(Expectation expect);
 
+const char* parse_test();
+
 #endif

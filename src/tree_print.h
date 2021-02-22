@@ -5,11 +5,11 @@
 #include "ShimmerClasses.h"
 
 void pretty_print(DotTree tree);
-void pretty_print(DotStatement statement);
-void pretty_print(ShimmerParam param, std::vector<bool> is_exploring,
-                  int depth, bool is_last);
-std::string pretty_print(ShimmerParam param);
-std::string pretty_print(DotLiteral lit);
+void pretty_print(DotStatement statement, int depth = 0);
+void pretty_print(ShimmerParam param, int depth = 0);
+void pretty_print(DotLiteral lit, int depth = 0);
+
+void test_pretty_print_literal();
 
 // void pretty_print(DotTree tree);
 // void pretty_print(DotStatement statement, int indent=0);
