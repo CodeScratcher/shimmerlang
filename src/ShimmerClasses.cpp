@@ -209,9 +209,10 @@ DotLiteral DotStatement::eval(ShimmerScope* scope) {
 			DotStatement new_statement = DotStatement(params.at(i).get_statement_val());
       pretty_print(*this);
       // IMPORTANT - OVERWRITING HAPPENS ON NEXT STATEMENT
-      // DotLiteral foo = new_statement.eval(scope);
+      // IMPORTANT - IMPORTANT - OVERWRITING DOES NOT HAPPEN ON NEXT STATEMENT
+      DotLiteral foo = new_statement.eval(scope);
       // delete[] params.at(i).statement_val;
-      params.at(i) = ShimmerParam(new_statement.eval(scope));
+      params.at(i) = ShimmerParam(/*new_statement.eval(scope)*/ foo);
        
       std::cout << "Evaluated and got: " << params.at(i).get_literal_val().get_str() << "\n";
        
@@ -348,7 +349,7 @@ ShimmerParam::ShimmerParam(DotIdentifier identifier_value) {
   identifier_val = identifier_value;
 }
 
-ShimmerParam::ShimmerParam(ShimmerUnclosedFunc func_value) {
+ShimmerParam::ShimmerParam(ShimmerUnclosedFunc& func_value) {
   param_type = FUNCTION;
   func_val = new ShimmerUnclosedFunc(func_value);
 }
