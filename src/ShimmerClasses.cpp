@@ -200,7 +200,7 @@ LookupResult DotStatement::lookup_tables() {
 
   return LookupResult();
 }
-
+// Evaluate a single thing
 DotLiteral DotStatement::eval(ShimmerScope* scope) {
   for (int i = 0; i < params.size(); i++) {
     std::cout << "On param #" << i << "\n";
