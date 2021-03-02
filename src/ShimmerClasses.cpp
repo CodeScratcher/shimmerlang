@@ -16,7 +16,8 @@ DotToken::DotToken() {
 }
 
 int DotToken::get_line() {
-  return line;
+  return line;36
+Browser Plays
 }
 
 std::string DotToken::get_contents() {
@@ -206,16 +207,9 @@ DotLiteral DotStatement::eval(ShimmerScope* scope) {
     std::cout << "On param #" << i << "\n";
 
     if (params.at(i).is_of_type(STATEMENT)) {
-			DotStatement new_statement = DotStatement(params.at(i).get_statement_val());
       pretty_print(*this);
-      // IMPORTANT - OVERWRITING HAPPENS ON NEXT STATEMENT
-      // IMPORTANT - IMPORTANT - OVERWRITING DOES NOT HAPPEN ON NEXT STATEMENT
-      DotLiteral foo = new_statement.eval(scope);
-      // delete[] params.at(i).statement_val;
-      params.at(i) = ShimmerParam(/*new_statement.eval(scope)*/ foo);
-       
-      std::cout << "Evaluated and got: " << params.at(i).get_literal_val().get_str() << "\n";
-       
+			DotStatement new_statement = DotStatement(params.at(i).get_statement_val());
+      params.at(i) = ShimmerParam(new_statement.eval(scope));
     }
     else if (params.at(i).is_of_type(IDENTIFIER)) {
       DotLiteral x = scope->get_variable(params.at(i).get_identifier_val().get_contents());
