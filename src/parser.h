@@ -10,10 +10,10 @@ typedef enum {
 
 class Parser {
   public:
-    ShimmerParam current_expr;
+    ShimmerExpr current_expr;
     Expectation expectation;
     DotStatement to_add;
-    ShimmerParam expr;
+    ShimmerExpr expr;
     int this_token_id;
     bool first_param;
     DotToken this_token;
@@ -21,12 +21,12 @@ class Parser {
     std::vector<DotToken> tokens;
 
     std::vector<DotStatement> statements;
-    std::vector<ShimmerParam> params;
+    std::vector<ShimmerExpr> params;
 
     DotTree to_return;
 
     Parser(std::vector<DotToken> _tokens);
-    Parser(std::vector<DotToken> _tokens, ShimmerParam start);
+    Parser(std::vector<DotToken> _tokens, ShimmerExpr start);
     DotTree parse();
     ShimmerUnclosedFunc parse_fn();
 
@@ -41,7 +41,7 @@ class Parser {
 };
 
 void print_debug_info(DotTree x);
-const char* param_recursive_str(ShimmerParam to_convert);
+const char* param_recursive_str(ShimmerExpr to_convert);
 void print_statement_info(DotStatement i);
 const char* get_expectation_name(Expectation expect);
 

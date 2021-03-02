@@ -16,8 +16,7 @@ DotToken::DotToken() {
 }
 
 int DotToken::get_line() {
-  return line;36
-Browser Plays
+  return line;
 }
 
 std::string DotToken::get_contents() {
@@ -108,33 +107,33 @@ DotStatement::DotStatement() {
   // Default constructor does nothing
 }
 
-DotStatement::DotStatement(ShimmerParam _expr, std::vector<ShimmerParam> _params) {
+DotStatement::DotStatement(ShimmerExpr _expr, std::vector<ShimmerExpr> _params) {
   expr = _expr;
   params = _params;
 }
 
 DotStatement::DotStatement(const DotStatement &statement) {
-	expr = ShimmerParam(statement.expr);
+	expr = ShimmerExpr(statement.expr);
 
-	for (ShimmerParam i : statement.params) {
-    ShimmerParam* sp = new ShimmerParam(i);
+	for (ShimmerExpr i : statement.params) {
+    ShimmerExpr* sp = new ShimmerExpr(i);
 		params.push_back(*sp);
 	}
 }
 
-std::vector<ShimmerParam> DotStatement::get_params() {
+std::vector<ShimmerExpr> DotStatement::get_params() {
   return params;
 }
 
-ShimmerParam DotStatement::get_expr() {
-  return std::forward<ShimmerParam>(expr);
+ShimmerExpr DotStatement::get_expr() {
+  return std::forward<ShimmerExpr>(expr);
 }
 
-void DotStatement::set_params(std::vector<ShimmerParam> param) {
+void DotStatement::set_params(std::vector<ShimmerExpr> param) {
   params = param;
 }
 
-void DotStatement::set_expr(ShimmerParam expr) {
+void DotStatement::set_expr(ShimmerExpr expr) {
   this->expr = expr;
 }
 
@@ -209,11 +208,11 @@ DotLiteral DotStatement::eval(ShimmerScope* scope) {
     if (params.at(i).is_of_type(STATEMENT)) {
       pretty_print(*this);
 			DotStatement new_statement = DotStatement(params.at(i).get_statement_val());
-      params.at(i) = ShimmerParam(new_statement.eval(scope));
+      params.at(i) = ShimmerExpr(new_statement.eval(scope));
     }
     else if (params.at(i).is_of_type(IDENTIFIER)) {
       DotLiteral x = scope->get_variable(params.at(i).get_identifier_val().get_contents());
-      params.at(i) = ShimmerParam(x);
+      params.at(i) = ShimmerExpr(x);
     }
     // else if (params.at(i).is_of_type(LITERAL)) {
     //   std::cout << params.at(i).get_literal_val().get_str();
@@ -324,31 +323,31 @@ DotIdentifier DotLiteral::get_id() {
   return id_value;
 }
 
-ShimmerParam::ShimmerParam() {
+ShimmerExpr::ShimmerExpr() {
   // Default constructor does nothing
 }
 
-ShimmerParam::ShimmerParam(DotLiteral literal_value) {
+ShimmerExpr::ShimmerExpr(DotLiteral literal_value) {
   param_type = LITERAL;
   literal_val = new DotLiteral(literal_value);
 }
 
-ShimmerParam::ShimmerParam(DotStatement statement_value) {
+ShimmerExpr::ShimmerExpr(DotStatement statement_value) {
   param_type = STATEMENT;
   statement_val = new DotStatement(statement_value);
 }
 
-ShimmerParam::ShimmerParam(DotIdentifier identifier_value) {
+ShimmerExpr::ShimmerExpr(DotIdentifier identifier_value) {
   param_type = IDENTIFIER;
   identifier_val = identifier_value;
 }
 
-ShimmerParam::ShimmerParam(ShimmerUnclosedFunc& func_value) {
+ShimmerExpr::ShimmerExpr(ShimmerUnclosedFunc& func_value) {
   param_type = FUNCTION;
   func_val = new ShimmerUnclosedFunc(func_value);
 }
 
-// ShimmerParam::ShimmerParam(const ShimmerParam& param){
+// ShimmerExpr::ShimmerExpr(const ShimmerExpr& param){
 //   param_type = param.param_type;
 
 //   if (param_type == LITERAL) {
@@ -366,27 +365,27 @@ ShimmerParam::ShimmerParam(ShimmerUnclosedFunc& func_value) {
 //   }
 // }
 
-ParamType ShimmerParam::get_param_type() {
+ParamType ShimmerExpr::get_param_type() {
   return param_type;
 }
 
-bool ShimmerParam::is_of_type(ParamType type) {
+bool ShimmerExpr::is_of_type(ParamType type) {
   return get_param_type() == type;
 }
 
-bool ShimmerParam::not_of_type(ParamType type) {
+bool ShimmerExpr::not_of_type(ParamType type) {
   return get_param_type() != type;
 }
 
-DotLiteral ShimmerParam::get_literal_val() {
+DotLiteral ShimmerExpr::get_literal_val() {
   return *literal_val;
 }
 
-DotStatement ShimmerParam::get_statement_val() {
+DotStatement ShimmerExpr::get_statement_val() {
   return *statement_val;
 }
 
-DotIdentifier ShimmerParam::get_identifier_val() {
+DotIdentifier ShimmerExpr::get_identifier_val() {
   return identifier_val;
 }
 

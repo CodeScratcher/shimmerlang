@@ -13,35 +13,35 @@ void pretty_print(DotTree tree) {
 void pretty_print(DotStatement statement, int depth) {
   pretty_print(statement.get_expr(), depth);
 
-  for (ShimmerParam pa : statement.get_params()) {
-    pretty_print(pa, depth + 1);
+  for (ShimmerExpr expr : statement.get_params()) {
+    pretty_print(expr, depth + 1);
   }
 }
 
-void pretty_print(ShimmerParam param, int depth) {
-  if (param.is_of_type(STATEMENT)) {
-    pretty_print(param.get_statement_val(), depth);
+void pretty_print(ShimmerExpr expr, int depth) {
+  if (expr.is_of_type(STATEMENT)) {
+    pretty_print(expr.get_statement_val(), depth);
   }
   else {
     for (int i = 0; i < depth; ++i) {
       std::cout << "\t";
     }
 
-    switch(param.get_param_type()) {
+    switch(expr.get_param_type()) {
       case NONETYPE:
-        std::cout << "<untyped param>\n";
+        std::cout << "<untyped expr>\n";
         break;
 
       case LITERAL:
-        pretty_print(param.get_literal_val(), depth + 1);
+        pretty_print(expr.get_literal_val(), depth + 1);
         break;
 
       case IDENTIFIER:
-        std::cout << param.get_identifier_val().get_contents();
+        std::cout << expr.get_identifier_val().get_contents();
         break;
 
       default:
-        throw std::runtime_error("Illegal param type!");
+        throw std::runtime_error("Illegal expr type!");
     }
 
     std::cout << "\n";

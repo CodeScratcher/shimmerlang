@@ -20,7 +20,7 @@ Parser::Parser(std::vector<DotToken> _tokens) {
   
 }
 
-Parser::Parser(std::vector<DotToken> _tokens, ShimmerParam start) {
+Parser::Parser(std::vector<DotToken> _tokens, ShimmerExpr start) {
   expectation = STATEMENT_OR_CALL;
   tokens = _tokens;
   expr = start;
@@ -114,7 +114,7 @@ DotTree Parser::parse() {
 void Parser::name_or_literal_expectation() {
   if (this_token.is_of_type("DotIdentifier")) {
     expectation = STATEMENT_OR_CALL;
-    expr = ShimmerParam(DotIdentifier(this_token.get_line(), this_token.get_contents()));
+    expr = ShimmerExpr(DotIdentifier(this_token.get_line(), this_token.get_contents()));
   }
   else if (this_token.is_of_type("DotInt")) {
     // Todo: Add straight value support (useful for functions)
@@ -148,7 +148,7 @@ void Parser::statement_or_call_expectation() {
 void Parser::comma_expectation() {
   if (this_token.is_of_type("DotRParen")) {
     to_add.set_params(params);
-    for (ShimmerParam i : to_add.get_params()) {
+    for (ShimmerExpr i : to_add.get_params()) {
       if (i.get_param_type() == LITERAL) {
         printf("address of param: %p\n", (void*) i.literal_val);
       }
@@ -174,17 +174,17 @@ void Parser::comma_expectation() {
 
 void Parser::further_func_expectation() {
   if (this_token.is_of_type("DotComma")) {
-    ShimmerParam* param = new ShimmerParam(current_expr);
+    ShimmerExpr* param = new ShimmerExpr(current_expr);
     params.push_back(*param);
     expectation = PARAM;
   }
   else if (this_token.is_of_type("DotRParen")) {
-  	ShimmerParam* param = new ShimmerParam(current_expr);
+  	ShimmerExpr* param = new ShimmerExpr(current_expr);
     printf("new printing: %p\n", (void*) param);
     params.push_back(*param);
     to_add.set_params(params);
 
-    for (ShimmerParam i : to_add.get_params()) {
+    for (ShimmerExpr i : to_add.get_params()) {
       if (i.get_param_type() == STATEMENT) {
         printf("address of param: %p\n", (void*) i.statement_val);
       }
@@ -241,8 +241,8 @@ void Parser::further_func_expectation() {
   DotTree* parsed = new DotTree(sub_parser.parse());
   std::cout << "=== end sub-parser ===\n";
   DotStatement* res = new DotStatement(parsed->get_tree().at(0));
-  current_expr = ShimmerParam(*res);
-  ShimmerParam* param = new ShimmerParam(current_expr);
+  current_expr = ShimmerExpr(*res);
+  ShimmerExpr* param = new ShimmerExpr(current_expr);
   params.push_back(*param);
   expectation = COMMA;
 }
@@ -250,7 +250,7 @@ void Parser::further_func_expectation() {
 void Parser::param_expectation() {
   DotLiteral lit;
   if (this_token.is_of_type("DotRParen") && first_param) {
-    for (ShimmerParam i : params) {
+    for (ShimmerExpr i : params) {
       std::cout << i.get_literal_val().get_str();
     }
     to_add.set_params(params);
@@ -262,13 +262,13 @@ void Parser::param_expectation() {
   }
   else if (this_token.is_of_type("DotIdentifier")) {
     
-    current_expr = ShimmerParam(DotIdentifier(this_token.get_line(), this_token.get_contents()));
+    current_expr = ShimmerExpr(DotIdentifier(this_token.get_line(), this_token.get_contents()));
     expectation = FURTHER_FUNC;
     return;
   }
   else if (this_token.is_of_type("DotLParen")) {
     ShimmerUnclosedFunc fn = parse_fn();
-    current_expr = ShimmerParam(fn);
+    current_expr = ShimmerExpr(fn);
     expectation = FURTHER_FUNC;
     return;
   }
@@ -282,7 +282,7 @@ void Parser::param_expectation() {
       literal_val = new DotLiteral(this_token.get_line(), this_token.get_contents());
     }
 
-    params.push_back(ShimmerParam(*literal_val));
+    params.push_back(ShimmerExpr(*literal_val));
     expectation = COMMA;
 
   }
@@ -343,13 +343,13 @@ if (separated) {
   i = j;
   DotTree parsed = parse(tokens_for_recursion);
   DotStatement to_push = parsed.get_tree().at(0);
-  ShimmerParam param = ShimmerParam(to_push);
+  ShimmerExpr param = ShimmerExpr(to_push);
   params.push_back(param);
   tokens_for_recursion.clear();
 */
 
 
-const char* param_recursive_str(ShimmerParam to_convert) {
+const char* param_recursive_str(ShimmerExpr to_convert) {
   if (to_convert.get_param_type() == LITERAL) {
     DotLiteral liter = to_convert.get_literal_val();
     if (liter.type == TypeString || liter.type == TypeInt) {
@@ -357,7 +357,7 @@ const char* param_recursive_str(ShimmerParam to_convert) {
     }
   }
   else if (to_convert.get_param_type() == STATEMENT) {
-    for (ShimmerParam i : to_convert.get_statement_val().get_params()) {
+    for (ShimmerExpr i : to_convert.get_statement_val().get_params()) {
       print_statement_info(i.get_statement_val());
     }
     return "Param recursive";
@@ -366,7 +366,7 @@ const char* param_recursive_str(ShimmerParam to_convert) {
 
 void print_statement_info(DotStatement i) {
 	std::cout << i.get_expr().get_identifier_val().get_contents() << "->";
-	for (ShimmerParam j : i.get_params()) {
+	for (ShimmerExpr j : i.get_params()) {
 		std::cout << param_recursive_str(j) << " ";
 	}
 }

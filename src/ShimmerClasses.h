@@ -20,7 +20,7 @@ class DotIdentifier;
 class DotStatement;
 class ShimmerUnclosedFunc;
 class DotLiteral;
-class ShimmerParam;
+class ShimmerExpr;
 class ShimmerScope;
 class LookupResult;
 typedef std::unordered_map<std::string, DotLiteral*> Scope;
@@ -89,14 +89,14 @@ class DotIdentifier : public DotToken {
     DotIdentifier();
 };
 
-class ShimmerParam {
+class ShimmerExpr {
   public:
-		ShimmerParam();
-    ShimmerParam(DotLiteral literal_value);
-    ShimmerParam(DotStatement statement_value);
-    ShimmerParam(DotIdentifier identifier_value);
-    ShimmerParam(ShimmerUnclosedFunc& func_value);
-    //ShimmerParam(const ShimmerParam &param);
+		ShimmerExpr();
+    ShimmerExpr(DotLiteral literal_value);
+    ShimmerExpr(DotStatement statement_value);
+    ShimmerExpr(DotIdentifier identifier_value);
+    ShimmerExpr(ShimmerUnclosedFunc& func_value);
+    //ShimmerExpr(const ShimmerExpr &param);
 
     ParamType param_type = NONETYPE;
     ParamType get_param_type();
@@ -117,18 +117,18 @@ class ShimmerParam {
 class DotStatement {
   public:
     DotStatement();
-    DotStatement(ShimmerParam _expr, std::vector<ShimmerParam> _params);
+    DotStatement(ShimmerExpr _expr, std::vector<ShimmerExpr> _params);
 		DotStatement(const DotStatement &statement); 
 
-    std::vector<ShimmerParam> params;
-    ShimmerParam expr;
+    std::vector<ShimmerExpr> params;
+    ShimmerExpr expr;
     // TODO: add identifier value
 
-    std::vector<ShimmerParam> get_params();
-    ShimmerParam get_expr();
+    std::vector<ShimmerExpr> get_params();
+    ShimmerExpr get_expr();
 
-    void set_params(std::vector<ShimmerParam> param);
-    void set_expr(ShimmerParam exp);
+    void set_params(std::vector<ShimmerExpr> param);
+    void set_expr(ShimmerExpr exp);
 
     DotLiteral eval(ShimmerScope* scope);
     LookupResult lookup_tables();
