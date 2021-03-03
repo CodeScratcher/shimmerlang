@@ -6,7 +6,7 @@
 #include <any>
 #include <unordered_map>
 
-enum DotTypes {
+enum ShimmerTypes {
   TypeString,
   TypeInt,
   TypeBool,
@@ -16,18 +16,18 @@ enum DotTypes {
 
 typedef enum { NONETYPE, LITERAL, STATEMENT, IDENTIFIER, FUNCTION } ParamType;
 
-class DotIdentifier;
-class DotStatement;
+class ShimmerIdentifier;
+class ShimmerStatement;
 class ShimmerUnclosedFunc;
-class DotLiteral;
+class ShimmerLiteral;
 class ShimmerExpr;
 class ShimmerScope;
 class LookupResult;
-typedef std::unordered_map<std::string, DotLiteral*> Scope;
+typedef std::unordered_map<std::string, ShimmerLiteral*> Scope;
 
-class DotToken {
+class ShimmerToken {
   public:
-    DotToken();
+    ShimmerToken();
     int line;
     std::string contents;
     int parsed_contents;
@@ -43,58 +43,58 @@ class DotToken {
     std::string to_string();
 };
 
-class DotLParen : public DotToken  {
+class ShimmerLParen : public ShimmerToken  {
   public:
-    DotLParen(int line);
+    ShimmerLParen(int line);
 };
 
-class DotRParen : public DotToken  {
+class ShimmerRParen : public ShimmerToken  {
   public:
-    DotRParen(int line);
+    ShimmerRParen(int line);
 };
 
-class DotLBrace : public DotToken  {
+class ShimmerLBrace : public ShimmerToken  {
   public:
-    DotLBrace(int line);
+    ShimmerLBrace(int line);
 };
 
-class DotRBrace : public DotToken  {
+class ShimmerRBrace : public ShimmerToken  {
   public:
-    DotRBrace(int line);
+    ShimmerRBrace(int line);
 };
 
-class DotIDLiteralSign : public DotToken  {
+class ShimmerIDLiteralSign : public ShimmerToken  {
   public:
-    DotIDLiteralSign(int line);
+    ShimmerIDLiteralSign(int line);
 };
 
-class DotComma : public DotToken  {
+class ShimmerComma : public ShimmerToken  {
   public:
-    DotComma(int line);
+    ShimmerComma(int line);
 };
 
-class DotInt : public DotToken {
+class ShimmerInt : public ShimmerToken {
   public:
-    DotInt(int line, std::string content);
+    ShimmerInt(int line, std::string content);
 };
 
-class DotString : public DotToken {
+class ShimmerString : public ShimmerToken {
   public:
-    DotString(int line, std::string content);
+    ShimmerString(int line, std::string content);
 };
 
-class DotIdentifier : public DotToken {
+class ShimmerIdentifier : public ShimmerToken {
   public:
-    DotIdentifier(int line, std::string content);
-    DotIdentifier();
+    ShimmerIdentifier(int line, std::string content);
+    ShimmerIdentifier();
 };
 
 class ShimmerExpr {
   public:
 		ShimmerExpr();
-    ShimmerExpr(DotLiteral literal_value);
-    ShimmerExpr(DotStatement statement_value);
-    ShimmerExpr(DotIdentifier identifier_value);
+    ShimmerExpr(ShimmerLiteral literal_value);
+    ShimmerExpr(ShimmerStatement statement_value);
+    ShimmerExpr(ShimmerIdentifier identifier_value);
     ShimmerExpr(ShimmerUnclosedFunc& func_value);
     //ShimmerExpr(const ShimmerExpr &param);
 
@@ -103,22 +103,22 @@ class ShimmerExpr {
     bool is_of_type(ParamType type);
     bool not_of_type(ParamType type);
 
-    DotLiteral* literal_val;
-    DotStatement* statement_val;
-    DotIdentifier identifier_val;
+    ShimmerLiteral* literal_val;
+    ShimmerStatement* statement_val;
+    ShimmerIdentifier identifier_val;
     ShimmerUnclosedFunc* func_val;
 
-    DotLiteral get_literal_val();
-    DotStatement get_statement_val();
-    DotIdentifier get_identifier_val();
+    ShimmerLiteral get_literal_val();
+    ShimmerStatement get_statement_val();
+    ShimmerIdentifier get_identifier_val();
     ShimmerUnclosedFunc get_func_val();
 };
 
-class DotStatement {
+class ShimmerStatement {
   public:
-    DotStatement();
-    DotStatement(ShimmerExpr _expr, std::vector<ShimmerExpr> _params);
-		DotStatement(const DotStatement &statement); 
+    ShimmerStatement();
+    ShimmerStatement(ShimmerExpr _expr, std::vector<ShimmerExpr> _params);
+		ShimmerStatement(const ShimmerStatement &statement); 
 
     std::vector<ShimmerExpr> params;
     ShimmerExpr expr;
@@ -130,7 +130,7 @@ class DotStatement {
     void set_params(std::vector<ShimmerExpr> param);
     void set_expr(ShimmerExpr exp);
 
-    DotLiteral eval(ShimmerScope* scope);
+    ShimmerLiteral eval(ShimmerScope* scope);
     LookupResult lookup_tables();
 
   private:
@@ -138,12 +138,12 @@ class DotStatement {
     void error_on_extra_params(int line, int max, std::string msg);
 };
 
-class DotTree {
+class ShimmerTree {
   public:
-    DotTree();
-    DotTree(std::vector<DotStatement> statement);
-    std::vector<DotStatement> tree;
-    std::vector<DotStatement> get_tree();
+    ShimmerTree();
+    ShimmerTree(std::vector<ShimmerStatement> statement);
+    std::vector<ShimmerStatement> tree;
+    std::vector<ShimmerStatement> get_tree();
 };
 
 class ShimmerScope {
@@ -155,34 +155,34 @@ class ShimmerScope {
     ShimmerScope* upper_scope;
     Scope current_scope;
 
-    void declare_variable(std::string var_name, DotLiteral val);
-    DotLiteral get_variable(std::string var_name);
-    void set_variable(std::string var_name, DotLiteral val);
+    void declare_variable(std::string var_name, ShimmerLiteral val);
+    ShimmerLiteral get_variable(std::string var_name);
+    void set_variable(std::string var_name, ShimmerLiteral val);
 };
 
 class ShimmerUnclosedFunc {
 	public:
-		std::vector<DotIdentifier> params;
-    DotTree tree;
-		ShimmerUnclosedFunc(std::vector<DotIdentifier> _params, DotTree _tree);
+		std::vector<ShimmerIdentifier> params;
+    ShimmerTree tree;
+		ShimmerUnclosedFunc(std::vector<ShimmerIdentifier> _params, ShimmerTree _tree);
     ShimmerUnclosedFunc() {}
 };
 
 class ShimmerClosedFunc {
 	public:
-		std::vector<DotIdentifier> params;
-    DotTree tree;
+		std::vector<ShimmerIdentifier> params;
+    ShimmerTree tree;
     ShimmerScope* closed_scope;
 		ShimmerClosedFunc(ShimmerUnclosedFunc to_close, ShimmerScope* closed_scope);
 };
 
-class DotLiteral {
+class ShimmerLiteral {
   public:
-    explicit DotLiteral();
-    explicit DotLiteral(int line, int val);
-    explicit DotLiteral(int line, std::string val);
-    // explicit DotLiteral(int line, ShimmerUnclosedFunc val);
-    explicit DotLiteral(int line, DotIdentifier val);
+    explicit ShimmerLiteral();
+    explicit ShimmerLiteral(int line, int val);
+    explicit ShimmerLiteral(int line, std::string val);
+    // explicit ShimmerLiteral(int line, ShimmerUnclosedFunc val);
+    explicit ShimmerLiteral(int line, ShimmerIdentifier val);
 
     int type;
 
@@ -190,26 +190,26 @@ class DotLiteral {
     bool bool_value;
     std::string str_value;
     ShimmerUnclosedFunc* func_value;
-    DotIdentifier id_value;
+    ShimmerIdentifier id_value;
 
     int get_type();
     int get_int();
     bool get_bool();
     std::string get_str();
     // ShimmerUnclosedFunc get_func();
-    DotIdentifier get_id();
+    ShimmerIdentifier get_id();
 };
 
 class LookupResult {
   public:
     bool found;
 
-    DotLiteral value;
+    ShimmerLiteral value;
     LookupResult() {
       found = false;
     }
 
-    LookupResult(DotLiteral _value) {
+    LookupResult(ShimmerLiteral _value) {
       found = true;
       value = _value;
     }

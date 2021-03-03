@@ -3,6 +3,6 @@
 
 #include "ShimmerClasses.h"
 
-int eval(DotTree tree);
+int eval(ShimmerTree tree);
 
 #endif

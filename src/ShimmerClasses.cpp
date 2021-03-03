@@ -11,108 +11,108 @@
 #include "eval.h"
 #include "errors.h"
 
-DotToken::DotToken() {
+ShimmerToken::ShimmerToken() {
   // Default constructor does nothing
 }
 
-int DotToken::get_line() {
+int ShimmerToken::get_line() {
   return line;
 }
 
-std::string DotToken::get_contents() {
+std::string ShimmerToken::get_contents() {
   return contents;
 }
 
-int DotToken::get_parsed_contents() {
+int ShimmerToken::get_parsed_contents() {
   return parsed_contents;
 }
 
-std::string DotToken::get_token_type() {
+std::string ShimmerToken::get_token_type() {
   return token_type;
 }
 
-bool DotToken::is_of_type(std::string type) {
+bool ShimmerToken::is_of_type(std::string type) {
   return token_type.compare(type) == 0;
 }
 
-bool DotToken::not_of_type(std::string type) {
+bool ShimmerToken::not_of_type(std::string type) {
   return token_type.compare(type) != 0;
 }
 
-DotLParen::DotLParen(int line) {
+ShimmerLParen::ShimmerLParen(int line) {
   this->line = line;
-  token_type = "DotLParen";
-  // DotLParen will always be a '('
+  token_type = "ShimmerLParen";
+  // ShimmerLParen will always be a '('
   contents = "(";
 }
 
-DotRParen::DotRParen(int line) {
+ShimmerRParen::ShimmerRParen(int line) {
   this->line = line;
-  token_type = "DotRParen";
-  // DotRParen will always be a ')'
+  token_type = "ShimmerRParen";
+  // ShimmerRParen will always be a ')'
   contents = ")";
 }
 
-DotLBrace::DotLBrace(int line) {
+ShimmerLBrace::ShimmerLBrace(int line) {
   this->line = line;
-  token_type = "DotLBrace";
-  // DotLBrace will always be a '{'
+  token_type = "ShimmerLBrace";
+  // ShimmerLBrace will always be a '{'
   contents = "{";
 }
 
-DotRBrace::DotRBrace(int line) {
+ShimmerRBrace::ShimmerRBrace(int line) {
   this->line = line;
-  token_type = "DotRBrace";
-  // DotRBrace will always be a '}'
+  token_type = "ShimmerRBrace";
+  // ShimmerRBrace will always be a '}'
   contents = "}";
 }
 
-DotIDLiteralSign::DotIDLiteralSign(int line) {
+ShimmerIDLiteralSign::ShimmerIDLiteralSign(int line) {
   this->line = line;
-  token_type = "DotIDLiteralSign";
+  token_type = "ShimmerIDLiteralSign";
   contents = "$";
 }
 
-DotComma::DotComma(int line) {
+ShimmerComma::ShimmerComma(int line) {
   this->line = line;
-  token_type = "DotComma";
-  // DotComma will always be a ','
+  token_type = "ShimmerComma";
+  // ShimmerComma will always be a ','
   contents = ",";
 }
 
-DotInt::DotInt(int line, std::string content) {
+ShimmerInt::ShimmerInt(int line, std::string content) {
   this->line = line;
-  token_type = "DotInt";
+  token_type = "ShimmerInt";
   contents = content;
   parsed_contents = std::stoi(content);
 }
 
-DotString::DotString(int line, std::string content) {
+ShimmerString::ShimmerString(int line, std::string content) {
   this->line = line;
-  token_type = "DotString";
+  token_type = "ShimmerString";
   contents = content;
 }
 
 
-DotIdentifier::DotIdentifier() {
+ShimmerIdentifier::ShimmerIdentifier() {
   // Default constructor does nothing
 }
 
-DotIdentifier::DotIdentifier(int line, std::string _contents) {
-  token_type = "DotIdentifier";
+ShimmerIdentifier::ShimmerIdentifier(int line, std::string _contents) {
+  token_type = "ShimmerIdentifier";
   contents = _contents;
 }
 
-DotStatement::DotStatement() {
+ShimmerStatement::ShimmerStatement() {
   // Default constructor does nothing
 }
 
-DotStatement::DotStatement(ShimmerExpr _expr, std::vector<ShimmerExpr> _params) {
+ShimmerStatement::ShimmerStatement(ShimmerExpr _expr, std::vector<ShimmerExpr> _params) {
   expr = _expr;
   params = _params;
 }
 
-DotStatement::DotStatement(const DotStatement &statement) {
+ShimmerStatement::ShimmerStatement(const ShimmerStatement &statement) {
 	expr = ShimmerExpr(statement.expr);
 
 	for (ShimmerExpr i : statement.params) {
@@ -121,23 +121,23 @@ DotStatement::DotStatement(const DotStatement &statement) {
 	}
 }
 
-std::vector<ShimmerExpr> DotStatement::get_params() {
+std::vector<ShimmerExpr> ShimmerStatement::get_params() {
   return params;
 }
 
-ShimmerExpr DotStatement::get_expr() {
+ShimmerExpr ShimmerStatement::get_expr() {
   return std::forward<ShimmerExpr>(expr);
 }
 
-void DotStatement::set_params(std::vector<ShimmerExpr> param) {
+void ShimmerStatement::set_params(std::vector<ShimmerExpr> param) {
   params = param;
 }
 
-void DotStatement::set_expr(ShimmerExpr expr) {
+void ShimmerStatement::set_expr(ShimmerExpr expr) {
   this->expr = expr;
 }
 
-LookupResult DotStatement::lookup_tables() {
+LookupResult ShimmerStatement::lookup_tables() {
   if (expr.get_param_type() != IDENTIFIER) {
     return LookupResult();
   }
@@ -151,7 +151,7 @@ LookupResult DotStatement::lookup_tables() {
 
     std::cout << "\n";
 
-    return LookupResult(DotLiteral(-1, 0));
+    return LookupResult(ShimmerLiteral(-1, 0));
   }
   else if (name == "add") {
     int operand1 = get_params().at(0).literal_val->get_int();
@@ -175,17 +175,17 @@ LookupResult DotStatement::lookup_tables() {
     // std::cout << "The address of the second operand's int is: ";
     // printf("%p.\n", (void*) &operand2);
 
-    return LookupResult(DotLiteral(-1, operand1 + operand2));
+    return LookupResult(ShimmerLiteral(-1, operand1 + operand2));
   }
   else if (name == "sub") {
     int operand1 = get_params().at(0).literal_val->get_int();
     int operand2 = get_params().at(1).literal_val->get_int();
-    return LookupResult(DotLiteral(-1, operand1 - operand2));
+    return LookupResult(ShimmerLiteral(-1, operand1 - operand2));
   }
   else if (name == "mul") {
     int operand1 = get_params().at(0).literal_val->get_int();
     int operand2 = get_params().at(1).literal_val->get_int();
-    return LookupResult(DotLiteral(-1, operand1 * operand2));
+    return LookupResult(ShimmerLiteral(-1, operand1 * operand2));
   }
   else if (name == "div") {
     int operand1 = get_params().at(0).literal_val->get_int();
@@ -195,23 +195,23 @@ LookupResult DotStatement::lookup_tables() {
       throw_error("Division by zero is illegal", -1);
     }
 
-    return LookupResult(DotLiteral(-1, operand1 / operand2));
+    return LookupResult(ShimmerLiteral(-1, operand1 / operand2));
   }
 
   return LookupResult();
 }
 // Evaluate a single thing
-DotLiteral DotStatement::eval(ShimmerScope* scope) {
+ShimmerLiteral ShimmerStatement::eval(ShimmerScope* scope) {
   for (int i = 0; i < params.size(); i++) {
     std::cout << "On param #" << i << "\n";
 
     if (params.at(i).is_of_type(STATEMENT)) {
       pretty_print(*this);
-			DotStatement new_statement = DotStatement(params.at(i).get_statement_val());
+			ShimmerStatement new_statement = ShimmerStatement(params.at(i).get_statement_val());
       params.at(i) = ShimmerExpr(new_statement.eval(scope));
     }
     else if (params.at(i).is_of_type(IDENTIFIER)) {
-      DotLiteral x = scope->get_variable(params.at(i).get_identifier_val().get_contents());
+      ShimmerLiteral x = scope->get_variable(params.at(i).get_identifier_val().get_contents());
       params.at(i) = ShimmerExpr(x);
     }
     // else if (params.at(i).is_of_type(LITERAL)) {
@@ -231,10 +231,10 @@ DotLiteral DotStatement::eval(ShimmerScope* scope) {
     throw_error("Function not found", -1);
   }
 
-  return DotLiteral(-1, 0); // line is -1 because we can't figure out the line number
+  return ShimmerLiteral(-1, 0); // line is -1 because we can't figure out the line number
 }
 
-void DotStatement::error_on_missing_params(int line, int min, std::string msg) {
+void ShimmerStatement::error_on_missing_params(int line, int min, std::string msg) {
   //print_statement_info(*this);
   pretty_print(*this);
   std::cout << "\n";
@@ -243,7 +243,7 @@ void DotStatement::error_on_missing_params(int line, int min, std::string msg) {
   }
 }
 
-void DotStatement::error_on_extra_params(int line, int max, std::string msg) {
+void ShimmerStatement::error_on_extra_params(int line, int max, std::string msg) {
   pretty_print(*this);
   std::cout << "\n";
 
@@ -252,61 +252,61 @@ void DotStatement::error_on_extra_params(int line, int max, std::string msg) {
   }
 }
 
-DotTree::DotTree() {
+ShimmerTree::ShimmerTree() {
   // Default constructor does nothing
 }
 
-DotTree::DotTree(std::vector<DotStatement> statements) {
+ShimmerTree::ShimmerTree(std::vector<ShimmerStatement> statements) {
   tree = statements;
 }
 
-std::vector<DotStatement> DotTree::get_tree() {
+std::vector<ShimmerStatement> ShimmerTree::get_tree() {
   return tree;
 }
 
-DotLiteral::DotLiteral() {
+ShimmerLiteral::ShimmerLiteral() {
   // Default constructor does nothing
 }
 
-DotLiteral::DotLiteral(int line, int val) {
+ShimmerLiteral::ShimmerLiteral(int line, int val) {
   type = TypeInt;
   int_value = val;
 }
 
-DotLiteral::DotLiteral(int line, std::string val) {
+ShimmerLiteral::ShimmerLiteral(int line, std::string val) {
   type = TypeString;
   str_value = val;
 }
 
 /* 
-DotLiteral::DotLiteral(int line, ShimmerUnclosedFunc val) {
+ShimmerLiteral::ShimmerLiteral(int line, ShimmerUnclosedFunc val) {
   type = TypeFunc;
   static ShimmerUnclosedFunc value = val;
   func_value = &value;
 }
 */
 
-DotLiteral::DotLiteral(int line, DotIdentifier val) {
+ShimmerLiteral::ShimmerLiteral(int line, ShimmerIdentifier val) {
   type = TypeId;
   id_value = val;
 }
 
-int DotLiteral::get_type() {
+int ShimmerLiteral::get_type() {
   return type;
 }
 
-int DotLiteral::get_int() {
+int ShimmerLiteral::get_int() {
 	 if (type == TypeString) {
     return std::stoi(str_value);
   }
   else return int_value;
 }
 
-bool DotLiteral::get_bool() {
+bool ShimmerLiteral::get_bool() {
   return bool_value;
 }
 
-std::string DotLiteral::get_str() {
+std::string ShimmerLiteral::get_str() {
   if (type == TypeInt) {
     return std::to_string(int_value);
   }
@@ -314,12 +314,12 @@ std::string DotLiteral::get_str() {
 }
 
 /*
-ShimmerUnclosedFunc DotLiteral::get_func() {
+ShimmerUnclosedFunc ShimmerLiteral::get_func() {
   return *func_value;
 }
 */
 
-DotIdentifier DotLiteral::get_id() {
+ShimmerIdentifier ShimmerLiteral::get_id() {
   return id_value;
 }
 
@@ -327,17 +327,17 @@ ShimmerExpr::ShimmerExpr() {
   // Default constructor does nothing
 }
 
-ShimmerExpr::ShimmerExpr(DotLiteral literal_value) {
+ShimmerExpr::ShimmerExpr(ShimmerLiteral literal_value) {
   param_type = LITERAL;
-  literal_val = new DotLiteral(literal_value);
+  literal_val = new ShimmerLiteral(literal_value);
 }
 
-ShimmerExpr::ShimmerExpr(DotStatement statement_value) {
+ShimmerExpr::ShimmerExpr(ShimmerStatement statement_value) {
   param_type = STATEMENT;
-  statement_val = new DotStatement(statement_value);
+  statement_val = new ShimmerStatement(statement_value);
 }
 
-ShimmerExpr::ShimmerExpr(DotIdentifier identifier_value) {
+ShimmerExpr::ShimmerExpr(ShimmerIdentifier identifier_value) {
   param_type = IDENTIFIER;
   identifier_val = identifier_value;
 }
@@ -351,8 +351,8 @@ ShimmerExpr::ShimmerExpr(ShimmerUnclosedFunc& func_value) {
 //   param_type = param.param_type;
 
 //   if (param_type == LITERAL) {
-// 		const DotLiteral newLiteral = *param.literal_val;
-//     literal_val = new DotLiteral(newLiteral);
+// 		const ShimmerLiteral newLiteral = *param.literal_val;
+//     literal_val = new ShimmerLiteral(newLiteral);
 //   }
 //   else if (param_type == STATEMENT) {
 //     statement_val = param.statement_val;
@@ -377,15 +377,15 @@ bool ShimmerExpr::not_of_type(ParamType type) {
   return get_param_type() != type;
 }
 
-DotLiteral ShimmerExpr::get_literal_val() {
+ShimmerLiteral ShimmerExpr::get_literal_val() {
   return *literal_val;
 }
 
-DotStatement ShimmerExpr::get_statement_val() {
+ShimmerStatement ShimmerExpr::get_statement_val() {
   return *statement_val;
 }
 
-DotIdentifier ShimmerExpr::get_identifier_val() {
+ShimmerIdentifier ShimmerExpr::get_identifier_val() {
   return identifier_val;
 }
 
@@ -403,7 +403,7 @@ ShimmerScope::ShimmerScope(ShimmerScope* up_scope, Scope cur_scope) {
   current_scope = cur_scope;
 }
 
-DotLiteral ShimmerScope::get_variable(std::string var_name) {
+ShimmerLiteral ShimmerScope::get_variable(std::string var_name) {
   if (current_scope.find(var_name) != current_scope.end()) {
     return *current_scope.at(var_name);
   }
@@ -417,7 +417,7 @@ DotLiteral ShimmerScope::get_variable(std::string var_name) {
   }
 }
 
-void ShimmerScope::set_variable(std::string var_name, DotLiteral val) {
+void ShimmerScope::set_variable(std::string var_name, ShimmerLiteral val) {
   if (current_scope.find(var_name) != current_scope.end()) {
     *current_scope.at(var_name) = val;
   }
@@ -426,11 +426,11 @@ void ShimmerScope::set_variable(std::string var_name, DotLiteral val) {
   }
 }
 
-void ShimmerScope::declare_variable(std::string var_name, DotLiteral val) {
+void ShimmerScope::declare_variable(std::string var_name, ShimmerLiteral val) {
   *current_scope.at(var_name) = val;
 }
 
-ShimmerUnclosedFunc::ShimmerUnclosedFunc(std::vector<DotIdentifier> _params, DotTree _tree) {
+ShimmerUnclosedFunc::ShimmerUnclosedFunc(std::vector<ShimmerIdentifier> _params, ShimmerTree _tree) {
   params = _params;
   tree = _tree;
 }

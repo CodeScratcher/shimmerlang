@@ -68,7 +68,7 @@ void interpret_shell() {
 int execute(std::string str, std::string loc) {
   try {
     Parser parser(lex(str));
-    DotTree parsed = parser.parse();
+    ShimmerTree parsed = parser.parse();
     eval(parsed);
   
     return true;

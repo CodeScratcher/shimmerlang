@@ -12,11 +12,11 @@
 #include "text_effects.h"
 #include "lexer.h"
 
-std::vector<DotToken> lex(std::string str) {
-  std::vector<DotToken> to_return;
-  DotToken this_token;
+std::vector<ShimmerToken> lex(std::string str) {
+  std::vector<ShimmerToken> to_return;
+  ShimmerToken this_token;
   std::string current_token_contents = "";
-  char string_watch_out_for;
+  char string_watch_yout_for;
   State now_in = NONE;
   int current_line = 1;
 
@@ -40,10 +40,11 @@ std::vector<DotToken> lex(std::string str) {
       continue;
     }
     else if (now_in == CMNT3) {
-      if (ch == '*') {
-        now_in = CMNT4;
+      if (ch != '*') {
+        throw_error("Missing asterisk at comment ending delimiter.", current_line);
       }
 
+      now_in = CMNT4;
       continue;
     }
     else if (now_in == CMNT4) {
@@ -54,8 +55,7 @@ std::vector<DotToken> lex(std::string str) {
       now_in = NONE;
       continue;
     }
-
-    if (now_in != STR && (ch == ' ' || ch == '\t' || ch == '\n')) {
+    else if (now_in != STR && (ch == ' ' || ch == '\t' || ch == '\n')) {
       if (ch == '\n') {
         current_line++;
       }
@@ -96,7 +96,7 @@ std::vector<DotToken> lex(std::string str) {
       }
 
       current_token_contents = "";
-      this_token = DotLParen(current_line);
+      this_token = ShimmerLParen(current_line);
       to_return.push_back(this_token);
     }
     else if (ch == ')') {
@@ -107,7 +107,7 @@ std::vector<DotToken> lex(std::string str) {
       }
   
       current_token_contents = "";
-      this_token = DotRParen(current_line);
+      this_token = ShimmerRParen(current_line);
       to_return.push_back(this_token);
     }
     else if (std::regex_search(std::string(1, ch), std::regex("[a-zA-Z_]")) && now_in == NONE) {
@@ -130,7 +130,7 @@ std::vector<DotToken> lex(std::string str) {
         to_return.push_back(this_token);
       }
       current_token_contents = "";
-      this_token = DotIDLiteralSign(current_line);
+      this_token = ShimmerIDLiteralSign(current_line);
       to_return.push_back(this_token);
     }
     else if (ch == '{') {
@@ -141,7 +141,7 @@ std::vector<DotToken> lex(std::string str) {
       }
 
       current_token_contents = "";
-      this_token = DotLBrace(current_line);
+      this_token = ShimmerLBrace(current_line);
       to_return.push_back(this_token);
     }
     else if (ch == '}') {
@@ -152,7 +152,7 @@ std::vector<DotToken> lex(std::string str) {
       }
 
       current_token_contents = "";
-      this_token = DotRBrace(current_line);
+      this_token = ShimmerRBrace(current_line);
       to_return.push_back(this_token);
     }
     else if (ch == ',') {
@@ -163,7 +163,7 @@ std::vector<DotToken> lex(std::string str) {
       }
 
       current_token_contents = "";
-      this_token = DotComma(current_line);
+      this_token = ShimmerComma(current_line);
       to_return.push_back(this_token);
     }
     else {
@@ -199,11 +199,11 @@ std::vector<DotToken> lex(std::string str) {
   return to_return;
 }
 
-DotToken make_token(State now_in, std::string current_token_contents, int current_line) {
-  if (now_in == STR)   return DotString(current_line, current_token_contents);
-  if (now_in == INT)   return DotInt(current_line, current_token_contents);
-  if (now_in == ID)    return DotIdentifier(current_line, current_token_contents);
-  if (now_in == NONE)  return DotString(current_line, "");
+ShimmerToken make_token(State now_in, std::string current_token_contents, int current_line) {
+  if (now_in == STR)   return ShimmerString(current_line, current_token_contents);
+  if (now_in == INT)   return ShimmerInt(current_line, current_token_contents);
+  if (now_in == ID)    return ShimmerIdentifier(current_line, current_token_contents);
+  if (now_in == NONE)  return ShimmerString(current_line, "");
   throw_error("Internal error: Illegal state: ", str_repr(now_in), current_line);
 }
 
@@ -228,11 +228,11 @@ std::string str_repr(State state) {
 
 #ifdef DEBUG
 
-const char* lex_to_str(std::vector<DotToken> lexed) {
+const char* lex_to_str(std::vector<ShimmerToken> lexed) {
   std::string str;
   std::cout << tc::bold << "       Name\t\t\tType\t\t\tLine\n" << tc::reset;
 
-  for(DotToken i : lexed) {
+  for(ShimmerToken i : lexed) {
     std::string token_contents = i.get_contents();
     std::string token_type = i.get_token_type();
     int token_line = i.get_line();
@@ -277,7 +277,7 @@ const char* lex_test() {
   else {
     std::stringstream buffer;
     buffer << file.rdbuf();
-    std::vector<DotToken> lexed = lex(buffer.str());
+    std::vector<ShimmerToken> lexed = lex(buffer.str());
     std::cout << "Lexed successfully. Entered testing.\n\n";
     return lex_to_str(lexed);
   }
@@ -301,4 +301,4 @@ int main() {
     }
 }
 
-#endif
+#endif 

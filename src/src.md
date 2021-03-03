@@ -21,7 +21,7 @@ Contains various classes used throughout the project to make the code cleaner.
 ## shimmerlang.cpp
 The main program that starts off processing and program 
 flow and also delegates jobs down to the other files. 
-**NOTE: this file is called by [main.sh].**
+**NOTE: this file is called by [main.sh (repl.it)] / [main.sh (github.com)].**
 
 ## text_effects.h
 The header with macros for printing colored and styled text. 
@@ -31,4 +31,5 @@ The header with macros for printing colored and styled text.
 Utilities for pretty-printing trees, statements, and function parameters. 
 Trees are printed sideways.
 
-[main.sh]: https://repl.it/@doineednumbers/shimmerlang#main.sh
+[main.sh (repl.it)]: https://repl.it/@skiscratcher/shimmerlang#main.sh
+[main.sh (github.com)]: https://github.com/CodeScratcher/shimmerlang/blob/master/main.sh

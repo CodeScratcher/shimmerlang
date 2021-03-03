@@ -4,13 +4,13 @@
 #include "tree_print.h"
 #include "ShimmerClasses.h"
 
-void pretty_print(DotTree tree) {
-  for (DotStatement st : tree.get_tree()) {
+void pretty_print(ShimmerTree tree) {
+  for (ShimmerStatement st : tree.get_tree()) {
     pretty_print(st, 0);
   }
 }
 
-void pretty_print(DotStatement statement, int depth) {
+void pretty_print(ShimmerStatement statement, int depth) {
   pretty_print(statement.get_expr(), depth);
 
   for (ShimmerExpr expr : statement.get_params()) {
@@ -48,7 +48,7 @@ void pretty_print(ShimmerExpr expr, int depth) {
   }
 }
 
-void pretty_print(DotLiteral lit, int depth) {
+void pretty_print(ShimmerLiteral lit, int depth) {
   int literal_type = lit.get_type();
 
   switch (literal_type) {
@@ -75,16 +75,16 @@ void pretty_print(DotLiteral lit, int depth) {
 }
 
 void test_pretty_print_literal() {
-  DotLiteral str_lit_1(-1, "Hi there");
-  DotLiteral str_lit_2(-1, "Hello world!");
-  DotLiteral int_lit_1(-1, 3);
-  DotLiteral int_lit_2(-1, 42);
-  DotLiteral bool_lit_1(-1, true);
-  DotLiteral bool_lit_2(-1, false);
+  ShimmerLiteral str_lit_1(-1, "Hi there");
+  ShimmerLiteral str_lit_2(-1, "Hello world!");
+  ShimmerLiteral int_lit_1(-1, 3);
+  ShimmerLiteral int_lit_2(-1, 42);
+  ShimmerLiteral bool_lit_1(-1, true);
+  ShimmerLiteral bool_lit_2(-1, false);
 
   // TODO
-  //DotLiteral id_lit_1(...);
-  //DotLiteral id_lit_2(...);
+  //ShimmerLiteral id_lit_1(...);
+  //ShimmerLiteral id_lit_2(...);
 
   std::cout << "Pretty printing string literal <\"Hi there\">...\n";
   pretty_print(str_lit_1);

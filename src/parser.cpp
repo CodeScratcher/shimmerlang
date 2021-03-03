@@ -14,13 +14,13 @@
 #include "ShimmerClasses.h"
 
 // Parser constructor
-Parser::Parser(std::vector<DotToken> _tokens) {
+Parser::Parser(std::vector<ShimmerToken> _tokens) {
   expectation = NAME_OR_LITERAL;
 	tokens = _tokens;
   
 }
 
-Parser::Parser(std::vector<DotToken> _tokens, ShimmerExpr start) {
+Parser::Parser(std::vector<ShimmerToken> _tokens, ShimmerExpr start) {
   expectation = STATEMENT_OR_CALL;
   tokens = _tokens;
   expr = start;
@@ -28,17 +28,17 @@ Parser::Parser(std::vector<DotToken> _tokens, ShimmerExpr start) {
 
 ShimmerUnclosedFunc Parser::parse_fn() {
   bool comma_expected = false;
-  std::vector<DotIdentifier> ids;
+  std::vector<ShimmerIdentifier> ids;
   first_param = true;
 
   while (true) {
     this_token = tokens.at(++this_token_id);
 
     if (comma_expected) {
-      if (this_token.is_of_type("DotRParen")) {
+      if (this_token.is_of_type("ShimmerRParen")) {
         break;
       }
-      else if (this_token.not_of_type("DotComma")) {
+      else if (this_token.not_of_type("ShimmerComma")) {
         throw_error("Expected comma but got ", this_token.get_contents(), -1);
       }
       else {
@@ -46,46 +46,46 @@ ShimmerUnclosedFunc Parser::parse_fn() {
       }
     }
     else {
-      if (first_param && this_token.is_of_type("DotRParen")) {
+      if (first_param && this_token.is_of_type("ShimmerRParen")) {
         break;
       }
 
-      ids.push_back(DotIdentifier(this_token.get_line(), this_token.get_contents()));
+      ids.push_back(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
       comma_expected = true;
       first_param = false;
     }
   }
 
-  std::vector<DotToken> tokens_for_recursion;
+  std::vector<ShimmerToken> tokens_for_recursion;
   this_token = tokens.at(++this_token_id);
 
-  if (this_token.not_of_type("DotLBrace")) {
+  if (this_token.not_of_type("ShimmerLBrace")) {
     throw_error("Expected opening brace for function body.", -1);
   }
 
   int fn_layer = 1;
   while (true) {
     this_token = tokens.at(++this_token_id);
-    if (this_token.is_of_type("DotRBrace")) {
+    if (this_token.is_of_type("ShimmerRBrace")) {
       if (--fn_layer == 0) {
         break;
       }
     }
-    if (this_token.is_of_type("DotLBrace")) {
+    if (this_token.is_of_type("ShimmerLBrace")) {
       fn_layer++;
     }
     tokens_for_recursion.push_back(this_token);
   }
 
   std::cout << "=== sub-parser ===\n";
-  DotTree tree = Parser(tokens_for_recursion).parse();
+  ShimmerTree tree = Parser(tokens_for_recursion).parse();
   std::cout << "=== end sub-parser ===\n";
   ++this_token_id;
 
   return ShimmerUnclosedFunc(ids, tree);
 }
 
-DotTree Parser::parse() {
+ShimmerTree Parser::parse() {
   for (this_token_id = 0; this_token_id < tokens.size(); this_token_id++) {
     std::cout << "Trying to parse\n";
     this_token = tokens.at(this_token_id);
@@ -107,19 +107,19 @@ DotTree Parser::parse() {
     }
   }
 
-  to_return = DotTree(statements);
+  to_return = ShimmerTree(statements);
   return to_return;
 }
 
 void Parser::name_or_literal_expectation() {
-  if (this_token.is_of_type("DotIdentifier")) {
+  if (this_token.is_of_type("ShimmerIdentifier")) {
     expectation = STATEMENT_OR_CALL;
-    expr = ShimmerExpr(DotIdentifier(this_token.get_line(), this_token.get_contents()));
+    expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
   }
-  else if (this_token.is_of_type("DotInt")) {
+  else if (this_token.is_of_type("ShimmerInt")) {
     // Todo: Add straight value support (useful for functions)
   }
-  else if (this_token.is_of_type("DotString")) {
+  else if (this_token.is_of_type("ShimmerString")) {
     // Todo: Add straight value support (useful for functions)
   }
   else {
@@ -128,15 +128,15 @@ void Parser::name_or_literal_expectation() {
 }
 
 void Parser::statement_or_call_expectation() {
-  if (this_token.is_of_type("DotLParen")) {
+  if (this_token.is_of_type("ShimmerLParen")) {
     expectation = PARAM;
     first_param = true;
     to_add.set_expr(expr);
   }
-  else if (this_token.is_of_type("DotInt")) {
+  else if (this_token.is_of_type("ShimmerInt")) {
     // Todo: Add straight value support (useful for functions)
   }
-  else if (this_token.is_of_type("DotString")) {
+  else if (this_token.is_of_type("ShimmerString")) {
     // Todo: Add straight value support (useful for functions)
   }
   else {
@@ -146,7 +146,7 @@ void Parser::statement_or_call_expectation() {
 }
 
 void Parser::comma_expectation() {
-  if (this_token.is_of_type("DotRParen")) {
+  if (this_token.is_of_type("ShimmerRParen")) {
     to_add.set_params(params);
     for (ShimmerExpr i : to_add.get_params()) {
       if (i.get_param_type() == LITERAL) {
@@ -160,12 +160,12 @@ void Parser::comma_expectation() {
     statements.push_back(to_add);
     params.clear();
     expectation = NAME_OR_LITERAL;
-    to_add = DotStatement();
+    to_add = ShimmerStatement();
 
     return;
   }
 
-  if (!this_token.is_of_type("DotComma")) {
+  if (!this_token.is_of_type("ShimmerComma")) {
     throw_error("Expected comma but got: ", this_token.get_contents(), this_token.get_line());
   }
 
@@ -173,12 +173,12 @@ void Parser::comma_expectation() {
 }
 
 void Parser::further_func_expectation() {
-  if (this_token.is_of_type("DotComma")) {
+  if (this_token.is_of_type("ShimmerComma")) {
     ShimmerExpr* param = new ShimmerExpr(current_expr);
     params.push_back(*param);
     expectation = PARAM;
   }
-  else if (this_token.is_of_type("DotRParen")) {
+  else if (this_token.is_of_type("ShimmerRParen")) {
   	ShimmerExpr* param = new ShimmerExpr(current_expr);
     printf("new printing: %p\n", (void*) param);
     params.push_back(*param);
@@ -194,14 +194,14 @@ void Parser::further_func_expectation() {
     params.clear();
     expectation = NAME_OR_LITERAL;
     printf("address of to_add: %p\n", (void*) &to_add);
-    to_add = DotStatement();
+    to_add = ShimmerStatement();
     return;
   }
-  else if (!this_token.is_of_type("DotLParen")) {
+  else if (!this_token.is_of_type("ShimmerLParen")) {
     throw_error("Expected parenthesis or comma but got: ", this_token.get_contents(), this_token.get_line());
   }
 
-  std::vector<DotToken> tokens_for_recursion;
+  std::vector<ShimmerToken> tokens_for_recursion;
 
   int sub_expr_layer = 0;
   int j = this_token_id;
@@ -209,21 +209,21 @@ void Parser::further_func_expectation() {
   std::cout << "=== sub-parser === \n";
 
   while (true) {
-    DotToken tok = tokens.at(j);
+    ShimmerToken tok = tokens.at(j);
     tokens_for_recursion.push_back(tok);
 
-    if (tok.is_of_type("DotRParen")) {
+    if (tok.is_of_type("ShimmerRParen")) {
       sub_expr_layer--;
-      std::cout << "Encountered DotRParen. New sub_expr_layer: " << sub_expr_layer << "\n";
+      std::cout << "Encountered ShimmerRParen. New sub_expr_layer: " << sub_expr_layer << "\n";
 
       if (sub_expr_layer == 0) {
         break;
       }
     }
 
-    if (tok.is_of_type("DotLParen")) {
+    if (tok.is_of_type("ShimmerLParen")) {
       sub_expr_layer++;
-      std::cout << "Encountered DotLParen. New sub_expr_layer: " << sub_expr_layer << "\n";
+      std::cout << "Encountered ShimmerLParen. New sub_expr_layer: " << sub_expr_layer << "\n";
     }
 
     j++;
@@ -238,9 +238,9 @@ void Parser::further_func_expectation() {
   this_token_id = j;
 
   Parser sub_parser = Parser(tokens_for_recursion, current_expr);
-  DotTree* parsed = new DotTree(sub_parser.parse());
+  ShimmerTree* parsed = new ShimmerTree(sub_parser.parse());
   std::cout << "=== end sub-parser ===\n";
-  DotStatement* res = new DotStatement(parsed->get_tree().at(0));
+  ShimmerStatement* res = new ShimmerStatement(parsed->get_tree().at(0));
   current_expr = ShimmerExpr(*res);
   ShimmerExpr* param = new ShimmerExpr(current_expr);
   params.push_back(*param);
@@ -248,8 +248,8 @@ void Parser::further_func_expectation() {
 }
 
 void Parser::param_expectation() {
-  DotLiteral lit;
-  if (this_token.is_of_type("DotRParen") && first_param) {
+  ShimmerLiteral lit;
+  if (this_token.is_of_type("ShimmerRParen") && first_param) {
     for (ShimmerExpr i : params) {
       std::cout << i.get_literal_val().get_str();
     }
@@ -257,29 +257,29 @@ void Parser::param_expectation() {
     statements.push_back(to_add);
     params.clear();
     expectation = NAME_OR_LITERAL;
-    to_add = DotStatement();
+    to_add = ShimmerStatement();
     return;
   }
-  else if (this_token.is_of_type("DotIdentifier")) {
+  else if (this_token.is_of_type("ShimmerIdentifier")) {
     
-    current_expr = ShimmerExpr(DotIdentifier(this_token.get_line(), this_token.get_contents()));
+    current_expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
     expectation = FURTHER_FUNC;
     return;
   }
-  else if (this_token.is_of_type("DotLParen")) {
+  else if (this_token.is_of_type("ShimmerLParen")) {
     ShimmerUnclosedFunc fn = parse_fn();
     current_expr = ShimmerExpr(fn);
     expectation = FURTHER_FUNC;
     return;
   }
-  else if (this_token.is_of_type("DotInt") || \
-           this_token.is_of_type("DotString")) {
-    DotLiteral* literal_val = new DotLiteral;
-    if (this_token.is_of_type("DotInt")) {
-      literal_val = new DotLiteral(this_token.get_line(), this_token.get_parsed_contents());
+  else if (this_token.is_of_type("ShimmerInt") || \
+           this_token.is_of_type("ShimmerString")) {
+    ShimmerLiteral* literal_val = new ShimmerLiteral;
+    if (this_token.is_of_type("ShimmerInt")) {
+      literal_val = new ShimmerLiteral(this_token.get_line(), this_token.get_parsed_contents());
     }
-    else if (this_token.is_of_type("DotString")) {
-      literal_val = new DotLiteral(this_token.get_line(), this_token.get_contents());
+    else if (this_token.is_of_type("ShimmerString")) {
+      literal_val = new ShimmerLiteral(this_token.get_line(), this_token.get_contents());
     }
 
     params.push_back(ShimmerExpr(*literal_val));
@@ -328,21 +328,21 @@ if (separated) {
     if (j == tokens.size()) {
       throw_error("Missing closing parenthesis.", this_token.get_line(), this_token.get_line());
     }
-    if (tokens.at(j).is_of_type("DotRParen")) {
+    if (tokens.at(j).is_of_type("ShimmerRParen")) {
       sub_expr_layer--;
       if (sub_expr_layer == 0) {
           break;
       }
     }
-    if (tokens.at(j).is_of_type("DotLParen")) {
+    if (tokens.at(j).is_of_type("ShimmerLParen")) {
       sub_expr_layer++;
     }
   }
   
   tokens_for_recursion.push_back(tokens.at(j));
   i = j;
-  DotTree parsed = parse(tokens_for_recursion);
-  DotStatement to_push = parsed.get_tree().at(0);
+  ShimmerTree parsed = parse(tokens_for_recursion);
+  ShimmerStatement to_push = parsed.get_tree().at(0);
   ShimmerExpr param = ShimmerExpr(to_push);
   params.push_back(param);
   tokens_for_recursion.clear();
@@ -351,7 +351,7 @@ if (separated) {
 
 const char* param_recursive_str(ShimmerExpr to_convert) {
   if (to_convert.get_param_type() == LITERAL) {
-    DotLiteral liter = to_convert.get_literal_val();
+    ShimmerLiteral liter = to_convert.get_literal_val();
     if (liter.type == TypeString || liter.type == TypeInt) {
       return liter.get_str().c_str();
     }
@@ -364,15 +364,15 @@ const char* param_recursive_str(ShimmerExpr to_convert) {
   }
 }
 
-void print_statement_info(DotStatement i) {
+void print_statement_info(ShimmerStatement i) {
 	std::cout << i.get_expr().get_identifier_val().get_contents() << "->";
 	for (ShimmerExpr j : i.get_params()) {
 		std::cout << param_recursive_str(j) << " ";
 	}
 }
 
-void print_debug_info(DotTree x) {
-  for (DotStatement i : x.get_tree()) {
+void print_debug_info(ShimmerTree x) {
+  for (ShimmerStatement i : x.get_tree()) {
 		print_statement_info(i);
   }
 }
@@ -391,7 +391,7 @@ const char* parse_test() {
 		std::stringstream buffer;
     buffer << file.rdbuf();
     Parser parser(lex(buffer.str()));
-		DotTree parsed = parser.parse();
+		ShimmerTree parsed = parser.parse();
 		std::cout << "Parsing done." << "\n";
 
 		print_debug_info(parsed);  
