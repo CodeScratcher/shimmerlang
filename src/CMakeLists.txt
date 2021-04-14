@@ -10,4 +10,5 @@ file(GLOB SRC
      "*.cpp"
 )
 include_directories(${PROJECT_SOURCE_DIR})
+# add_subdirectory(linenoise-ng)
 add_executable(shimmerlang ${SRC})

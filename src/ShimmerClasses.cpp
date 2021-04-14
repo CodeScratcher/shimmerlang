@@ -99,6 +99,7 @@ ShimmerIdentifier::ShimmerIdentifier() {
 }
 
 ShimmerIdentifier::ShimmerIdentifier(int line, std::string _contents) {
+  this->line = line;
   token_type = "ShimmerIdentifier";
   contents = _contents;
 }

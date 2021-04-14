@@ -1,0 +1,3 @@
+[submodule "src/linenoise-ng"]
+	path = src/linenoise-ng
+	url = https://github.com/pnnl/linenoise-ng
