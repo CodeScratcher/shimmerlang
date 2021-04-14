@@ -5,7 +5,7 @@
 #include "ShimmerClasses.h"
 
 typedef enum {
-  NAME_OR_LITERAL, PARAM, COMMA, STATEMENT_OR_CALL, FURTHER_FUNC
+  NAME_OR_LITERAL, PARAM, COMMA, STATEMENT_OR_CALL, FURTHER_FUNC, SYMBOL
 } Expectation;
 
 class Parser {

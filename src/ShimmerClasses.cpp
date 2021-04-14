@@ -146,13 +146,16 @@ LookupResult ShimmerStatement::lookup_tables() {
   std::string name = expr.get_identifier_val().get_contents();
 
   if (name == "print") {
+    int param_count = 0;
+
     for (auto p : get_params()) {
       std::cout << p.get_literal_val().get_str() << " ";
+      param_count++;
     }
 
     std::cout << "\n";
 
-    return LookupResult(ShimmerLiteral(-1, 0));
+    return LookupResult(ShimmerLiteral(-1, param_count));
   }
   else if (name == "add") {
     int operand1 = get_params().at(0).literal_val->get_int();
@@ -201,6 +204,7 @@ LookupResult ShimmerStatement::lookup_tables() {
 
   return LookupResult();
 }
+
 // Evaluate a single thing
 ShimmerLiteral ShimmerStatement::eval(ShimmerScope* scope) {
   for (int i = 0; i < params.size(); i++) {
@@ -236,9 +240,9 @@ ShimmerLiteral ShimmerStatement::eval(ShimmerScope* scope) {
 }
 
 void ShimmerStatement::error_on_missing_params(int line, int min, std::string msg) {
-  //print_statement_info(*this);
   pretty_print(*this);
   std::cout << "\n";
+
   if (params.size() < min) {
     throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);
   }

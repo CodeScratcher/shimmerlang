@@ -248,8 +248,10 @@ std::vector<ShimmerToken> lex(std::string str) {
 }*/
 
 std::vector<ShimmerToken> lex(std::string str) {
+  str.push_back(' '); // For closing tokens
+
   int current_line = 1;
-  State now_in = NONE;
+  LexerState now_in = NONE;
   chtype str_delim;
 
   ShimmerToken this_token;
@@ -274,11 +276,19 @@ std::vector<ShimmerToken> lex(std::string str) {
 
       throw_error("Unknown or unexpected character: ", suspect, current_line);
     }
-    else if (now_in == NONE) {
-      if (ch == ';') {
-        std::cout << "Found one-line comment!\n";
-        while (str.at(++i) != '\n');
+    else if (now_in == COMMENT) {
+      if (ch == '\n') {
         current_line++;
+        continue;
+      }
+    }
+    else if (now_in == NONE) {
+      if (isspace(ch)) {
+        continue;
+      }
+      else if (ch == ';') {
+        std::cout << "Found one-line comment!\n";
+        now_in = COMMENT;
       }
       else if (ch == '"' || ch == '\'') {
         std::cout << "Now starting a string with delimiter: " << ch << "\n";
@@ -368,7 +378,17 @@ std::vector<ShimmerToken> lex(std::string str) {
       }
     }
     else if (isspace(ch)) {
-      
+      if (now_in == ID) {
+        tokens.push_back(ShimmerIdentifier(current_line, this_token_contents));
+        this_token_contents = "";
+      }
+      else if (now_in == INT) {
+        tokens.push_back(ShimmerInt(current_line, this_token_contents));
+        this_token_contents = "";
+      }
+
+      now_in = NONE;
+      i--;
     }
     else {
       now_in = UNKNOWN;
@@ -380,21 +400,13 @@ std::vector<ShimmerToken> lex(std::string str) {
   if (now_in == STR) {
     throw_error("Unclosed string: ", this_token_contents, current_line);
   }
-  else if (now_in == ID) {
-    tokens.push_back(ShimmerIdentifier(current_line, this_token_contents));
-    this_token_contents = "";
-  }
-  else if (now_in == INT) {
-    tokens.push_back(ShimmerInt(current_line, this_token_contents));
-    this_token_contents = "";
-  }
 
   lex_to_str(tokens);
 
   return tokens;
 }
 
-ShimmerToken make_token(State now_in, std::string current_token_contents, int current_line) {
+ShimmerToken make_token(LexerState now_in, std::string current_token_contents, int current_line) {
   if (now_in == STR)   return ShimmerString(current_line, current_token_contents);
   if (now_in == INT)   return ShimmerInt(current_line, current_token_contents);
   if (now_in == ID)    return ShimmerIdentifier(current_line, current_token_contents);
@@ -402,13 +414,16 @@ ShimmerToken make_token(State now_in, std::string current_token_contents, int cu
   throw_error("Internal error: Illegal state: ", str_repr(now_in), current_line);
 }
 
-std::string str_repr(State state) {
-  switch (state) {
+std::string str_repr(LexerState ls) {
+  switch (ls) {
     case NONE: return "NONE";
     case ID:   return "ID";
     case INT:  return "INT";
     case STR:  return "STR";
-    default:   throw_error("Internal error: Illegal state: ", std::to_string(state), "unknown");
+    default:   throw_error(
+      "Internal error: Cannot find str repr of illegal lexer state: ", 
+      std::to_string(ls)
+    );
   }
 }
 

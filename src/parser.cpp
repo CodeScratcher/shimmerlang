@@ -64,20 +64,24 @@ ShimmerUnclosedFunc Parser::parse_fn() {
   }
 
   int fn_layer = 1;
+
   while (true) {
     this_token = tokens.at(++this_token_id);
+
     if (this_token.is_of_type("ShimmerRBrace")) {
       if (--fn_layer == 0) {
         break;
       }
     }
+
     if (this_token.is_of_type("ShimmerLBrace")) {
       fn_layer++;
     }
+
     tokens_for_recursion.push_back(this_token);
   }
 
-  std::cout << "=== sub-parser ===\n";
+  std::cout << "=== begin sub-parser ===\n";
   ShimmerTree tree = Parser(tokens_for_recursion).parse();
   std::cout << "=== end sub-parser ===\n";
   ++this_token_id;
@@ -87,7 +91,8 @@ ShimmerUnclosedFunc Parser::parse_fn() {
 
 ShimmerTree Parser::parse() {
   for (this_token_id = 0; this_token_id < tokens.size(); this_token_id++) {
-    std::cout << "Trying to parse\n";
+    std::cout << "Parsing token number #" << std::to_string(this_token_id) << "\n";
+
     this_token = tokens.at(this_token_id);
 
     if (expectation == NAME_OR_LITERAL) {
@@ -105,6 +110,7 @@ ShimmerTree Parser::parse() {
     else if (expectation == PARAM) {
       param_expectation();
     }
+    else if (expectation == )
   }
 
   to_return = ShimmerTree(statements);
@@ -150,10 +156,10 @@ void Parser::comma_expectation() {
     to_add.set_params(params);
     for (ShimmerExpr i : to_add.get_params()) {
       if (i.get_param_type() == LITERAL) {
-        printf("address of param: %p\n", (void*) i.literal_val);
+        printf("address of literal param: %p\n", (void*) i.literal_val);
       }
       if (i.get_param_type() == STATEMENT) {
-        printf("address of param: %p\n", (void*)i.statement_val);
+        printf("address of statement param: %p\n", (void*) i.statement_val);
       }
     }
 
@@ -272,9 +278,12 @@ void Parser::param_expectation() {
     expectation = FURTHER_FUNC;
     return;
   }
-  else if (this_token.is_of_type("ShimmerInt") || \
-           this_token.is_of_type("ShimmerString")) {
+  else if (
+    this_token.is_of_type("ShimmerInt") ||
+    this_token.is_of_type("ShimmerString")
+  ) {
     ShimmerLiteral* literal_val = new ShimmerLiteral;
+
     if (this_token.is_of_type("ShimmerInt")) {
       literal_val = new ShimmerLiteral(this_token.get_line(), this_token.get_parsed_contents());
     }
@@ -284,7 +293,6 @@ void Parser::param_expectation() {
 
     params.push_back(ShimmerExpr(*literal_val));
     expectation = COMMA;
-
   }
   else {
     throw_error("Expected function parameter but got: ", this_token.get_contents(), this_token.get_line());
@@ -310,11 +318,11 @@ const char* get_expectation_name(Expectation expect)
 {
   switch (expect) 
   {
-    case NAME_OR_LITERAL:   return "Name or literal";
+    case NAME_OR_LITERAL:   return "Name or Literal";
     case PARAM:             return "Param";
     case COMMA:             return "Comma";
-    case STATEMENT_OR_CALL: return "Statement or call";
-    case FURTHER_FUNC:      return "Further func";
+    case STATEMENT_OR_CALL: return "Statement or Call";
+    case FURTHER_FUNC:      return "Further Func";
   }
 }
 
@@ -360,6 +368,7 @@ const char* param_recursive_str(ShimmerExpr to_convert) {
     for (ShimmerExpr i : to_convert.get_statement_val().get_params()) {
       print_statement_info(i.get_statement_val());
     }
+
     return "Param recursive";
   }
 }
