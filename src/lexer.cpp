@@ -290,6 +290,11 @@ std::vector<ShimmerToken> lex(std::string str) {
         now_in = ID;
         this_token_contents.push_back(ch);
       }
+      else if (std::regex_search(std::string(1, ch), std::regex("[0-9]"))) { // TODO: add hexadecimal support
+        std::cout << "Now starting an int with char: " << ch << "\n";
+        now_in = INT;
+        this_token_contents.push_back(ch);
+      }
       else if (ch == '(') {
         tokens.push_back(ShimmerLParen(current_line));
         this_token_contents = "";
@@ -306,6 +311,14 @@ std::vector<ShimmerToken> lex(std::string str) {
         tokens.push_back(ShimmerRBrace(current_line));
         this_token_contents = "";
       }
+      else if (ch == ',') {
+        tokens.push_back(ShimmerComma(current_line));
+        this_token_contents = "";
+      }
+      else if (ch == '$') {
+        tokens.push_back(ShimmerIDLiteralSign(current_line));
+        this_token_contents = "";
+      }
       else {
         now_in = UNKNOWN;
         i--; // Reparse the character as an unknown character
@@ -318,7 +331,6 @@ std::vector<ShimmerToken> lex(std::string str) {
         std::cout << "Found delimeter " << ch << " for string " << this_token_contents << "\n";
         now_in = NONE;
 
-        //tokens.push_back(make_token(STR, this_token_contents, current_line));
         tokens.push_back(ShimmerString(current_line, this_token_contents));
       }
       else {
@@ -340,6 +352,21 @@ std::vector<ShimmerToken> lex(std::string str) {
         continue;
       }
     }
+    else if (now_in == INT) {
+      if (std::regex_search(std::string(1, ch), std::regex("[0-9]"))) {
+        std::cout << "Continuing int with char: " << ch << "\n";
+        this_token_contents.push_back(ch);
+        std::cout << "Current contents: " << this_token_contents << "\n";
+      }
+      else {
+        tokens.push_back(ShimmerInt(current_line, this_token_contents));
+        this_token_contents = "";
+
+        now_in = NONE;
+        i--; // Rescan character to start new token
+        continue;
+      }
+    }
     else if (isspace(ch)) {
       
     }
@@ -352,6 +379,14 @@ std::vector<ShimmerToken> lex(std::string str) {
 
   if (now_in == STR) {
     throw_error("Unclosed string: ", this_token_contents, current_line);
+  }
+  else if (now_in == ID) {
+    tokens.push_back(ShimmerIdentifier(current_line, this_token_contents));
+    this_token_contents = "";
+  }
+  else if (now_in == INT) {
+    tokens.push_back(ShimmerInt(current_line, this_token_contents));
+    this_token_contents = "";
   }
 
   lex_to_str(tokens);
@@ -396,7 +431,7 @@ chtype esc_seq(chtype ch) {
 #ifdef DEBUG
 
 const char* lex_to_str(std::vector<ShimmerToken> lexed) {
-  int contents_length = 16, type_length = 20;
+  int contents_length = 16, type_length = 24;
 
   std::cout << tc::bold;
   printf("       %-*s%-*s%s\n", contents_length, "Contents", type_length, "Type", "Line");
@@ -407,7 +442,12 @@ const char* lex_to_str(std::vector<ShimmerToken> lexed) {
     std::string token_type = i.get_token_type();
     int token_line = i.get_line();
 
-    printf("       %-16s%-20s%d\n", token_contents.c_str(), token_type.c_str(), token_line);
+    printf(
+      "       %-*s%-*s%d\n", 
+      contents_length, token_contents.c_str(), 
+      type_length, token_type.c_str(), 
+      token_line
+    );
   }
 
   return "";
