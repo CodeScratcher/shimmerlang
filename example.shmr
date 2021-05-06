@@ -1,37 +1,60 @@
-/* 
-functions are variables 
-everything is a function
-function literals = (args){code}
-*/ 
-define(makePrinter, (txt){
-  return (){print(args)}
-})
-/* if statements =
- if(condition, true)
- ifElse(condition, true, false) */
-ifElse(true,
-  (){print("correct")}, 
-  (){print("uh oh")}
+; functions are variables 
+; everything is a function
+; function literals = (args) {code}
+
+define(
+  makePrinter,
+  (txt) {
+    return () {print(txt)}
+  }
 )
-/* no operators, only functions */
-define(x,5)
-print(add(x, 3))
+
+; if statements =
+;   if(condfunc, true)
+;   ifElse(condfunc, true, false)
+
+ifElse(
+  () {true},
+  () {
+    print("correct")
+  }, 
+  (){
+    print("uh oh")
+  }
+)
+
+; no operators, only functions
+
+define(x, 5)
+print(add(x, 3)) ; prints 8
 define(hello, makePrinter("Hello world!"))
 hello()
+
 /* no loops, only recursion */
-define(recurse, (numTimes){
-  ifElse(less(numTimes,1)
-    (){print("done")}
-    (){
-      print(numTimes)
-      recurse(subtract(numTimes, 1))
-    }
-  )
-})
+define(
+  recurse,
+  (numTimes) {
+    ifElse(
+      () {
+        less(numTimes,1)
+      },
+      () {
+        print("done")
+      },
+      () {
+        print(numTimes)
+        recurse(subtract(numTimes, 1))
+      }
+    )
+  }
+)
+
 recurse(15)
 recurse(5)
-define(array,[1, 2, 3, 4, 5, 6, 7, 8, 9])
-define(forInBackend, (array, callback, start){
+
+define(array, [1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+define(forInBackend, (array, callback, start){ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; END OF REFACTORED CODE
   ifElse(greater(start, len(array)),
   (){
     return(0)

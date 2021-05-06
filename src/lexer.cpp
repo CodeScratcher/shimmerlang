@@ -52,7 +52,7 @@ std::vector<ShimmerToken> lex(std::string str) {
         continue;
       }
       else {
-        throw_error("Missing asterisk at comment starting delimiter.", current_line);
+        throw_error(current_line, "Missing asterisk at comment starting delimiter.");
       }
     }
     else if (now_in == CMNT2) {
@@ -67,7 +67,7 @@ std::vector<ShimmerToken> lex(std::string str) {
         continue;
       }
       else {
-        throw_error("Missing slash at comment ending delimiter.", current_line);
+        throw_error(current_line, "Missing slash at comment ending delimiter.");
       }
     }
     else if (now_in == STR) {
@@ -225,21 +225,21 @@ std::vector<ShimmerToken> lex(std::string str) {
     //     suspect = "\"" + std::string(1, ch) + "\"";
     //   }
 
-    //   throw_error("Unknown or unexpected character: ", suspect, current_line);
+    //   throw_error(current_line, "Unknown or unexpected character: ", suspect);
     // }
   }
 
   if (now_in == STR) {
-    throw_error("Unclosed string: ", current_token_contents, current_line);
+    throw_error(current_line, "Unclosed string: ", current_token_contents);
   }
   else if (now_in == CMNT1) {
-    throw_error("Missing asterisk at comment starting delimiter.", current_line);
+    throw_error(current_line, "Missing asterisk at comment starting delimiter.");
   }
   else if (now_in == CMNT2) {
-    throw_error("Missing comment ending delimiter.", current_line);
+    throw_error(current_line, "Missing comment ending delimiter.");
   }
   else if (now_in == CMNT3) {
-    throw_error("Missing slash at comment ending delimiter.", current_line);
+    throw_error(current_line, "Missing slash at comment ending delimiter.");
   }
 
   lex_to_str(to_return);
@@ -274,16 +274,22 @@ std::vector<ShimmerToken> lex(std::string str) {
         suspect = "\"" + std::string(1, ch) + "\"";
       }
 
-      throw_error("Unknown or unexpected character: ", suspect, current_line);
+      throw_error(current_line, "Unknown or unexpected character: ", suspect);
     }
     else if (now_in == COMMENT) {
       if (ch == '\n') {
         current_line++;
-        continue;
+        this_token_contents = "";
+        now_in = NONE;
+        continue; // These continues are currently unnecessary, but we keep them there just in case
       }
     }
     else if (now_in == NONE) {
       if (isspace(ch)) {
+        if (ch == '\n') {
+          current_line++;
+        }
+
         continue;
       }
       else if (ch == ';') {
@@ -343,6 +349,14 @@ std::vector<ShimmerToken> lex(std::string str) {
 
         tokens.push_back(ShimmerString(current_line, this_token_contents));
       }
+      else if (ch == '\\') {
+        std::cout << "Found escape sequence: \\" << str.at(i + 1) << "\n";
+
+        this_token_contents.push_back(esc_seq(str.at(i + 1)));
+
+        i += 1;
+        continue;
+      }
       else {
         this_token_contents.push_back(ch);
       }
@@ -378,6 +392,10 @@ std::vector<ShimmerToken> lex(std::string str) {
       }
     }
     else if (isspace(ch)) {
+      if (ch == '\n') {
+        current_line++;
+      }
+
       if (now_in == ID) {
         tokens.push_back(ShimmerIdentifier(current_line, this_token_contents));
         this_token_contents = "";
@@ -389,6 +407,7 @@ std::vector<ShimmerToken> lex(std::string str) {
 
       now_in = NONE;
       i--;
+      continue;
     }
     else {
       now_in = UNKNOWN;
@@ -398,7 +417,7 @@ std::vector<ShimmerToken> lex(std::string str) {
   }
 
   if (now_in == STR) {
-    throw_error("Unclosed string: ", this_token_contents, current_line);
+    throw_error(current_line, "Unclosed string: ", this_token_contents);
   }
 
   lex_to_str(tokens);
@@ -411,7 +430,7 @@ ShimmerToken make_token(LexerState now_in, std::string current_token_contents, i
   if (now_in == INT)   return ShimmerInt(current_line, current_token_contents);
   if (now_in == ID)    return ShimmerIdentifier(current_line, current_token_contents);
   if (now_in == NONE)  return ShimmerString(current_line, "");
-  throw_error("Internal error: Illegal state: ", str_repr(now_in), current_line);
+  throw_error(current_line, "Internal error: Illegal state: ", str_repr(now_in));
 }
 
 std::string str_repr(LexerState ls) {
@@ -421,6 +440,7 @@ std::string str_repr(LexerState ls) {
     case INT:  return "INT";
     case STR:  return "STR";
     default:   throw_error(
+      -1,
       "Internal error: Cannot find str repr of illegal lexer state: ", 
       std::to_string(ls)
     );
@@ -439,7 +459,7 @@ chtype esc_seq(chtype ch) {
     case 'a':  return '\a';
     case '\'': return '\'';
     case '"':  return '"';
-    default:   throw_error("Invalid escape sequence.", -1);
+    default:   throw_error(-1, "Invalid escape sequence: \\", std::string(1, ch));
   }
 }
 

@@ -23,6 +23,7 @@ class ShimmerLiteral;
 class ShimmerExpr;
 class ShimmerScope;
 class LookupResult;
+
 typedef std::unordered_map<std::string, ShimmerLiteral*> Scope;
 
 class ShimmerToken {
@@ -131,9 +132,10 @@ class ShimmerStatement {
     void set_expr(ShimmerExpr exp);
 
     ShimmerLiteral eval(ShimmerScope* scope);
-    LookupResult lookup_tables();
+    LookupResult lookup_tables(ShimmerScope* scope);
 
   private:
+    void error_on_wrong_num_params(int line, int min, int max, std::string msg);
     void error_on_missing_params(int line, int min, std::string msg);
     void error_on_extra_params(int line, int max, std::string msg);
 };
@@ -205,6 +207,7 @@ class LookupResult {
     bool found;
 
     ShimmerLiteral value;
+
     LookupResult() {
       found = false;
     }

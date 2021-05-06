@@ -1,1 +1,16 @@
-print(add(add(1, 2), add(3, 4)))
+print(
+  add(
+    add(1, 2),
+    add(3, 4)
+  )
+)
+
+print("YAY!")
+
+; this is a comment
+
+; print(
+;   "Messages:",
+;   scan(),
+;   scan()
+; )

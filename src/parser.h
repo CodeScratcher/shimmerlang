@@ -30,6 +30,7 @@ class Parser {
     ShimmerTree parse();
     ShimmerUnclosedFunc parse_fn();
 
+    void symbol_expectation();
     void name_or_literal_expectation();
     void statement_or_call_expectation();
     void comma_expectation();

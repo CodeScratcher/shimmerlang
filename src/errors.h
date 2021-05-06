@@ -41,9 +41,9 @@ class ExtraClosedStringError : public ExtraClosedPairError {};
 class UnexpectedCommaError : public UnexpectedTokenError {};
 class UnexpectedIDLSError : public UnexpectedTokenError {};
 
-void throw_error(std::string msg, std::string line);
-void throw_error(std::string msg, std::string msg2, std::string line);
-void throw_error(std::string msg, int line);
-void throw_error(std::string msg, std::string msg2, int line);
+void throw_error(std::string line, std::string msg);
+void throw_error(std::string line, std::string msg, std::string msg2);
+void throw_error(int line, std::string msg);
+void throw_error(int line, std::string msg, std::string msg2);
 
 #endif

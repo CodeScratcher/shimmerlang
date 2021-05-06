@@ -38,11 +38,17 @@ ShimmerUnclosedFunc Parser::parse_fn() {
       if (this_token.is_of_type("ShimmerRParen")) {
         break;
       }
-      else if (this_token.not_of_type("ShimmerComma")) {
-        throw_error("Expected comma but got ", this_token.get_contents(), -1);
+      // else if (this_token.not_of_type("ShimmerComma")) {
+      //   throw_error(-1, "Expected comma but got: ", this_token.get_contents());
+      // }
+      // else {
+      //   comma_expected = false;
+      // }
+      else if (this_token.is_of_type("ShimmerComma")) {
+        comma_expected = false;
       }
       else {
-        comma_expected = false;
+        throw_error(-1, "Expected comma or parenthesis but got: ", this_token.get_contents());
       }
     }
     else {
@@ -60,7 +66,7 @@ ShimmerUnclosedFunc Parser::parse_fn() {
   this_token = tokens.at(++this_token_id);
 
   if (this_token.not_of_type("ShimmerLBrace")) {
-    throw_error("Expected opening brace for function body.", -1);
+    throw_error(this_token.get_line(), "Expected opening brace for function body.");
   }
 
   int fn_layer = 1;
@@ -110,14 +116,33 @@ ShimmerTree Parser::parse() {
     else if (expectation == PARAM) {
       param_expectation();
     }
-    else if (expectation == )
+    else if (expectation == SYMBOL) {
+      symbol_expectation();
+    }
   }
 
   to_return = ShimmerTree(statements);
   return to_return;
 }
 
+void Parser::symbol_expectation() {
+  if (this_token.not_of_type("ShimmerIdentifier")) {
+    throw_error(this_token.get_line(), "Expected identifier but got: ", this_token.get_contents());
+  }
+
+  expr = ShimmerExpr(
+    ShimmerLiteral(
+      this_token.get_line(), 
+      ShimmerIdentifier(this_token.get_line(), this_token.get_contents())
+    )
+  );
+
+  params.push_back(expr);
+  expectation = COMMA;
+}
+
 void Parser::name_or_literal_expectation() {
+  
   if (this_token.is_of_type("ShimmerIdentifier")) {
     expectation = STATEMENT_OR_CALL;
     expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
@@ -129,7 +154,7 @@ void Parser::name_or_literal_expectation() {
     // Todo: Add straight value support (useful for functions)
   }
   else {
-    throw_error("Expected name or value but got: ", this_token.get_contents(), this_token.get_line());
+    throw_error(this_token.get_line(), "Expected name or value but got: ", this_token.get_contents());
   }
 }
 
@@ -146,8 +171,11 @@ void Parser::statement_or_call_expectation() {
     // Todo: Add straight value support (useful for functions)
   }
   else {
-    throw_error("Expected variable definition but got: ", \
-                this_token.get_contents(), this_token.get_line());
+    throw_error(
+      this_token.get_line(),
+      "Expected variable definition but got: ",
+      this_token.get_contents()
+    );
   }
 }
 
@@ -171,8 +199,8 @@ void Parser::comma_expectation() {
     return;
   }
 
-  if (!this_token.is_of_type("ShimmerComma")) {
-    throw_error("Expected comma but got: ", this_token.get_contents(), this_token.get_line());
+  if (this_token.not_of_type("ShimmerComma")) {
+    throw_error(this_token.get_line(), "Expected comma but got: ", this_token.get_contents());
   }
 
   expectation = PARAM;
@@ -204,7 +232,7 @@ void Parser::further_func_expectation() {
     return;
   }
   else if (!this_token.is_of_type("ShimmerLParen")) {
-    throw_error("Expected parenthesis or comma but got: ", this_token.get_contents(), this_token.get_line());
+    throw_error(this_token.get_line(), "Expected parenthesis or comma but got: ", this_token.get_contents());
   }
 
   std::vector<ShimmerToken> tokens_for_recursion;
@@ -235,7 +263,7 @@ void Parser::further_func_expectation() {
     j++;
 
     if (j == tokens.size()) {
-      throw_error("Expected closing parentheses but got: ", this_token.get_contents(), this_token.get_line());
+      throw_error(this_token.get_line(), "Expected closing parentheses but got: ", this_token.get_contents());
     }
   }
 
@@ -266,6 +294,9 @@ void Parser::param_expectation() {
     to_add = ShimmerStatement();
     return;
   }
+  else if (this_token.is_of_type("ShimmerIDLiteralSign")) {
+    expectation = SYMBOL;
+  }
   else if (this_token.is_of_type("ShimmerIdentifier")) {
     
     current_expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
@@ -295,7 +326,7 @@ void Parser::param_expectation() {
     expectation = COMMA;
   }
   else {
-    throw_error("Expected function parameter but got: ", this_token.get_contents(), this_token.get_line());
+    throw_error(this_token.get_line(), "Expected function parameter but got: ", this_token.get_contents());
   }
   first_param = false;
 }
@@ -323,6 +354,7 @@ const char* get_expectation_name(Expectation expect)
     case COMMA:             return "Comma";
     case STATEMENT_OR_CALL: return "Statement or Call";
     case FURTHER_FUNC:      return "Further Func";
+    case SYMBOL:            return "Symbol";
   }
 }
 
@@ -334,7 +366,7 @@ if (separated) {
     tokens_for_recursion.push_back(tokens.at(j));
     j++; 
     if (j == tokens.size()) {
-      throw_error("Missing closing parenthesis.", this_token.get_line(), this_token.get_line());
+      throw_error(this_token.get_line(), "Missing closing parenthesis.", this_token.get_line());
     }
     if (tokens.at(j).is_of_type("ShimmerRParen")) {
       sub_expr_layer--;

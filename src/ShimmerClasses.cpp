@@ -11,34 +11,43 @@
 #include "eval.h"
 #include "errors.h"
 
+/* Default constructor for a generic token, to be overridden */
 ShimmerToken::ShimmerToken() {
   // Default constructor does nothing
 }
 
+/* Returns the line of a token. */
 int ShimmerToken::get_line() {
   return line;
 }
 
+/* Returns the literal text of a token. */
 std::string ShimmerToken::get_contents() {
   return contents;
 }
 
+/* Returns the actual int from an int token. */
+// THIS FUNCTION AND PARSED_CONTENTS SHOULD BE DEFINED BY SHIMMERINT, MAYBE???
 int ShimmerToken::get_parsed_contents() {
   return parsed_contents;
 }
 
+/* Returns the type of a token */
 std::string ShimmerToken::get_token_type() {
   return token_type;
 }
 
+/* Return true if the token's type and the passed type are the same */
 bool ShimmerToken::is_of_type(std::string type) {
   return token_type.compare(type) == 0;
 }
 
+/* Returns true if the token's type and the passed type are different */
 bool ShimmerToken::not_of_type(std::string type) {
   return token_type.compare(type) != 0;
 }
 
+/* Constructor for the "(" token */
 ShimmerLParen::ShimmerLParen(int line) {
   this->line = line;
   token_type = "ShimmerLParen";
@@ -46,6 +55,7 @@ ShimmerLParen::ShimmerLParen(int line) {
   contents = "(";
 }
 
+/* Constructor for the ")" token */
 ShimmerRParen::ShimmerRParen(int line) {
   this->line = line;
   token_type = "ShimmerRParen";
@@ -53,6 +63,7 @@ ShimmerRParen::ShimmerRParen(int line) {
   contents = ")";
 }
 
+/* Constructor for the "{" token */
 ShimmerLBrace::ShimmerLBrace(int line) {
   this->line = line;
   token_type = "ShimmerLBrace";
@@ -60,6 +71,7 @@ ShimmerLBrace::ShimmerLBrace(int line) {
   contents = "{";
 }
 
+/* Constructor for the "}" token */
 ShimmerRBrace::ShimmerRBrace(int line) {
   this->line = line;
   token_type = "ShimmerRBrace";
@@ -67,12 +79,15 @@ ShimmerRBrace::ShimmerRBrace(int line) {
   contents = "}";
 }
 
+/* Constructor for the "$" token */
 ShimmerIDLiteralSign::ShimmerIDLiteralSign(int line) {
   this->line = line;
   token_type = "ShimmerIDLiteralSign";
+  // ShimmerIDLiteralSign will always be a '$'
   contents = "$";
 }
 
+/* Constructor for the "," token */
 ShimmerComma::ShimmerComma(int line) {
   this->line = line;
   token_type = "ShimmerComma";
@@ -80,6 +95,7 @@ ShimmerComma::ShimmerComma(int line) {
   contents = ",";
 }
 
+/* Constructor for an integer token */
 ShimmerInt::ShimmerInt(int line, std::string content) {
   this->line = line;
   token_type = "ShimmerInt";
@@ -87,32 +103,37 @@ ShimmerInt::ShimmerInt(int line, std::string content) {
   parsed_contents = std::stoi(content);
 }
 
+/* Constructor for a string token */
 ShimmerString::ShimmerString(int line, std::string content) {
   this->line = line;
   token_type = "ShimmerString";
   contents = content;
 }
 
-
+/* Default constructor for an identifier token */
 ShimmerIdentifier::ShimmerIdentifier() {
   // Default constructor does nothing
 }
 
+/* Constructor for an identifier token */
 ShimmerIdentifier::ShimmerIdentifier(int line, std::string _contents) {
   this->line = line;
   token_type = "ShimmerIdentifier";
   contents = _contents;
 }
 
+/* Default constructor for a statement */
 ShimmerStatement::ShimmerStatement() {
   // Default constructor does nothing
 }
 
+/* Constructor for a statement */
 ShimmerStatement::ShimmerStatement(ShimmerExpr _expr, std::vector<ShimmerExpr> _params) {
   expr = _expr;
   params = _params;
 }
 
+/* Copy constructor for a statement */
 ShimmerStatement::ShimmerStatement(const ShimmerStatement &statement) {
 	expr = ShimmerExpr(statement.expr);
 
@@ -138,68 +159,92 @@ void ShimmerStatement::set_expr(ShimmerExpr expr) {
   this->expr = expr;
 }
 
-LookupResult ShimmerStatement::lookup_tables() {
+LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
   if (expr.get_param_type() != IDENTIFIER) {
     return LookupResult();
   }
 
-  std::string name = expr.get_identifier_val().get_contents();
+  std::string func_name = expr.get_identifier_val().get_contents();
+  int func_call_line = expr.get_identifier_val().get_line();
 
-  if (name == "print") {
+  if (func_name == "print") {
     int param_count = 0;
+    bool first_param = true;
 
     for (auto p : get_params()) {
-      std::cout << p.get_literal_val().get_str() << " ";
+      if (!first_param) {
+        std::cout << " ";
+      }
+      else {
+        first_param = false;
+      }
+
+      std::cout << p.get_literal_val().get_str();
       param_count++;
     }
 
-    std::cout << "\n";
-
     return LookupResult(ShimmerLiteral(-1, param_count));
   }
-  else if (name == "add") {
+  else if (func_name == "read") {
+    if (get_params().size() == 0) {
+      std::string line;
+      std::getline(std::cin, line);
+
+      return LookupResult(ShimmerLiteral(-1, line)); // WHY DOES THE RESULT PRINT WITHOUT USING PRINT()?
+    }
+    else if (get_params().size() == 1) {
+      throw_error(func_call_line, "Sorry, reading from files is not implemeted yet!");
+    }
+    else {
+      throw_error(
+        func_call_line,
+        "read() expects either 0 or 1 parameters, but recieved ",
+        std::to_string(get_params().size())
+      );
+    }
+  }
+  else if (func_name == "add") {
+    error_on_missing_params(
+      func_call_line, 2,
+      "add() expects at least 2 parameters, but recieved TODO"
+    );
+
     int operand1 = get_params().at(0).literal_val->get_int();
     int operand2 = get_params().at(1).literal_val->get_int();
 
-    // std::cout << "Performing " << std::to_string(operand1) << " + " << std::to_string(operand2) << ".\n";
-    // std::cout << "The address of the first  operand is: ";
-    // printf("%p.\n", (void*) &(get_params().at(0)));
-    // std::cout << "The address of the second operand is: ";
-    // printf("%p.\n", (void*) &(get_params().at(1)));
-    // std::cout << "The address of the first  operand's literal_val is: ";
-    // printf("%p.\n", (void*) (get_params().at(0).literal_val));
-    // std::cout << "The address of the second operand's literal_val is: ";
-    // printf("%p.\n", (void*) (get_params().at(1).literal_val));
-    // std::cout << "The address of the address of the first  operand's literal_val is: ";
-    // printf("%p.\n", (void*) &(get_params().at(0).literal_val));
-    // std::cout << "The address of the address of the second operand's literal_val is: ";
-    // printf("%p.\n", (void*) &(get_params().at(1).literal_val));
-    // std::cout << "The address of the first  operand's int is: ";
-    // printf("%p.\n", (void*) &operand1);
-    // std::cout << "The address of the second operand's int is: ";
-    // printf("%p.\n", (void*) &operand2);
-
     return LookupResult(ShimmerLiteral(-1, operand1 + operand2));
   }
-  else if (name == "sub") {
+  else if (func_name == "sub") {
     int operand1 = get_params().at(0).literal_val->get_int();
     int operand2 = get_params().at(1).literal_val->get_int();
     return LookupResult(ShimmerLiteral(-1, operand1 - operand2));
   }
-  else if (name == "mul") {
+  else if (func_name == "mul") {
     int operand1 = get_params().at(0).literal_val->get_int();
     int operand2 = get_params().at(1).literal_val->get_int();
     return LookupResult(ShimmerLiteral(-1, operand1 * operand2));
   }
-  else if (name == "div") {
+  else if (func_name == "div") {
     int operand1 = get_params().at(0).literal_val->get_int();
     int operand2 = get_params().at(1).literal_val->get_int();
 
     if (operand2 == 0) {
-      throw_error("Division by zero is illegal", -1);
+      throw_error(func_call_line, "Division by zero is illegal");
     }
 
     return LookupResult(ShimmerLiteral(-1, operand1 / operand2));
+  }
+  else if (func_name == "def") {
+    scope->declare_variable(get_params().at(0).literal_val->get_id().get_contents(), *get_params().at(1).literal_val);
+    return LookupResult(ShimmerLiteral(-1, 0));
+  }
+  else if (func_name == "set") {
+    scope->set_variable(get_params().at(0).literal_val->get_id().get_contents(), *get_params().at(1).literal_val);
+    return LookupResult(ShimmerLiteral(-1, 0));
+  }
+  else if (func_name == "get") {
+    scope->get_variable(get_params().at(0).literal_val->get_id().get_contents());
+    return LookupResult(ShimmerLiteral(-1, 0));
   }
 
   return LookupResult();
@@ -224,7 +269,7 @@ ShimmerLiteral ShimmerStatement::eval(ShimmerScope* scope) {
     // }
   }
 
-  LookupResult res = lookup_tables();
+  LookupResult res = lookup_tables(scope);
 
   if (res.found) {
     return res.value;
@@ -233,10 +278,15 @@ ShimmerLiteral ShimmerStatement::eval(ShimmerScope* scope) {
     /* TODO: Create function to lookup user defined functions and evaluate them */
   }
   else {
-    throw_error("Function not found", -1);
+    throw_error(-1, "Function not found");
   }
 
   return ShimmerLiteral(-1, 0); // line is -1 because we can't figure out the line number
+}
+
+void ShimmerStatement::error_on_wrong_num_params(int line, int min, int max, std::string msg) {
+  error_on_missing_params(line, min, msg);
+  error_on_extra_params(line, max, msg);
 }
 
 void ShimmerStatement::error_on_missing_params(int line, int min, std::string msg) {
@@ -244,7 +294,8 @@ void ShimmerStatement::error_on_missing_params(int line, int min, std::string ms
   std::cout << "\n";
 
   if (params.size() < min) {
-    throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);
+    //throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);
+    throw_error(line, msg);
   }
 }
 
@@ -253,7 +304,8 @@ void ShimmerStatement::error_on_extra_params(int line, int max, std::string msg)
   std::cout << "\n";
 
   if (params.size() > max) {
-    throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);
+    //throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);
+    throw_error(line, msg);
   }
 }
 
@@ -417,7 +469,7 @@ ShimmerLiteral ShimmerScope::get_variable(std::string var_name) {
       return upper_scope->get_variable(var_name);
     }
     else {
-      throw std::runtime_error("Undefined reference to variable " + var_name);
+      throw_error(-1, "Undefined reference to variable ", var_name);
     }
   }
 }
@@ -432,7 +484,11 @@ void ShimmerScope::set_variable(std::string var_name, ShimmerLiteral val) {
 }
 
 void ShimmerScope::declare_variable(std::string var_name, ShimmerLiteral val) {
-  *current_scope.at(var_name) = val;
+  // ShimmerLiteral* nval = new ShimmerLiteral(val);
+  // const std::pair<std::string, ShimmerLiteral*> p(var_name, nval);
+  // current_scope.insert(p);
+
+  current_scope.insert({var_name, &val});
 }
 
 ShimmerUnclosedFunc::ShimmerUnclosedFunc(std::vector<ShimmerIdentifier> _params, ShimmerTree _tree) {

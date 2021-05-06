@@ -63,18 +63,18 @@ std::string BaseError::construct_helper(std::string what1, std::string what2, in
   return m_what;
 }
 
-void throw_error(std::string msg, std::string line) {
+void throw_error(std::string line, std::string msg) {
   throw std::runtime_error(line + ":\n\t" + msg);
 }
 
-void throw_error(std::string msg, std::string msg2, std::string line) {
+void throw_error(std::string line, std::string msg, std::string msg2) {
   throw std::runtime_error(line + ":\n\t" + msg + msg2);
 }
 
-void throw_error(std::string msg, int line) {
+void throw_error(int line, std::string msg) {
   throw std::runtime_error(std::to_string(line) + ":\n\t" + msg);
 }
 
-void throw_error(std::string msg, std::string msg2, int line) {
+void throw_error(int line, std::string msg, std::string msg2) {
   throw std::runtime_error(std::to_string(line) + ":\n\t" + msg + msg2);
 }
