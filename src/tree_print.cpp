@@ -74,6 +74,61 @@ void pretty_print(ShimmerLiteral lit, int depth) {
   }
 }
 
+/*
+ *
+ * Basically pretty_print(shsc) recursively calls itself on shsc->upper_scope until shsc_upper_scope == nullptr
+ * Then it goes back DOWN the call stack again to actually do the printing.
+ *
+ * The reason for this is that pretty_print needs to be able to print the right indentation, so it needs to know the topmost shsc.
+ *
+ * Expected output:
+ *
+ * Begin scope {
+     foo: 5
+     bar: 10
+     baz: -1
+     quux: "yeet"
+     Begin subscope {
+       [OVERRIDES] foo: true
+       msg: "Hello, world!"
+       fn: [Function]
+       Begin subscope {
+         ...
+       } End subscope
+     } End subscope
+ * } End scope
+ *
+ *
+ */
+
+void pretty_print(ShimmerScope* shsc, int depth) {
+  std::cout << \
+    std::string(depth, '\t') << "Begin " << \
+    (depth > 0 ? "subscope " : "scope ") << "{\n";
+
+  if (shsc->upper_scope != nullptr) {
+    pretty_print(shsc->upper_scope, depth + 1);
+  }
+
+  pretty_print(&shsc->current_scope, depth + 1);
+
+  std::cout << \
+    std::string(depth, '\t') << "} End " << \
+    (depth > 0 ? "subscope " : "scope ") << "\n";
+}
+
+void pretty_print(Scope* sc, int depth) {
+  for (const auto& [k, v] : *sc) {
+    std::cout << \
+      std::string(depth, '\t') << \
+      "\"" << k << "\": ";
+
+    pretty_print(*v);
+
+    std::cout << "\n";
+  }
+}
+
 void test_pretty_print_literal() {
   ShimmerLiteral str_lit_1(-1, "Hi there");
   ShimmerLiteral str_lit_2(-1, "Hello world!");

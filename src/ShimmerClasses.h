@@ -14,8 +14,6 @@ enum ShimmerTypes {
   TypeId
 };
 
-typedef enum { NONETYPE, LITERAL, STATEMENT, IDENTIFIER, FUNCTION } ParamType;
-
 class ShimmerIdentifier;
 class ShimmerStatement;
 class ShimmerUnclosedFunc;
@@ -24,6 +22,7 @@ class ShimmerExpr;
 class ShimmerScope;
 class LookupResult;
 
+typedef enum { NONETYPE, LITERAL, STATEMENT, IDENTIFIER, FUNCTION } ParamType;
 typedef std::unordered_map<std::string, ShimmerLiteral*> Scope;
 
 class ShimmerToken {
@@ -138,6 +137,10 @@ class ShimmerStatement {
     void error_on_wrong_num_params(int line, int min, int max, std::string msg);
     void error_on_missing_params(int line, int min, std::string msg);
     void error_on_extra_params(int line, int max, std::string msg);
+
+    // template<typename... Types> void __error_on_wrong_num_params(int line, int min, int max, Types... args);
+    // template<typename... Types> void __error_on_missing_params(int line, int min, Types... args);
+    // template<typename... Types> void __error_on_extra_params(int line, int max, Types... args);
 };
 
 class ShimmerTree {
@@ -176,6 +179,7 @@ class ShimmerClosedFunc {
     ShimmerTree tree;
     ShimmerScope* closed_scope;
 		ShimmerClosedFunc(ShimmerUnclosedFunc to_close, ShimmerScope* closed_scope);
+    ShimmerClosedFunc() {}
 };
 
 class ShimmerLiteral {

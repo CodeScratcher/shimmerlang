@@ -1,6 +1,7 @@
 #ifndef ERRORS_H
 #define ERRORS_H
 
+#include <cstdarg>
 #include <stdexcept>
 #include <string>
 
@@ -45,5 +46,8 @@ void throw_error(std::string line, std::string msg);
 void throw_error(std::string line, std::string msg, std::string msg2);
 void throw_error(int line, std::string msg);
 void throw_error(int line, std::string msg, std::string msg2);
+
+void _throw_error(int line, std::string format, ...);
+void _throw_error(std::string line, std::string format, ...);
 
 #endif

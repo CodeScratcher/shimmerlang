@@ -6,10 +6,12 @@
 #include <unordered_map>
 
 #include "ShimmerClasses.h"
+
+#include "errors.h"
+#include "eval.h"
 // #include "parser.h"
 #include "tree_print.h"
-#include "eval.h"
-#include "errors.h"
+#include "utility.h"
 
 /* Default constructor for a generic token, to be overridden */
 ShimmerToken::ShimmerToken() {
@@ -190,7 +192,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
       std::string line;
       std::getline(std::cin, line);
 
-      return LookupResult(ShimmerLiteral(-1, line)); // WHY DOES THE RESULT PRINT WITHOUT USING PRINT()?
+      return LookupResult(ShimmerLiteral(-1, line));
     }
     else if (get_params().size() == 1) {
       throw_error(func_call_line, "Sorry, reading from files is not implemeted yet!");
@@ -235,7 +237,15 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     return LookupResult(ShimmerLiteral(-1, operand1 / operand2));
   }
   else if (func_name == "def") {
-    scope->declare_variable(get_params().at(0).literal_val->get_id().get_contents(), *get_params().at(1).literal_val);
+    ShimmerLiteral* p0 = get_params().at(0).literal_val;
+    ShimmerLiteral* p1 = get_params().at(1).literal_val;
+
+    scope->declare_variable(p0->get_id().get_contents(), *p1);
+
+    std::cout << "== Begin pretty print scope ==\n";
+    pretty_print(scope);
+    std::cout << "== End pretty print scope ==\n";
+
     return LookupResult(ShimmerLiteral(-1, 0));
   }
   else if (func_name == "set") {
@@ -243,8 +253,21 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     return LookupResult(ShimmerLiteral(-1, 0));
   }
   else if (func_name == "get") {
-    scope->get_variable(get_params().at(0).literal_val->get_id().get_contents());
-    return LookupResult(ShimmerLiteral(-1, 0));
+    ShimmerLiteral res = scope->get_variable(get_params().at(0).literal_val->get_id().get_contents());
+    return LookupResult(res);
+  }
+  else if (func_name == "foo") {
+    _throw_error(
+      987, "FOO WAS CALLED WITH: %s, %s",
+      get_params().at(0).get_literal_val().get_str().c_str(),
+      get_params().at(0).get_literal_val().get_str().c_str()
+    );
+
+    // throw_error(
+    //   345, "678"
+    // );
+
+    return LookupResult(ShimmerLiteral(-1, 0xDEADBEEF));
   }
 
   return LookupResult();
@@ -308,6 +331,18 @@ void ShimmerStatement::error_on_extra_params(int line, int max, std::string msg)
     throw_error(line, msg);
   }
 }
+
+// template<typename... Types> void __error_on_wrong_num_params(int line, int min, int max, Types... args) {
+
+// }
+
+// template<typename... Types> void __error_on_missing_params(int line, int min, Types... args) {
+
+// }
+
+// template<typename... Types> void __error_on_extra_params(int line, int max, Types... args) {
+
+// }
 
 ShimmerTree::ShimmerTree() {
   // Default constructor does nothing
@@ -484,11 +519,8 @@ void ShimmerScope::set_variable(std::string var_name, ShimmerLiteral val) {
 }
 
 void ShimmerScope::declare_variable(std::string var_name, ShimmerLiteral val) {
-  // ShimmerLiteral* nval = new ShimmerLiteral(val);
-  // const std::pair<std::string, ShimmerLiteral*> p(var_name, nval);
-  // current_scope.insert(p);
-
-  current_scope.insert({var_name, &val});
+  ShimmerLiteral* nval = new ShimmerLiteral(val);
+  current_scope[var_name] = nval;
 }
 
 ShimmerUnclosedFunc::ShimmerUnclosedFunc(std::vector<ShimmerIdentifier> _params, ShimmerTree _tree) {

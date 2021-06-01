@@ -6,7 +6,8 @@ print(
 )
 
 print("YAY!")
-
+def($hi, read())
+print(hi)
 ; this is a comment
 
 ; print(
@@ -14,3 +15,11 @@ print("YAY!")
 ;   scan(),
 ;   scan()
 ; )
+; Ideas for extensions: Event syntax
+; listener($hello, (){
+;   print("hi")
+;   event($hello_done)
+; })
+; event($hello) 
+; wait_for($hello_done)
+;
