@@ -3,28 +3,28 @@ This is the folder where all of the builtin libraries will go.
 At the moment, there are only a few libraries, but more will be added soon.
 
 ## loops
-### ```do_while(callback=func, cond=bool)```
+### ```do_while(callback=func, cond=func)```
 * repeat the following:
   * call callback
-  * make sure cond is true
+  * make sure cond evaluates to true
     * if not, exit
 
-### ```while(cond=bool, callback=func)```
+### ```while(cond=func, callback=func)```
 * repeat the following:
-  * make sure cond is true
-    * if not, exit
-  * call callback
-
-### ```until(cond=bool, callback=func)```
-* repeat the following:
-  * make sure cond is false
+  * make sure cond evaluates to true
     * if not, exit
   * call callback
 
-### ```for(init=func, cond=bool, step=func, callback=func)```
+### ```until(cond=func, callback=func)```
+* repeat the following:
+  * make sure cond evaluates to false
+    * if not, exit
+  * call callback
+
+### ```for(init=func, cond=func, step=func, callback=func)```
 * call init
 * repeat the following:
-    * make sure cond is false
+    * make sure cond evaluates to false
       * if not, exit
     * call callback
     * call step

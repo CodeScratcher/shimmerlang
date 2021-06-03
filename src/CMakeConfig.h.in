@@ -1,3 +1,1 @@
-#define shimmerlang_VERSION_MAJOR @shimmerlang_VERSION_MAJOR@
-#define shimmerlang_VERSION_MINOR @shimmerlang_VERSION_MINOR@
-#define 
+#define VERSION "@VERSION@"

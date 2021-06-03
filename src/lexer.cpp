@@ -1,8 +1,8 @@
+#include <cctype>
 #include <iostream>
+#include <regex>
 #include <string>
 #include <vector>
-#include <regex>
-#include <cctype>
 
 #define DEBUG
 #if defined BENCHMARK || defined DEBUG
@@ -12,8 +12,8 @@
 
 #include "ShimmerClasses.h"
 #include "errors.h"
-#include "text_effects.h"
 #include "lexer.h"
+#include "text_effects.h"
 
 /*
 std::vector<ShimmerToken> lex(std::string str) {

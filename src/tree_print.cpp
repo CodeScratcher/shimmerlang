@@ -1,12 +1,13 @@
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 #include <string>
-#include "tree_print.h"
+
 #include "ShimmerClasses.h"
+#include "tree_print.h"
 
 void pretty_print(ShimmerTree tree) {
-  for (ShimmerStatement st : tree.get_tree()) {
-    pretty_print(st, 0);
+  for (ShimmerExpr st : tree.get_tree()) {
+    if (st.is_of_type(STATEMENT)) pretty_print(st.get_statement_val(), 0);
   }
 }
 

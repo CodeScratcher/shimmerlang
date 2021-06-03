@@ -1,8 +1,7 @@
-#include "utility.h"
-
 #include <string>
 
 #include "lexer.h"
+#include "utility.h"
 
 std::string unescape(chtype esc) {
   switch (esc) {

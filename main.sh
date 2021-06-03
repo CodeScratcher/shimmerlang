@@ -10,7 +10,7 @@ compile () {
   if [ ! -d build ]; then mkdir build; fi;
   cd build;
   read -p "What version? " VER;
-  cmake DBUILD_NUMBER=$VER ../src;
+  cmake -DBUILD_NUMBER="$VER" ../src;
   make;
   export BASE=$?
   cd ..;
@@ -22,7 +22,7 @@ d_compile () {
   if [ ! -d build ]; then mkdir build; fi;
   cd build;
   read -p "What version? " VER;
-  cmake -DBUILD_NUMBER=$VER -DCMAKE_BUILD_TYPE=Debug ../src;
+  cmake -DBUILD_NUMBER="$VER" -DCMAKE_BUILD_TYPE=Debug ../src;
   make;
   export BASE=$?
   cd ..;

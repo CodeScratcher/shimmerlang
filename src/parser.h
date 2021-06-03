@@ -20,7 +20,7 @@ class Parser {
     ShimmerToken next_token;
     std::vector<ShimmerToken> tokens;
 
-    std::vector<ShimmerStatement> statements;
+    std::vector<ShimmerExpr> statements;
     std::vector<ShimmerExpr> params;
 
     ShimmerTree to_return;

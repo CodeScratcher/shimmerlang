@@ -1,8 +1,9 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include <vector>
 #include <string>
+#include <vector>
+
 #include "ShimmerClasses.h"
 
 typedef enum {UNKNOWN = -1, NONE, COMMENT, ID, INT, STR} LexerState;

@@ -1,15 +1,13 @@
 #include <any>
-#include <string>
-#include <vector>
 #include <iostream>
+#include <string>
 #include <typeinfo>
 #include <unordered_map>
+#include <vector>
 
 #include "ShimmerClasses.h"
-
 #include "errors.h"
 #include "eval.h"
-// #include "parser.h"
 #include "tree_print.h"
 #include "utility.h"
 
@@ -189,10 +187,10 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
   }
   else if (func_name == "read") {
     if (get_params().size() == 0) {
-      std::string line;
-      std::getline(std::cin, line);
+      std::string val;
+      std::getline(std::cin, val);
 
-      return LookupResult(ShimmerLiteral(-1, line));
+      return LookupResult(ShimmerLiteral(func_call_line, val));
     }
     else if (get_params().size() == 1) {
       throw_error(func_call_line, "Sorry, reading from files is not implemeted yet!");
@@ -214,17 +212,17 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     int operand1 = get_params().at(0).literal_val->get_int();
     int operand2 = get_params().at(1).literal_val->get_int();
 
-    return LookupResult(ShimmerLiteral(-1, operand1 + operand2));
+    return LookupResult(ShimmerLiteral(func_call_line, operand1 + operand2));
   }
   else if (func_name == "sub") {
     int operand1 = get_params().at(0).literal_val->get_int();
     int operand2 = get_params().at(1).literal_val->get_int();
-    return LookupResult(ShimmerLiteral(-1, operand1 - operand2));
+    return LookupResult(ShimmerLiteral(func_call_line, operand1 - operand2));
   }
   else if (func_name == "mul") {
     int operand1 = get_params().at(0).literal_val->get_int();
     int operand2 = get_params().at(1).literal_val->get_int();
-    return LookupResult(ShimmerLiteral(-1, operand1 * operand2));
+    return LookupResult(ShimmerLiteral(func_call_line, operand1 * operand2));
   }
   else if (func_name == "div") {
     int operand1 = get_params().at(0).literal_val->get_int();
@@ -234,7 +232,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
       throw_error(func_call_line, "Division by zero is illegal");
     }
 
-    return LookupResult(ShimmerLiteral(-1, operand1 / operand2));
+    return LookupResult(ShimmerLiteral(func_call_line, operand1 / operand2));
   }
   else if (func_name == "def") {
     ShimmerLiteral* p0 = get_params().at(0).literal_val;
@@ -242,18 +240,19 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
 
     scope->declare_variable(p0->get_id().get_contents(), *p1);
 
-    std::cout << "== Begin pretty print scope ==\n";
-    pretty_print(scope);
-    std::cout << "== End pretty print scope ==\n";
-
-    return LookupResult(ShimmerLiteral(-1, 0));
+    return LookupResult(ShimmerLiteral(func_call_line, 0));
   }
   else if (func_name == "set") {
-    scope->set_variable(get_params().at(0).literal_val->get_id().get_contents(), *get_params().at(1).literal_val);
-    return LookupResult(ShimmerLiteral(-1, 0));
+    ShimmerLiteral* p0 = get_params().at(0).literal_val;
+    ShimmerLiteral* p1 = get_params().at(1).literal_val;
+
+    scope->set_variable(p0->get_id().get_contents(), *p1);
+    return LookupResult(ShimmerLiteral(func_call_line, 0));
   }
   else if (func_name == "get") {
-    ShimmerLiteral res = scope->get_variable(get_params().at(0).literal_val->get_id().get_contents());
+    ShimmerLiteral* p0 = get_params().at(0).literal_val;
+
+    ShimmerLiteral res = scope->get_variable(p0->get_id().get_contents());
     return LookupResult(res);
   }
   else if (func_name == "foo") {
@@ -267,7 +266,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     //   345, "678"
     // );
 
-    return LookupResult(ShimmerLiteral(-1, 0xDEADBEEF));
+    return LookupResult(ShimmerLiteral(func_call_line, 0xDEADBEEF));
   }
 
   return LookupResult();
@@ -348,11 +347,11 @@ ShimmerTree::ShimmerTree() {
   // Default constructor does nothing
 }
 
-ShimmerTree::ShimmerTree(std::vector<ShimmerStatement> statements) {
+ShimmerTree::ShimmerTree(std::vector<ShimmerExpr> statements) {
   tree = statements;
 }
 
-std::vector<ShimmerStatement> ShimmerTree::get_tree() {
+std::vector<ShimmerExpr> ShimmerTree::get_tree() {
   return tree;
 }
 

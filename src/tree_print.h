@@ -2,6 +2,7 @@
 #define TREE_PRINT_H
 
 #include <string>
+
 #include "ShimmerClasses.h"
 
 void pretty_print(ShimmerTree tree);

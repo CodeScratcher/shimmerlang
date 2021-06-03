@@ -1,29 +1,49 @@
-// do_while
-define(do_while, (callback, cond) {
-  callback()
-  if(cond(), () {
-    do_while(cond, callback)
-  })
-})
-
-// while
-define(while, (cond, callback) {
-	if(cond(), () {
-		callback()
-		while(cond, callback)
-	})
-})
-
-// until
-define(until, (cond, callback) {
-  while(not(cond), callback)
-})
-
-// for
-define(for, (init, cond, step, callback) {
-  init()
-  while(cond, () {
+; do_while
+def(
+  do_while,
+  (callback, cond) {
     callback()
-    step()
-  })
-})
+    if(
+      cond(),
+      () {
+        do_while(cond, callback)
+      }
+    )
+  }
+)
+
+; while
+def(
+  while,
+  (cond, callback) {
+	  if(
+      cond(),
+      () {
+		    callback()
+		    while(cond, callback)
+	    }
+    )
+  }
+)
+
+; until
+def(
+  until,
+  (cond, callback) {
+    while(not(cond), callback)
+  }
+)
+
+; for
+def(
+  for,
+  (init, cond, step, callback) {
+    init()
+    while(
+      cond, () {
+        callback()
+        step()
+      }
+    )
+  }
+)

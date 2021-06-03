@@ -1,35 +1,36 @@
-/* A comment */
+; A comment
 
-/*
-print("This is commented out code.")
-*/
+; print("This is commented out code.")
 
-define($var, 42)
-/* variable var = 42 */
-/* var is an int */
+def($var, 42)
+; variable var = 42
+; var is an int
 
-define($func,
+def(
+  $func,
   (this_param, that_param, another_param) {
     print("Function body")
   }
 )
 
 func()
-/* prints "Function body" */
+; prints "Function body"
 
-define($obj_ctor,
+def(
+  $obj_ctor,
   (input_1, input_2) {
-    {
-      things: [input_1, input_2]
+    <
+      things: [input_1, input_2],
       m_func: (params, on, same, line, as, function, name) {
         print("OMG member function!!!")
       }
-    }
+    >
   }
 )
 
 define($object, obj_ctor("foo", 42))
 print(get_elem(get_prop(object, $things), 1))
-/* prints 42 */
+; prints 42
+
 get_prop(object, $m_func)(1, 2, 3, 4, 5, 6, 7)
-/* prints "OMG member function!!!" */
+; prints "OMG member function!!!"

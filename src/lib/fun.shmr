@@ -1,7 +1,13 @@
-define(foo, () {
+def(
+  $foo,
+  () {
     foo
-})
+  }
+)
 
-define(do_what_i_said, () {
+define(
+  $do_what_i_said,
+  () {
     print("No way!")
-})
+  }
+)

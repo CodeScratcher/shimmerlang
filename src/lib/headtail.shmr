@@ -2,10 +2,10 @@ define(l_list, (heads, tails) {
 	<
 		$heads = heads,
 		$tails = tails,
-		$car = (self){
+		$car = (self) {
 			get_key(self, $heads)
 		}
-		$cdr = (self){
+		$cdr = (self) {
 			get_key(self, $tails)
 		}
 		$

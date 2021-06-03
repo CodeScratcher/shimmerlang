@@ -1,17 +1,17 @@
-#include <vector>
 #include <iostream>
-#include <string>
 #include <signal.h>
+#include <string>
+#include <vector>
 
 #if defined BENCHMARK || defined DEBUG
 #include <fstream>
 #include <sstream>
 #endif
 
-#include "errors.h"
-#include "parser.h"
-#include "lexer.h"
 #include "ShimmerClasses.h"
+#include "errors.h"
+#include "lexer.h"
+#include "parser.h"
 
 // Parser constructor
 Parser::Parser(std::vector<ShimmerToken> _tokens) {
@@ -120,7 +120,9 @@ ShimmerTree Parser::parse() {
       symbol_expectation();
     }
   }
-
+  if (expectation == STATEMENT_OR_CALL) {
+    statements.push_back(ShimmerExpr(expr));
+  }
   to_return = ShimmerTree(statements);
   return to_return;
 }
@@ -148,10 +150,14 @@ void Parser::name_or_literal_expectation() {
     expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
   }
   else if (this_token.is_of_type("ShimmerInt")) {
-    // Todo: Add straight value support (useful for functions)
+    ShimmerLiteral* literal_val = new ShimmerLiteral;
+    literal_val = new ShimmerLiteral(this_token.get_line(), this_token.get_parsed_contents());
+    statements.push_back(ShimmerExpr(*literal_val));
   }
   else if (this_token.is_of_type("ShimmerString")) {
-    // Todo: Add straight value support (useful for functions)
+    ShimmerLiteral* literal_val = new ShimmerLiteral;
+    literal_val = new ShimmerLiteral(this_token.get_line(), this_token.get_contents());
+    statements.push_back(ShimmerExpr(*literal_val));
   }
   else {
     throw_error(this_token.get_line(), "Expected name or value but got: ", this_token.get_contents());
@@ -165,10 +171,23 @@ void Parser::statement_or_call_expectation() {
     to_add.set_expr(expr);
   }
   else if (this_token.is_of_type("ShimmerInt")) {
-    // Todo: Add straight value support (useful for functions)
+    statements.push_back(ShimmerExpr(expr));
+    ShimmerLiteral* literal_val = new ShimmerLiteral;
+    literal_val = new ShimmerLiteral(this_token.get_line(), this_token.get_parsed_contents());
+    statements.push_back(ShimmerExpr(*literal_val));
+    expectation = NAME_OR_LITERAL;
   }
   else if (this_token.is_of_type("ShimmerString")) {
-    // Todo: Add straight value support (useful for functions)
+    statements.push_back(ShimmerExpr(expr));
+    ShimmerLiteral* literal_val = new ShimmerLiteral;
+    literal_val = new ShimmerLiteral(this_token.get_line(), this_token.get_contents());
+    statements.push_back(ShimmerExpr(*literal_val));
+    expectation = NAME_OR_LITERAL;
+  }
+  else if (this_token.is_of_type("ShimmerIdentifier")) {
+    statements.push_back(ShimmerExpr(expr));
+    expectation = STATEMENT_OR_CALL;
+    expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
   }
   else {
     throw_error(
@@ -211,6 +230,7 @@ void Parser::further_func_expectation() {
     ShimmerExpr* param = new ShimmerExpr(current_expr);
     params.push_back(*param);
     expectation = PARAM;
+    return;
   }
   else if (this_token.is_of_type("ShimmerRParen")) {
   	ShimmerExpr* param = new ShimmerExpr(current_expr);
@@ -274,10 +294,8 @@ void Parser::further_func_expectation() {
   Parser sub_parser = Parser(tokens_for_recursion, current_expr);
   ShimmerTree* parsed = new ShimmerTree(sub_parser.parse());
   std::cout << "=== end sub-parser ===\n";
-  ShimmerStatement* res = new ShimmerStatement(parsed->get_tree().at(0));
-  current_expr = ShimmerExpr(*res);
-  ShimmerExpr* param = new ShimmerExpr(current_expr);
-  params.push_back(*param);
+  ShimmerExpr* res = new ShimmerExpr(parsed->get_tree().at(0));
+  params.push_back(*res);
   expectation = COMMA;
 }
 
@@ -413,8 +431,8 @@ void print_statement_info(ShimmerStatement i) {
 }
 
 void print_debug_info(ShimmerTree x) {
-  for (ShimmerStatement i : x.get_tree()) {
-		print_statement_info(i);
+  for (ShimmerExpr i : x.get_tree()) {
+    if (i.is_of_type(STATEMENT)) print_statement_info(i.get_statement_val());
   }
 }
 

@@ -1,10 +1,12 @@
 #ifndef SHIMMER_CLASSES_H
 #define SHIMMER_CLASSES_H
 
-#include <string>
-#include <vector>
+/* TODO: make data structures into structs and remove accessors and mutators */
+
 #include <any>
+#include <string>
 #include <unordered_map>
+#include <vector>
 
 enum ShimmerTypes {
   TypeString,
@@ -146,9 +148,9 @@ class ShimmerStatement {
 class ShimmerTree {
   public:
     ShimmerTree();
-    ShimmerTree(std::vector<ShimmerStatement> statement);
-    std::vector<ShimmerStatement> tree;
-    std::vector<ShimmerStatement> get_tree();
+    ShimmerTree(std::vector<ShimmerExpr> statement);
+    std::vector<ShimmerExpr> tree;
+    std::vector<ShimmerExpr> get_tree();
 };
 
 class ShimmerScope {
