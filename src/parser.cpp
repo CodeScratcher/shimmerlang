@@ -17,18 +17,17 @@
 Parser::Parser(std::vector<ShimmerToken> _tokens) {
   expectation = NAME_OR_LITERAL;
 	tokens = _tokens;
-  
 }
 
 Parser::Parser(std::vector<ShimmerToken> _tokens, ShimmerExpr start) {
-  expectation = STATEMENT_OR_CALL;
+  expectation = ID_OR_CALL;
   tokens = _tokens;
   expr = start;
 }
 
 ShimmerUnclosedFunc Parser::parse_fn() {
   bool comma_expected = false;
-  std::vector<ShimmerIdentifier> ids;
+  std::vector<ShimmerIdentifier> args;
   first_param = true;
 
   while (true) {
@@ -38,12 +37,6 @@ ShimmerUnclosedFunc Parser::parse_fn() {
       if (this_token.is_of_type("ShimmerRParen")) {
         break;
       }
-      // else if (this_token.not_of_type("ShimmerComma")) {
-      //   throw_error(-1, "Expected comma but got: ", this_token.get_contents());
-      // }
-      // else {
-      //   comma_expected = false;
-      // }
       else if (this_token.is_of_type("ShimmerComma")) {
         comma_expected = false;
       }
@@ -56,7 +49,7 @@ ShimmerUnclosedFunc Parser::parse_fn() {
         break;
       }
 
-      ids.push_back(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
+      args.push_back(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
       comma_expected = true;
       first_param = false;
     }
@@ -74,102 +67,83 @@ ShimmerUnclosedFunc Parser::parse_fn() {
   while (true) {
     this_token = tokens.at(++this_token_id);
 
-    if (this_token.is_of_type("ShimmerRBrace")) {
+    if (this_token.is_of_type("ShimmerLBrace")) {
+      fn_layer++;
+    }
+    else if (this_token.is_of_type("ShimmerRBrace")) {
       if (--fn_layer == 0) {
         break;
       }
-    }
-
-    if (this_token.is_of_type("ShimmerLBrace")) {
-      fn_layer++;
     }
 
     tokens_for_recursion.push_back(this_token);
   }
 
   std::cout << "=== begin sub-parser ===\n";
+  // lex_to_str(tokens_for_recursion);
   ShimmerTree tree = Parser(tokens_for_recursion).parse();
   std::cout << "=== end sub-parser ===\n";
-  ++this_token_id;
 
-  return ShimmerUnclosedFunc(ids, tree);
+  return ShimmerUnclosedFunc(args, tree);
 }
 
 ShimmerTree Parser::parse() {
   for (this_token_id = 0; this_token_id < tokens.size(); this_token_id++) {
-    std::cout << "Parsing token number #" << std::to_string(this_token_id) << "\n";
-
     this_token = tokens.at(this_token_id);
+    handle_expectation(expectation);
+  }
 
-    if (expectation == NAME_OR_LITERAL) {
-      name_or_literal_expectation();
-    }
-    else if (expectation == STATEMENT_OR_CALL) {
-      statement_or_call_expectation();
-    }
-    else if (expectation == COMMA) {
-      comma_expectation();
-    }
-    else if (expectation == FURTHER_FUNC) {
-      further_func_expectation();
-    }
-    else if (expectation == PARAM) {
-      param_expectation();
-    }
-    else if (expectation == SYMBOL) {
-      symbol_expectation();
-    }
-  }
-  if (expectation == STATEMENT_OR_CALL) {
+  if (expectation == ID_OR_CALL) {
+    
     statements.push_back(ShimmerExpr(expr));
+
   }
+
   to_return = ShimmerTree(statements);
   return to_return;
 }
 
-void Parser::symbol_expectation() {
-  if (this_token.not_of_type("ShimmerIdentifier")) {
-    throw_error(this_token.get_line(), "Expected identifier but got: ", this_token.get_contents());
-  }
-
-  expr = ShimmerExpr(
-    ShimmerLiteral(
-      this_token.get_line(), 
-      ShimmerIdentifier(this_token.get_line(), this_token.get_contents())
-    )
-  );
-
-  params.push_back(expr);
-  expectation = COMMA;
+void Parser::handle_expectation(Expectation exp) {
+  if      (exp == NAME_OR_LITERAL) name_or_literal_expectation();
+  else if (exp == ID_OR_CALL)      id_or_call_expectation();
+  else if (exp == COMMA)           comma_expectation();
+  else if (exp == FURTHER_FUNC)    further_func_expectation();
+  else if (exp == PARAM)           param_expectation();
+  else if (exp == SYMBOL)          symbol_expectation();
 }
 
 void Parser::name_or_literal_expectation() {
-  
   if (this_token.is_of_type("ShimmerIdentifier")) {
-    expectation = STATEMENT_OR_CALL;
+    expectation = ID_OR_CALL;
     expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
   }
   else if (this_token.is_of_type("ShimmerInt")) {
-    ShimmerLiteral* literal_val = new ShimmerLiteral;
-    literal_val = new ShimmerLiteral(this_token.get_line(), this_token.get_parsed_contents());
-    statements.push_back(ShimmerExpr(*literal_val));
+    statements.push_back(
+      ShimmerExpr(ShimmerLiteral(this_token.get_line(), this_token.get_parsed_contents()))
+    );
   }
   else if (this_token.is_of_type("ShimmerString")) {
-    ShimmerLiteral* literal_val = new ShimmerLiteral;
-    literal_val = new ShimmerLiteral(this_token.get_line(), this_token.get_contents());
-    statements.push_back(ShimmerExpr(*literal_val));
+    statements.push_back(
+      ShimmerExpr(ShimmerLiteral(this_token.get_line(), this_token.get_contents()))
+    );
+  }
+  else if (this_token.is_of_type("ShimmerLParen")) {
+    ShimmerUnclosedFunc fn = parse_fn();
+    expr = ShimmerExpr(fn);
+    expectation = ID_OR_CALL;
   }
   else {
     throw_error(this_token.get_line(), "Expected name or value but got: ", this_token.get_contents());
   }
 }
 
-void Parser::statement_or_call_expectation() {
+void Parser::id_or_call_expectation() {
   if (this_token.is_of_type("ShimmerLParen")) {
     expectation = PARAM;
     first_param = true;
     to_add.set_expr(expr);
   }
+#warning line 144 parser.cpp is where we need to continue cleaning
   else if (this_token.is_of_type("ShimmerInt")) {
     statements.push_back(ShimmerExpr(expr));
     ShimmerLiteral* literal_val = new ShimmerLiteral;
@@ -186,7 +160,7 @@ void Parser::statement_or_call_expectation() {
   }
   else if (this_token.is_of_type("ShimmerIdentifier")) {
     statements.push_back(ShimmerExpr(expr));
-    expectation = STATEMENT_OR_CALL;
+    expectation = ID_OR_CALL;
     expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
   }
   else {
@@ -210,9 +184,9 @@ void Parser::comma_expectation() {
       }
     }
 
-    statements.push_back(to_add);
     params.clear();
-    expectation = NAME_OR_LITERAL;
+    expr = ShimmerExpr(to_add);
+    expectation = ID_OR_CALL;
     to_add = ShimmerStatement();
 
     return;
@@ -246,7 +220,7 @@ void Parser::further_func_expectation() {
     
     statements.push_back(to_add);
     params.clear();
-    expectation = NAME_OR_LITERAL;
+    expectation = ID_OR_CALL;
     printf("address of to_add: %p\n", (void*) &to_add);
     to_add = ShimmerStatement();
     return;
@@ -308,7 +282,7 @@ void Parser::param_expectation() {
     to_add.set_params(params);
     statements.push_back(to_add);
     params.clear();
-    expectation = NAME_OR_LITERAL;
+    expectation = ID_OR_CALL;
     to_add = ShimmerStatement();
     return;
   }
@@ -349,6 +323,22 @@ void Parser::param_expectation() {
   first_param = false;
 }
 
+void Parser::symbol_expectation() {
+  if (this_token.not_of_type("ShimmerIdentifier")) {
+    throw_error(this_token.get_line(), "Expected identifier but got: ", this_token.get_contents());
+  }
+
+  expr = ShimmerExpr(
+    ShimmerLiteral(
+      this_token.get_line(), 
+      ShimmerIdentifier(this_token.get_line(), this_token.get_contents())
+    )
+  );
+
+  params.push_back(expr);
+  expectation = COMMA;
+}
+
 void Parser::print_tokens() {
   for (int i = 0; i < tokens.size(); ++i) {
     print_token(i);
@@ -370,7 +360,7 @@ const char* get_expectation_name(Expectation expect)
     case NAME_OR_LITERAL:   return "Name or Literal";
     case PARAM:             return "Param";
     case COMMA:             return "Comma";
-    case STATEMENT_OR_CALL: return "Statement or Call";
+    case ID_OR_CALL: return "Statement or Call";
     case FURTHER_FUNC:      return "Further Func";
     case SYMBOL:            return "Symbol";
   }

@@ -189,23 +189,22 @@ class ShimmerLiteral {
     explicit ShimmerLiteral();
     explicit ShimmerLiteral(int line, int val);
     explicit ShimmerLiteral(int line, std::string val);
-    // explicit ShimmerLiteral(int line, ShimmerUnclosedFunc val);
+    explicit ShimmerLiteral(int line, ShimmerClosedFunc val);
     explicit ShimmerLiteral(int line, ShimmerIdentifier val);
 
     int type;
-
     int int_value;
     bool bool_value;
     std::string str_value;
-    ShimmerUnclosedFunc* func_value;
     ShimmerIdentifier id_value;
+    ShimmerClosedFunc* func_value;
 
     int get_type();
     int get_int();
     bool get_bool();
     std::string get_str();
-    // ShimmerUnclosedFunc get_func();
     ShimmerIdentifier get_id();
+    ShimmerClosedFunc get_func();
 };
 
 class LookupResult {

@@ -38,3 +38,9 @@ At the moment, there are only a few libraries, but more will be added soon.
 
 ### ```cdr(linked_list)```
 * returns the tail of a linked list
+## server
+### ```handle(handler)```
+* handler  must be function with specification: 
+`(req) {} => string`
+req is a hash map with data about the request.
+the return value of the function is the response.

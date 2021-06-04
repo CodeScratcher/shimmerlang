@@ -1,23 +1,12 @@
-print("Type a number: ");
-def($var_a, read())
+def(
+  $my_func,
+  () {
+    () {
+      print("Hello, world!\n")
+    }
+  }
+)
 
-print("Type another number: ");
-def($var_b, read())
-
-print("You typed:",         var_a, "and", var_b, "\n")
-print("The sum is:",        add(var_a, var_b),   "\n")
-print("The difference is:", sub(var_a, var_b),   "\n")
-print("The product is:",    mul(var_a, var_b),   "\n")
-
-; Ideas for extensions: Event syntax
-;
-; listener(
-;   $hello,
-;   () {
-;     print("hi")
-;    event($hello_done)
-;   }
-; )
-;
-; event($hello) 
-; wait_for($hello_done)
+my_func()()
+def($new_func, my_func())
+new_func()

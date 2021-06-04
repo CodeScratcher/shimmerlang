@@ -3,6 +3,6 @@
 
 #include "ShimmerClasses.h"
 
-ShimmerLiteral eval(ShimmerTree tree);
+ShimmerLiteral eval_tree(ShimmerTree tree);
 
 #endif

@@ -40,7 +40,9 @@ void pretty_print(ShimmerExpr expr, int depth) {
       case IDENTIFIER:
         std::cout << expr.get_identifier_val().get_contents();
         break;
-
+      case FUNCTION:
+        std::cout << "<function>";
+        break;
       default:
         throw std::runtime_error("Illegal expr type!");
     }

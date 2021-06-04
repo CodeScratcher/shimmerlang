@@ -209,10 +209,13 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
       "add() expects at least 2 parameters, but recieved TODO"
     );
 
-    int operand1 = get_params().at(0).literal_val->get_int();
-    int operand2 = get_params().at(1).literal_val->get_int();
+    int sum = 0;
 
-    return LookupResult(ShimmerLiteral(func_call_line, operand1 + operand2));
+    for (auto p : get_params()) {
+      sum += p.literal_val->get_int();
+    }
+
+    return LookupResult(ShimmerLiteral(func_call_line, sum));
   }
   else if (func_name == "sub") {
     int operand1 = get_params().at(0).literal_val->get_int();
@@ -286,8 +289,12 @@ ShimmerLiteral ShimmerStatement::eval(ShimmerScope* scope) {
       ShimmerLiteral x = scope->get_variable(params.at(i).get_identifier_val().get_contents());
       params.at(i) = ShimmerExpr(x);
     }
+    else if (params.at(i).is_of_type(FUNCTION)) {
+      ShimmerLiteral x = ShimmerLiteral(-1, ShimmerClosedFunc(params.at(i).get_func_val(), scope));
+      params.at(i) = ShimmerExpr(x);
+    }
     // else if (params.at(i).is_of_type(LITERAL)) {
-    //   std::cout << params.at(i).get_literal_val().get_str();
+    //    std::cout << params.at(i).get_literal_val().get_str();
     // }
   }
 
@@ -296,12 +303,21 @@ ShimmerLiteral ShimmerStatement::eval(ShimmerScope* scope) {
   if (res.found) {
     return res.value;
   }
-  else if (false) {
-    /* TODO: Create function to lookup user defined functions and evaluate them */
-  }
   else {
-    throw_error(-1, "Function not found");
+    if (expr.is_of_type(FUNCTION)) {
+      return eval_tree(expr.get_func_val().tree);
+    }
+    else if (expr.is_of_type(STATEMENT)) {
+      return eval_tree(expr.get_statement_val().eval(scope).get_func().tree);
+    }
+    else if (expr.is_of_type(IDENTIFIER)) {
+      return eval_tree(scope->get_variable(expr.get_identifier_val().get_contents()).get_func().tree);
+    }
+    else {
+      throw_error(-1, "Function not found");
+    }
   }
+  
 
   return ShimmerLiteral(-1, 0); // line is -1 because we can't figure out the line number
 }
@@ -369,17 +385,16 @@ ShimmerLiteral::ShimmerLiteral(int line, std::string val) {
   str_value = val;
 }
 
-/* 
-ShimmerLiteral::ShimmerLiteral(int line, ShimmerUnclosedFunc val) {
-  type = TypeFunc;
-  static ShimmerUnclosedFunc value = val;
-  func_value = &value;
-}
-*/
-
 ShimmerLiteral::ShimmerLiteral(int line, ShimmerIdentifier val) {
   type = TypeId;
   id_value = val;
+}
+
+
+ShimmerLiteral::ShimmerLiteral(int line, ShimmerClosedFunc val) {
+  type = TypeFunc;
+  static ShimmerClosedFunc value = val;
+  func_value = &value;
 }
 
 int ShimmerLiteral::get_type() {
@@ -404,11 +419,11 @@ std::string ShimmerLiteral::get_str() {
   else return str_value;
 }
 
-/*
-ShimmerUnclosedFunc ShimmerLiteral::get_func() {
+
+ShimmerClosedFunc ShimmerLiteral::get_func() {
   return *func_value;
 }
-*/
+
 
 ShimmerIdentifier ShimmerLiteral::get_id() {
   return id_value;
@@ -479,7 +494,9 @@ ShimmerStatement ShimmerExpr::get_statement_val() {
 ShimmerIdentifier ShimmerExpr::get_identifier_val() {
   return identifier_val;
 }
-
+ShimmerUnclosedFunc ShimmerExpr::get_func_val() {
+  return *func_val;
+}
 ShimmerScope::ShimmerScope() {
   // Default constructor does nothing
 }

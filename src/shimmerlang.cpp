@@ -1,10 +1,10 @@
+#include <cstdio>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <tuple>
-
 
 #include "CMakeConfig.h"
 #include "ShimmerClasses.h"
@@ -24,6 +24,14 @@ std::tuple<ShimmerLiteral, bool> execute(std::string str, std::string loc);
 std::string easteregg = GET_THE_EASTEREGG;
 
 int main(int argc, char* argv[]) {
+  std::cout << "=== TODO LIST ===\n";
+  std::cout << "> unescape the debug printing\n";
+  std::cout << "> fix the variable bug\n";
+  std::cout << "> fix the function bug\n";
+  std::cout << "> fix the segfault\n";
+  std::cout << "> clean up code starting from parser\n";
+  std::cout << "\n";
+
   if (argc > 1) {
     if (!interpret_program(argv[1])) {
       return 1;
@@ -64,6 +72,7 @@ bool interpret_program(char* program_name) {
 }
 
 void interpret_shell() {
+  linenoiseSetMultiLine(1);
   linenoiseHistoryLoad("~/.shmr_history");
 
   char* to_eval;
@@ -72,8 +81,9 @@ void interpret_shell() {
     std::cout << tc::reset;
     to_eval = linenoise(">>> ");
 
-    if (to_eval == nullptr) {
+    if (to_eval == nullptr || to_eval == NULL) {
       *to_eval = '\0';
+      std::cout << "It was null!\n";
     }
     else if (to_eval[0] != '\0' && to_eval[0] != '/') {
       linenoiseHistoryAdd(to_eval);
@@ -109,7 +119,7 @@ std::tuple<ShimmerLiteral, bool> execute(std::string str, std::string loc) {
   try {
     Parser parser(lex(str));
     ShimmerTree parsed = parser.parse();
-    return {eval(parsed), true};
+    return {eval_tree(parsed), true};
   }
   catch (std::runtime_error& err) {
     std::cout << \

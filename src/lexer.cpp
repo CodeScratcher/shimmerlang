@@ -14,6 +14,7 @@
 #include "errors.h"
 #include "lexer.h"
 #include "text_effects.h"
+#include "utility.h"
 
 /*
 std::vector<ShimmerToken> lex(std::string str) {
@@ -477,9 +478,11 @@ const char* lex_to_str(std::vector<ShimmerToken> lexed) {
     std::string token_type = i.get_token_type();
     int token_line = i.get_line();
 
+    token_contents = unescape(token_contents);
+
     printf(
       "       %-*s%-*s%d\n", 
-      contents_length, token_contents.c_str(), 
+      contents_length, token_contents.c_str(),
       type_length, token_type.c_str(), 
       token_line
     );
