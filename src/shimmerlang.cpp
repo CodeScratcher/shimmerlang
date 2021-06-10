@@ -89,7 +89,7 @@ void interpret_shell() {
       linenoiseHistoryAdd(to_eval);
       linenoiseHistorySave("~/.shmr_history");
 
-      std::cout << "=> " + std::get<0>(execute(to_eval, "<repl>")).get_str() + "\n";
+      std::cout << "\n=> " + std::get<0>(execute(to_eval, "<repl>")).get_str() + "\n";
     }
     else if (strncmp(to_eval, "/setmaxhistlen", 14) == 0) {
       int len = atoi(to_eval + 14);

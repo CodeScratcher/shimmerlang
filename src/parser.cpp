@@ -74,12 +74,15 @@ ShimmerUnclosedFunc Parser::parse_fn() {
 
     tokens_for_recursion.push_back(this_token);
   }
-
+#ifdef DEBUG
   std::cout << "=== begin sub-parser ===\n";
+#endif
+
   // lex_to_str(tokens_for_recursion);
   ShimmerTree tree = Parser(tokens_for_recursion).parse();
+#ifdef DEBUG
   std::cout << "=== end sub-parser ===\n";
-
+#endif
   return ShimmerUnclosedFunc(args, tree);
 }
 
@@ -231,6 +234,7 @@ void Parser::id_or_call_expectation() {
 void Parser::comma_expectation() {
   if (this_token.is_of_type("ShimmerRParen")) {
     to_add.set_params(params);
+#ifdef DEBUG
     for (ShimmerExpr i : to_add.get_params()) {
       if (i.get_param_type() == LITERAL) {
         printf("address of literal param: %p\n", (void*) i.literal_val);
@@ -239,6 +243,7 @@ void Parser::comma_expectation() {
         printf("address of statement param: %p\n", (void*) i.statement_val);
       }
     }
+#endif
 
     params.clear();
     expr = ShimmerExpr(to_add);
@@ -264,20 +269,26 @@ void Parser::further_func_expectation() {
   }
   else if (this_token.is_of_type("ShimmerRParen")) {
   	ShimmerExpr* param = new ShimmerExpr(current_expr);
+#ifdef DEBUG
     printf("new printing: %p\n", (void*) param);
+#endif
     params.push_back(*param);
     to_add.set_params(params);
 
     for (ShimmerExpr i : to_add.get_params()) {
       if (i.get_param_type() == STATEMENT) {
+#ifdef DEBUG
         printf("address of param: %p\n", (void*) i.statement_val);
+#endif
       }
     }
     
     expr = ShimmerExpr(to_add);
     params.clear();
     expectation = ID_OR_CALL;
+#ifdef DEBUG
     printf("address of to_add: %p\n", (void*) &to_add);
+#endif
     to_add = ShimmerStatement();
     return;
   }
@@ -289,8 +300,9 @@ void Parser::further_func_expectation() {
 
   int sub_expr_layer = 0;
   int j = this_token_id;
-
+#ifdef DEBUG
   std::cout << "=== sub-parser === \n";
+#endif
 
   while (true) {
     ShimmerToken tok = tokens.at(j);
