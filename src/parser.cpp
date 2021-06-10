@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 
-
 #include "ShimmerClasses.h"
 #include "errors.h"
 #include "lexer.h"

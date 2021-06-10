@@ -249,10 +249,18 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     ShimmerLiteral* p2 = get_params().at(1).literal_val;
     return LookupResult(ShimmerLiteral(func_call_line, p1->get_int() > p2->get_int()));
   }
+  else if (func_name == "int") {
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_int());
+  }
+  else if (func_name == "str") {
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_str());
+  }
   else if (func_name == "eq") {
     bool equal = false;
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
-    ShimmerLiteral* p2 = get_params().at(0).literal_val;
+    ShimmerLiteral* p2 = get_params().at(1).literal_val;
 
     if (p1->get_type() != p2->get_type()) {
       return LookupResult(ShimmerLiteral(func_call_line, equal));

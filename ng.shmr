@@ -1,40 +1,33 @@
 def($done, false)
-
-def(
-  $main,
-  () {
-    print("Pick a number!\n")
-    def($val, read())
-
-    if(
-      lt(val, 10),
-      () {
-        print("Higher!\n")
-      },
-      () {
-        if(
-          gt(val, 10),
-          () {
-            print("Lower!\n")
-          },
-          () {
-            print("Nice!\n")
-            set($done, true)
-          }
-        )()
-      }
-    )()
-
-    if(
-      eq(done, false),
-      () {
-        main()
-      },
-      () {
-        print("Correct!")
-      }
-    )()
-  }
-)
-
-main()
+def($loop, (){
+  print("Guess? ")
+  def($val, read())
+  if(
+    eq(int(val), 10), 
+    (){
+      print("Great! \n")
+      set($done, true)
+    },
+    (){
+      if(
+        lt(int(val), 10),
+        () {
+          print("It's greater than that! \n")
+        },
+        () {
+          print("It's less than that! \n")
+        }
+      )()
+    }
+  )()
+  if(
+    done,
+    (){
+      
+    },
+    (){
+      loop()
+    }
+  )()
+})
+loop()

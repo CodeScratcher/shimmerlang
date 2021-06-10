@@ -16,6 +16,8 @@
 #include "text_effects.h"
 #include "tree_print.h"
 
+#define DEVELOPMENT
+
 bool interpret_program(char* program_name);
 void interpret_shell();
 
@@ -24,13 +26,13 @@ std::tuple<ShimmerLiteral, bool> execute(std::string str, std::string loc);
 std::string easteregg = GET_THE_EASTEREGG;
 
 int main(int argc, char* argv[]) {
+#ifdef DEVELOPMENT
   std::cout << "=== TODO LIST ===\n";
-  std::cout << "> unescape the debug printing\n";
-  std::cout << "> fix the variable bug\n";
-  std::cout << "> fix the function bug\n";
-  std::cout << "> fix the segfault\n";
-  std::cout << "> clean up code starting from parser\n";
+  std::cout << "> fix the segfault issues (superrecursion and ^C-ing)\n";
+  std::cout << "> clean up code, starting with parser.cpp\n";
+  std::cout << "> get rid of duplicate code in eval.cpp\n";
   std::cout << "\n";
+#endif
 
   if (argc > 1) {
     if (!interpret_program(argv[1])) {
