@@ -1,26 +1,4 @@
-A statement = ShimmerParam expr + ShimmerParam vector params
-define(changing, (x, y){
-    changing(add1(x), sub1(y))
-})
-What happens when you call changing?
-Well, it returns changing with x + 1 and y - 1
-Since it will return changing, then now that everything else have been evaluated, you can basically replace the stack frame with the new function
-
-Since you can free the old part, the new thing can 
-take its place, allowing you to avoid allocating new stack frames, and now you won't run out of memory!
-But if you have more to evaluate, you can't replace the stack frame, meaning with enough things, it will run out, and stack overflows!
-
-OK but what about in the case of Quicksort:
-
-define(quicksort, (v) {
-  some_logic()
-  quicksort(leftside)
-  quicksort(rightside)
-})
-
-OK
-
-wait so changing(4, 6) returns changing(5, 5) Yes
-If you add an end condition it would be an adding function. Still tail-recursive, but harder to demonstrate
-
-OK whatever let's start working then
+how to make libraries:
+def($linkedlist, import("linkedlist", (var){
+  get($var)
+}))

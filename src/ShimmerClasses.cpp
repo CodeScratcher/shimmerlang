@@ -271,6 +271,61 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
       return LookupResult(*p2);
     }
   }
+  else if (func_name == "eq") {
+    bool equal = false
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    ShimmerLiteral* p2 = get_params().at(0).literal_val;
+    if (p1->get_type() != p2->get_type()) {
+      return LookupResult(ShimmerLiteral(func_call_line, equal));
+    }
+    switch(p1->get_type) {
+      case TypeBool:
+        equal = p1->get_bool() == p2->get_bool();
+        break;
+      case TypeString:
+        equal = p1->get_str() == p2->get_str();
+        break;
+      case TypeInt:
+        equal = p1->get_int() == p2->get_int();
+        break;
+      case TypeId:
+        equal = p1->get_id() == p2->get_id();
+        break;
+      case TypeFunc:
+        equal = p1->get_func() == p2->get_func();
+        break;
+    }
+    return LookupResult(ShimmerLiteral(func_call_line, equal));
+  }
+  else if (func_name == "lesser") {
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    ShimmerLiteral* p2 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_int() < p2->get_int()))
+  }
+  else if (func_name == "greater") {
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    ShimmerLiteral* p2 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_int() > p2->get_int()))
+  }
+  else if (func_name == "and") {
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    ShimmerLiteral* p2 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() && p2->get_bool()))
+  }
+  else if (func_name == "or") {
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    ShimmerLiteral* p2 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() || p2->get_bool()))
+  }
+  else if (func_name == "not") {
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, !p1->get_bool()))
+  }
+  else if (func_name == "or") {
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    ShimmerLiteral* p2 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() ^ p2->get_bool()))
+  }
   else if (func_name == "__debug__") {
     _throw_error(
       987, "FOO WAS CALLED WITH: %s, %s",
