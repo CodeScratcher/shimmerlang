@@ -191,6 +191,7 @@ class ShimmerLiteral {
     explicit ShimmerLiteral(int line, std::string val);
     explicit ShimmerLiteral(int line, ShimmerClosedFunc val);
     explicit ShimmerLiteral(int line, ShimmerIdentifier val);
+    explicit ShimmerLiteral(int line, bool val);
 
     int type;
     int int_value;

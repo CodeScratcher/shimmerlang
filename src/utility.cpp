@@ -43,8 +43,15 @@ const char* c_unescape(std::string esc) {
   char* p = out;
 
   for (auto c : esc) {
-    *p++ = '\\';
-    *p++ = escape_ch(c);
+    chtype e = escape_ch(c);
+
+    if (e == '!') {
+      *p++ = c;
+    }
+    else {
+      *p++ = '\\';
+      *p++ = escape_ch(c);
+    }
   }
 
   return out;

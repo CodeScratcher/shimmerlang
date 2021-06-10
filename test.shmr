@@ -1,7 +1,51 @@
-def($currying, (a){
-  (b) {
-    print(a, b, "\n")
+def(
+  $cons_cell,
+  (head, tail) {
+    def($h, head)
+    def($t, tail)
+
+    def(
+      $car,
+      () {
+        h
+      }
+    )
+
+    def(
+      $cdr,
+      () {
+        t
+      }
+    )
+
+    def(
+      $cons,
+      (new) {
+        if(
+          t, 
+          t($cons), 
+          (n) {
+            set($t, n)
+          }
+        )(new)
+      }
+    )
+
+    (id) {
+      get(id)
+    }
   }
-})
-def($greeter, currying("Hello"))
-greeter("world!")
+)
+
+def(
+  $linked,
+  cons_cell(
+    5,
+    cons_cell(
+      "hello, there",
+      false
+    )
+  )
+)
+
+print(linked($cdr)()($car)())

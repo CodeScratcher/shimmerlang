@@ -1,5 +1,6 @@
 #include <cstdarg>
 #include <cstdio>
+#include <cstdlib>
 #include <stdexcept>
 #include <string>
 
@@ -86,7 +87,10 @@ void throw_error(int line, std::string msg, std::string msg2) {
 void _throw_error(int line, std::string format, ...) {
   char buf[100], fmt[20];
   sprintf(fmt, "%d:\n\t%s", line, format.c_str());
-  printf("FORMAT STRING: %s\n", c_unescape(fmt));
+
+  const char* debug = c_unescape(fmt);
+  printf("FORMAT STRING: %s\n", debug);
+  free((void*) debug);
 
   va_list args;
   va_start(args, format);

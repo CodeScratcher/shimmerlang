@@ -259,6 +259,18 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     ShimmerLiteral res = scope->get_variable(p0->get_id().get_contents());
     return LookupResult(res);
   }
+  else if (func_name == "if") {
+    ShimmerLiteral* p0 = get_params().at(0).literal_val;
+    ShimmerLiteral* p1 = get_params().at(1).literal_val;
+    ShimmerLiteral* p2 = get_params().at(2).literal_val;
+    
+    if (p0->get_bool()) {
+      return LookupResult(*p1);
+    }
+    else {
+      return LookupResult(*p2);
+    }
+  }
   else if (func_name == "__debug__") {
     _throw_error(
       987, "FOO WAS CALLED WITH: %s, %s",
@@ -270,7 +282,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     //   345, "678"
     // );
 
-    return LookupResult(ShimmerLiteral(func_call_line, 0xDEADBEEF));
+    return LookupResult(ShimmerLiteral(func_call_line, (int)0xDEADBEEF));
   }
 
   return LookupResult();
@@ -401,6 +413,11 @@ ShimmerLiteral::ShimmerLiteral(int line, ShimmerClosedFunc val) {
   type = TypeFunc;
   //static ShimmerClosedFunc value = val;
   func_value = val;
+}
+
+ShimmerLiteral::ShimmerLiteral(int line, bool val) {
+  type = TypeBool;
+  bool_value = val;
 }
 
 int ShimmerLiteral::get_type() {

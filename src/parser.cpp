@@ -114,8 +114,20 @@ void Parser::handle_expectation(Expectation exp) {
 
 void Parser::name_or_literal_expectation() {
   if (this_token.is_of_type("ShimmerIdentifier")) {
-    expectation = ID_OR_CALL;
-    expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
+    if (this_token.get_contents() == "true") {
+      statements.push_back(
+        ShimmerExpr(ShimmerLiteral(-1, true))
+      );
+    }
+    else if (this_token.get_contents() == "false") {
+      statements.push_back(
+        ShimmerExpr(ShimmerLiteral(-1, false))
+      );
+    }
+    else {
+      expectation = ID_OR_CALL;
+      expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
+    }
   }
   else if (this_token.is_of_type("ShimmerInt")) {
     statements.push_back(
@@ -194,8 +206,22 @@ void Parser::id_or_call_expectation() {
   }
   else if (this_token.is_of_type("ShimmerIdentifier")) {
     statements.push_back(ShimmerExpr(expr));
-    expectation = ID_OR_CALL;
-    expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
+    if (this_token.get_contents() == "true") {
+      statements.push_back(
+        ShimmerExpr(ShimmerLiteral(-1, true))
+      );
+      expectation = NAME_OR_LITERAL;
+    }
+    else if (this_token.get_contents() == "false") {
+      statements.push_back(
+        ShimmerExpr(ShimmerLiteral(-1, false))
+      );
+      expectation = NAME_OR_LITERAL;
+    }
+    else {
+      expectation = ID_OR_CALL;
+      expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
+    }
   }
   else {
     throw_error(
@@ -302,9 +328,8 @@ void Parser::further_func_expectation() {
   Parser sub_parser = Parser(tokens_for_recursion, current_expr);
   ShimmerTree* parsed = new ShimmerTree(sub_parser.parse());
   std::cout << "=== end sub-parser ===\n";
-  ShimmerExpr* res = new ShimmerExpr(parsed->get_tree().at(0));
-  params.push_back(*res);
-  expectation = COMMA;
+  current_expr = ShimmerExpr(parsed->get_tree().at(0));
+  expectation = FURTHER_FUNC;
 }
 
 void Parser::param_expectation() {
@@ -324,9 +349,26 @@ void Parser::param_expectation() {
     expectation = SYMBOL;
   }
   else if (this_token.is_of_type("ShimmerIdentifier")) {
-    
-    current_expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
-    expectation = FURTHER_FUNC;
+    if (this_token.get_contents() == "true") {
+      ShimmerLiteral* literal_val = new ShimmerLiteral;
+
+      literal_val = new ShimmerLiteral(-1, true);
+      
+      params.push_back(ShimmerExpr(*literal_val));
+      expectation = COMMA;
+    }
+    else if (this_token.get_contents() == "false") {
+      ShimmerLiteral* literal_val = new ShimmerLiteral;
+
+      literal_val = new ShimmerLiteral(-1, false);
+      
+      params.push_back(ShimmerExpr(*literal_val));
+      expectation = COMMA;
+    }
+    else {
+      current_expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
+      expectation = FURTHER_FUNC;
+    }
     return;
   }
   else if (this_token.is_of_type("ShimmerLParen")) {
