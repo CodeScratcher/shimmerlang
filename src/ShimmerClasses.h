@@ -4,6 +4,7 @@
 /* TODO: make data structures into structs and remove accessors and mutators */
 
 #include <any>
+#include <functional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -26,6 +27,12 @@ class LookupResult;
 
 typedef enum { NONETYPE, LITERAL, STATEMENT, IDENTIFIER, FUNCTION } ParamType;
 typedef std::unordered_map<std::string, ShimmerLiteral*> Scope;
+
+// typedef int (*BIFNextFunc)(int line, int res, ShimmerExpr param);
+// typedef int (*BIFCalcFunc)(int line, int op1, int op2);
+
+typedef std::function<int(int, int, ShimmerLiteral*)>             BIFNextFunc;
+typedef std::function<int(int, ShimmerLiteral*, ShimmerLiteral*)> BIFCalcFunc;
 
 class ShimmerToken {
   public:
@@ -140,9 +147,20 @@ class ShimmerStatement {
     void error_on_missing_params(int line, int min, std::string msg);
     void error_on_extra_params(int line, int max, std::string msg);
 
+    LookupResult math_func_var(std::string name, int line, int start,                       BIFNextFunc next);
+    LookupResult math_func_dya(std::string name, int line, std::vector<ShimmerExpr> params, BIFCalcFunc calc);
+
     // template<typename... Types> void __error_on_wrong_num_params(int line, int min, int max, Types... args);
     // template<typename... Types> void __error_on_missing_params(int line, int min, Types... args);
     // template<typename... Types> void __error_on_extra_params(int line, int max, Types... args);
+};
+
+class BuiltinFuncs {
+  public:
+    static BIFNextFunc add();
+    static BIFCalcFunc sub();
+    static BIFNextFunc mul();
+    static BIFCalcFunc div();
 };
 
 class ShimmerTree {

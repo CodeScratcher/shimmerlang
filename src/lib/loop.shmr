@@ -40,7 +40,8 @@ def(
   (init, cond, step, callback) {
     init()
     while(
-      cond, () {
+      cond,
+      () {
         callback()
         step()
       }

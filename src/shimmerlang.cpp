@@ -107,6 +107,10 @@ void interpret_shell() {
     else if (strncmp(to_eval, "/easteregg", 10) == 0) {
       std::cout << easteregg << "\n";
     }
+    else if (strncmp(to_eval, "/shrug", 6) == 0) {
+      std::cout << "_        _\n";
+      std::cout << " \\_(\u30C4)_/\n";
+    }
     else if (to_eval[0] == '/') {
       std::cout << "Unrecognized command: " << to_eval << "\n";
     }
@@ -124,7 +128,9 @@ std::tuple<ShimmerLiteral, bool> execute(std::string str, std::string loc) {
   catch (std::runtime_error& err) {
     std::cout << \
       tc::red << \
-      "In file " << loc << " on line " << \
+      "In file " << \
+      loc << \
+      " on line " << \
       err.what() << \
       tc::reset << \
       "\n\n";

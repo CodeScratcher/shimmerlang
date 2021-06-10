@@ -18,3 +18,5 @@ add_executable(shimmerlang ${SRC})
 target_include_directories(shimmerlang PUBLIC
                            "${PROJECT_BINARY_DIR}"
                            )
+install(DIRECTORY lib/ DESTINATION /usr/lib/shimmer)
+install(TARGETS shimmerlang RUNTIME DESTINATION /usr/local/bin)

@@ -4,10 +4,16 @@
 #include <typeinfo>
 #include <unordered_map>
 #include <vector>
+#include <fstream>
+#include <sstream>
+#include <tuple>
 
 #include "ShimmerClasses.h"
 #include "errors.h"
 #include "eval.h"
+#include "lexer.h"
+#include "parser.h"
+#include "text_effects.h"
 #include "tree_print.h"
 #include "utility.h"
 
@@ -27,8 +33,6 @@ std::string ShimmerToken::get_contents() {
 }
 
 /* Returns the actual int from an int token. */
-// THIS FUNCTION AND PARSED_CONTENTS SHOULD BE DEFINED BY SHIMMERINT, MAYBE???
-// inheritance, unfortunatly
 int ShimmerToken::get_parsed_contents() {
   return parsed_contents;
 }
@@ -205,38 +209,64 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     }
   }
   else if (func_name == "add") {
-    error_on_missing_params(
-      func_call_line, 2,
-      "add() expects at least 2 parameters, but recieved TODO"
-    );
-
-    int sum = 0;
-
-    for (auto p : get_params()) {
-      sum += p.literal_val->get_int();
-    }
-
-    return LookupResult(ShimmerLiteral(func_call_line, sum));
+    return math_func_var(func_name, func_call_line, 0, BuiltinFuncs::add());
   }
   else if (func_name == "sub") {
-    int operand1 = get_params().at(0).literal_val->get_int();
-    int operand2 = get_params().at(1).literal_val->get_int();
-    return LookupResult(ShimmerLiteral(func_call_line, operand1 - operand2));
+    return math_func_dya(func_name, func_call_line, get_params(), BuiltinFuncs::sub());
   }
   else if (func_name == "mul") {
-    int operand1 = get_params().at(0).literal_val->get_int();
-    int operand2 = get_params().at(1).literal_val->get_int();
-    return LookupResult(ShimmerLiteral(func_call_line, operand1 * operand2));
+    return math_func_var(func_name, func_call_line, 1, BuiltinFuncs::mul());
   }
   else if (func_name == "div") {
-    int operand1 = get_params().at(0).literal_val->get_int();
-    int operand2 = get_params().at(1).literal_val->get_int();
+    return math_func_dya(func_name, func_call_line, get_params(), BuiltinFuncs::div());
+  }
+  else if (func_name == "and") {
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    ShimmerLiteral* p2 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() && p2->get_bool()));
+  }
+  else if (func_name == "or") {
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    ShimmerLiteral* p2 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() || p2->get_bool()));
+  }
+  else if (func_name == "not") {
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, !p1->get_bool()));
+  }
+  else if (func_name == "xor") {
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    ShimmerLiteral* p2 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() ^ p2->get_bool()));
+  }
+  else if (func_name == "lt") {
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    ShimmerLiteral* p2 = get_params().at(1).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_int() < p2->get_int()));
+  }
+  else if (func_name == "gt") {
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    ShimmerLiteral* p2 = get_params().at(1).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_int() > p2->get_int()));
+  }
+  else if (func_name == "eq") {
+    bool equal = false;
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    ShimmerLiteral* p2 = get_params().at(0).literal_val;
 
-    if (operand2 == 0) {
-      throw_error(func_call_line, "Division by zero is illegal");
+    if (p1->get_type() != p2->get_type()) {
+      return LookupResult(ShimmerLiteral(func_call_line, equal));
     }
 
-    return LookupResult(ShimmerLiteral(func_call_line, operand1 / operand2));
+    switch(p1->get_type()) {
+      case TypeBool:   equal = p1->get_bool() == p2->get_bool(); break;
+      case TypeString: equal = p1->get_str() == p2->get_str();   break;
+      case TypeInt:    equal = p1->get_int() == p2->get_int();   break;
+      //case TypeId:     equal = p1->get_id() == p2->get_id();     break;
+      //case TypeFunc:   equal = p1->get_func() == p2->get_func(); break;
+    }
+
+    return LookupResult(ShimmerLiteral(func_call_line, equal));
   }
   else if (func_name == "def") {
     ShimmerLiteral* p0 = get_params().at(0).literal_val;
@@ -264,66 +294,62 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     ShimmerLiteral* p1 = get_params().at(1).literal_val;
     ShimmerLiteral* p2 = get_params().at(2).literal_val;
     
-    if (p0->get_bool()) {
+    if (p0->get_bool() == true) {
       return LookupResult(*p1);
     }
     else {
       return LookupResult(*p2);
     }
   }
-  else if (func_name == "eq") {
-    bool equal = false;
-    ShimmerLiteral* p1 = get_params().at(0).literal_val;
-    ShimmerLiteral* p2 = get_params().at(0).literal_val;
-    if (p1->get_type() != p2->get_type()) {
-      return LookupResult(ShimmerLiteral(func_call_line, equal));
-    }
-
-    switch(p1->get_type()) {
-      case TypeBool:   equal = p1->get_bool() == p2->get_bool(); break;
-      case TypeString: equal = p1->get_str() == p2->get_str();   break;
-      case TypeInt:    equal = p1->get_int() == p2->get_int();   break;
-      //case TypeId:     equal = p1->get_id() == p2->get_id();     break;
-      //case TypeFunc:   equal = p1->get_func() == p2->get_func(); break;
-    }
-
-    return LookupResult(ShimmerLiteral(func_call_line, equal));
-  }
-  else if (func_name == "lt") {
-    ShimmerLiteral* p1 = get_params().at(0).literal_val;
-    ShimmerLiteral* p2 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, p1->get_int() < p2->get_int()));
-  }
-  else if (func_name == "gt") {
-    ShimmerLiteral* p1 = get_params().at(0).literal_val;
-    ShimmerLiteral* p2 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, p1->get_int() > p2->get_int()));
-  }
-  else if (func_name == "and") {
-    ShimmerLiteral* p1 = get_params().at(0).literal_val;
-    ShimmerLiteral* p2 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() && p2->get_bool()));
-  }
-  else if (func_name == "or") {
-    ShimmerLiteral* p1 = get_params().at(0).literal_val;
-    ShimmerLiteral* p2 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() || p2->get_bool()));
-  }
-  else if (func_name == "not") {
-    ShimmerLiteral* p1 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, !p1->get_bool()));
-  }
-  else if (func_name == "xor") {
-    ShimmerLiteral* p1 = get_params().at(0).literal_val;
-    ShimmerLiteral* p2 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() ^ p2->get_bool()));
-  }
   else if (func_name == "import") {
     // steps:
     // open library
+    ShimmerLiteral* p0 = get_params().at(0).literal_val;
+    std::string lib_name = p0->get_str();
+
+    std::ifstream file;
+    file.open(lib_name + ".shmr");
+
+    if (!file) {
+      file.open("/usr/lib/shimmer/" + lib_name + ".shmr");
+      if (!file) {
+        file.open("~/.shimmer/libs/" + lib_name + ".shmr");
+        if (!file) {
+          throw_error(-1, "Error opening library");
+        }
+      }
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    std::string data = buffer.str();
+
     // evaluate library, getting scope
+    ShimmerScope* scope;
+    try {
+      Parser parser(lex(data));
+      ShimmerTree parsed = parser.parse();
+      scope = std::get<1>(eval_and_get_scope(parsed));
+    }
+    catch (std::runtime_error& err) {
+      std::cout << \
+        tc::red << \
+        "In file " << \
+        lib_name << \
+        ".shmr on line " << \
+        err.what() << \
+        tc::reset << \
+        "\n\n";
+
+
+      throw_error(-1, "Library "+ p0->get_str() + " failed to execute");
+    }
     // cons scope onto function (since it is a linked list)
+    ShimmerLiteral* p1 = get_params().at(1).literal_val;
+    ShimmerClosedFunc* func = new ShimmerClosedFunc(p1->get_func());
+    func->closed_scope->cons_scope(scope);
     // return function
+    return LookupResult(ShimmerLiteral(func_call_line, *func));
   }
   else if (func_name == "__debug__") {
     _throw_error(
@@ -340,6 +366,47 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
   }
 
   return LookupResult();
+}
+
+LookupResult ShimmerStatement::math_func_var(std::string name, int line, int start, BIFNextFunc next) {
+  error_on_missing_params(
+    line, 2,
+    name + "() expects at least 2 parameters, but recieved " + std::to_string(get_params().size())
+  );
+
+  int res = start;
+
+  for (auto p : get_params()) {
+    res = next(line, res, p.literal_val);
+  }
+
+  return LookupResult(ShimmerLiteral(line, res));
+}
+
+LookupResult ShimmerStatement::math_func_dya(std::string name, int line, std::vector<ShimmerExpr> params, BIFCalcFunc calc) {
+  ShimmerLiteral* op1 = params.at(0).literal_val;
+  ShimmerLiteral* op2 = params.at(1).literal_val;
+
+  return LookupResult(ShimmerLiteral(line, calc(line, op1, op2)));
+}
+
+BIFNextFunc BuiltinFuncs::add() {
+  return [](int line, int res, ShimmerLiteral* param) -> int { return res + param->get_int(); };
+}
+
+BIFCalcFunc BuiltinFuncs::sub() {
+  return [](int line, ShimmerLiteral* op1, ShimmerLiteral* op2) -> int { return op1->get_int() - op2->get_int(); };
+}
+
+BIFNextFunc BuiltinFuncs::mul() {
+  return [](int line, int res, ShimmerLiteral* param) -> int { return res * param->get_int(); };
+}
+
+BIFCalcFunc BuiltinFuncs::div() {
+  return [](int line, ShimmerLiteral* op1, ShimmerLiteral* op2) -> int {
+    if (op2->get_int() == 0) throw_error(line, "Division by 0 is illegal");
+    return op1->get_int() / op2->get_int();
+  };
 }
 
 // Evaluate a single thing
@@ -493,6 +560,7 @@ std::string ShimmerLiteral::get_str() {
   if (type == TypeInt) {
     return std::to_string(int_value);
   }
+  else if (type == TypeBool) return bool_value ? "true" : "false";
   else return str_value;
 }
 

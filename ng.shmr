@@ -3,6 +3,7 @@ def($done, false)
 def(
   $main,
   () {
+    print("Pick a number!\n")
     def($val, read())
 
     if(
@@ -18,17 +19,22 @@ def(
           },
           () {
             print("Nice!\n")
-            set(done, true)
+            set($done, true)
           }
-        )
+        )()
       }
-    )
+    )()
 
     if(
       eq(done, false),
       () {
         main()
+      },
+      () {
+        print("Correct!")
       }
-    )
+    )()
   }
 )
+
+main()

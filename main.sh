@@ -1,6 +1,5 @@
 #!/bin/bash
 
-tar -xf cmake-3.20-rc5-linux-x86_64.tar.gz
 
 /bin/bash print_options.sh
 read -p "Which option? [cC/dD/tT/rR] " answer
