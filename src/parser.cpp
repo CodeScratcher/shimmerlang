@@ -3,10 +3,6 @@
 #include <string>
 #include <vector>
 
-#if defined BENCHMARK || defined DEBUG
-#include <fstream>
-#include <sstream>
-#endif
 
 #include "ShimmerClasses.h"
 #include "errors.h"
@@ -502,27 +498,3 @@ void print_debug_info(ShimmerTree x) {
   }
 }
 
-#ifdef DEBUG
-
-const char* parse_test() {
-	std::ifstream file;
-  file.open("test.shmr");
-
-  if (!file) {
-    std::cout << "Error while opening file.";
-    return "Error while opening file.";
-  }
-  else {
-		std::stringstream buffer;
-    buffer << file.rdbuf();
-    Parser parser(lex(buffer.str()));
-		ShimmerTree parsed = parser.parse();
-		std::cout << "Parsing done." << "\n";
-
-		print_debug_info(parsed);  
-
-		return "Test complete";
-	}
-}
-
-#endif

@@ -260,8 +260,6 @@ std::vector<ShimmerToken> lex(std::string str) {
   std::vector<ShimmerToken> tokens;
 
   for (long i = 0; i < str.length(); i++) {
-    std::cout << "Iteration #" << std::to_string(i) << ", ";
-    std::cout << "current_line == " << std::to_string(current_line) << ".\n";
 
     chtype ch = str.at(i);
 
@@ -294,21 +292,17 @@ std::vector<ShimmerToken> lex(std::string str) {
         continue;
       }
       else if (ch == ';') {
-        std::cout << "Found one-line comment!\n";
         now_in = COMMENT;
       }
       else if (ch == '"' || ch == '\'') {
-        std::cout << "Now starting a string with delimiter: " << ch << "\n";
         now_in = STR;
         str_delim = ch;
       }
       else if (std::regex_search(std::string(1, ch), std::regex("[a-zA-Z_\\-]"))) {
-        std::cout << "Now starting an identifier with char: " << ch << "\n";
         now_in = ID;
         this_token_contents.push_back(ch);
       }
       else if (std::regex_search(std::string(1, ch), std::regex("[0-9]"))) { // TODO: add hexadecimal support
-        std::cout << "Now starting an int with char: " << ch << "\n";
         now_in = INT;
         this_token_contents.push_back(ch);
       }
@@ -343,15 +337,12 @@ std::vector<ShimmerToken> lex(std::string str) {
       }
     }
     else if (now_in == STR) {
-      std::cout << "Continuing string with char: " << ch << "\n";
       if (ch == str_delim) {
-        std::cout << "Found delimeter " << ch << " for string " << this_token_contents << "\n";
         now_in = NONE;
 
         tokens.push_back(ShimmerString(current_line, this_token_contents));
       }
       else if (ch == '\\') {
-        std::cout << "Found escape sequence: \\" << str.at(i + 1) << "\n";
 
         this_token_contents.push_back(esc_seq(str.at(i + 1)));
 
@@ -364,9 +355,7 @@ std::vector<ShimmerToken> lex(std::string str) {
     }
     else if (now_in == ID) {
       if (std::regex_search(std::string(1, ch), std::regex("[a-zA-Z0-9_\\-]"))) {
-        std::cout << "Continuing identifier with char: " << ch << "\n";
         this_token_contents.push_back(ch);
-        std::cout << "Current contents: " << this_token_contents << "\n";
       }
       else {
         tokens.push_back(ShimmerIdentifier(current_line, this_token_contents));
@@ -379,9 +368,7 @@ std::vector<ShimmerToken> lex(std::string str) {
     }
     else if (now_in == INT) {
       if (std::regex_search(std::string(1, ch), std::regex("[0-9]"))) {
-        std::cout << "Continuing int with char: " << ch << "\n";
         this_token_contents.push_back(ch);
-        std::cout << "Current contents: " << this_token_contents << "\n";
       }
       else {
         tokens.push_back(ShimmerInt(current_line, this_token_contents));
@@ -421,7 +408,6 @@ std::vector<ShimmerToken> lex(std::string str) {
     throw_error(current_line, "Unclosed string: ", this_token_contents);
   }
 
-  lex_to_str(tokens);
 
   return tokens;
 }

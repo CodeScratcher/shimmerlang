@@ -412,10 +412,13 @@ BIFCalcFunc BuiltinFuncs::div() {
 // Evaluate a single thing
 ShimmerLiteral ShimmerStatement::eval(ShimmerScope* scope) {
   for (int i = 0; i < params.size(); i++) {
+#ifdef DEBUG
     std::cout << "On param #" << i << "\n";
-
+#endif
     if (params.at(i).is_of_type(STATEMENT)) {
+#ifdef DEBUG
       pretty_print(*this);
+#endif
 			ShimmerStatement new_statement = ShimmerStatement(params.at(i).get_statement_val());
       ShimmerExpr res = ShimmerExpr(new_statement.eval(scope));
       params.at(i) = res;
@@ -427,7 +430,6 @@ ShimmerLiteral ShimmerStatement::eval(ShimmerScope* scope) {
     else if (params.at(i).is_of_type(FUNCTION)) {
       
       ShimmerLiteral x = ShimmerLiteral(-1, ShimmerClosedFunc(params.at(i).get_func_val(), scope));
-      printf("Address: %p\n", (void*)params.at(i).func_val);
       params.at(i) = ShimmerExpr(x);
     }
     // else if (params.at(i).is_of_type(LITERAL)) {

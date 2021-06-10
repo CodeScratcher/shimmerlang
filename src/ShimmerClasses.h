@@ -1,5 +1,6 @@
 #ifndef SHIMMER_CLASSES_H
 #define SHIMMER_CLASSES_H
+#define DEBUG
 
 /* TODO: make data structures into structs and remove accessors and mutators */
 
