@@ -4,5 +4,5 @@
 #include "ShimmerClasses.h"
 
 ShimmerLiteral eval_tree(ShimmerTree tree);
-
+ShimmerLiteral eval_tree(ShimmerTree tree, ShimmerScope* above_scope);
 #endif

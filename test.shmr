@@ -1,12 +1,18 @@
+
+
 def(
-  $my_func,
+  $test,
   () {
+    def(
+      $test_func,
+      () {
+        print("hi there \n")
+      }
+    )
     () {
-      print("Hello, world!\n")
+      test_func
     }
   }
 )
 
-my_func()()
-def($new_func, my_func())
-new_func()
+test()()()

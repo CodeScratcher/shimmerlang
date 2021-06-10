@@ -28,6 +28,7 @@ std::string ShimmerToken::get_contents() {
 
 /* Returns the actual int from an int token. */
 // THIS FUNCTION AND PARSED_CONTENTS SHOULD BE DEFINED BY SHIMMERINT, MAYBE???
+// inheritance, unfortunatly
 int ShimmerToken::get_parsed_contents() {
   return parsed_contents;
 }
@@ -242,7 +243,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     ShimmerLiteral* p1 = get_params().at(1).literal_val;
 
     scope->declare_variable(p0->get_id().get_contents(), *p1);
-
+    pretty_print(scope);
     return LookupResult(ShimmerLiteral(func_call_line, 0));
   }
   else if (func_name == "set") {
@@ -258,7 +259,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     ShimmerLiteral res = scope->get_variable(p0->get_id().get_contents());
     return LookupResult(res);
   }
-  else if (func_name == "foo") {
+  else if (func_name == "__debug__") {
     _throw_error(
       987, "FOO WAS CALLED WITH: %s, %s",
       get_params().at(0).get_literal_val().get_str().c_str(),
@@ -283,14 +284,17 @@ ShimmerLiteral ShimmerStatement::eval(ShimmerScope* scope) {
     if (params.at(i).is_of_type(STATEMENT)) {
       pretty_print(*this);
 			ShimmerStatement new_statement = ShimmerStatement(params.at(i).get_statement_val());
-      params.at(i) = ShimmerExpr(new_statement.eval(scope));
+      ShimmerExpr res = ShimmerExpr(new_statement.eval(scope));
+      params.at(i) = res;
     }
     else if (params.at(i).is_of_type(IDENTIFIER)) {
       ShimmerLiteral x = scope->get_variable(params.at(i).get_identifier_val().get_contents());
       params.at(i) = ShimmerExpr(x);
     }
     else if (params.at(i).is_of_type(FUNCTION)) {
+      
       ShimmerLiteral x = ShimmerLiteral(-1, ShimmerClosedFunc(params.at(i).get_func_val(), scope));
+      printf("Address: %p\n", (void*)params.at(i).func_val);
       params.at(i) = ShimmerExpr(x);
     }
     // else if (params.at(i).is_of_type(LITERAL)) {
@@ -305,13 +309,15 @@ ShimmerLiteral ShimmerStatement::eval(ShimmerScope* scope) {
   }
   else {
     if (expr.is_of_type(FUNCTION)) {
-      return eval_tree(expr.get_func_val().tree);
+      return eval_tree(expr.get_func_val().tree, scope);
     }
     else if (expr.is_of_type(STATEMENT)) {
-      return eval_tree(expr.get_statement_val().eval(scope).get_func().tree);
+      ShimmerClosedFunc res = expr.get_statement_val().eval(scope).get_func();
+      return eval_tree(res.tree, res.closed_scope);
     }
     else if (expr.is_of_type(IDENTIFIER)) {
-      return eval_tree(scope->get_variable(expr.get_identifier_val().get_contents()).get_func().tree);
+      ShimmerClosedFunc res = scope->get_variable(expr.get_identifier_val().get_contents()).get_func();
+      return eval_tree(res.tree, res.closed_scope);
     }
     else {
       throw_error(-1, "Function not found");
@@ -368,7 +374,7 @@ ShimmerTree::ShimmerTree(std::vector<ShimmerExpr> statements) {
 }
 
 std::vector<ShimmerExpr> ShimmerTree::get_tree() {
-  return tree;
+  return tree; /**** We've been trying to reach you about your car's extended warranty ****/
 }
 
 ShimmerLiteral::ShimmerLiteral() {
@@ -393,8 +399,8 @@ ShimmerLiteral::ShimmerLiteral(int line, ShimmerIdentifier val) {
 
 ShimmerLiteral::ShimmerLiteral(int line, ShimmerClosedFunc val) {
   type = TypeFunc;
-  static ShimmerClosedFunc value = val;
-  func_value = &value;
+  //static ShimmerClosedFunc value = val;
+  func_value = val;
 }
 
 int ShimmerLiteral::get_type() {
@@ -421,7 +427,7 @@ std::string ShimmerLiteral::get_str() {
 
 
 ShimmerClosedFunc ShimmerLiteral::get_func() {
-  return *func_value;
+  return func_value;
 }
 
 
@@ -544,7 +550,8 @@ ShimmerUnclosedFunc::ShimmerUnclosedFunc(std::vector<ShimmerIdentifier> _params,
   tree = _tree;
 }
 
-ShimmerClosedFunc::ShimmerClosedFunc(ShimmerUnclosedFunc to_close, ShimmerScope* closed_scope) {
+ShimmerClosedFunc::ShimmerClosedFunc(ShimmerUnclosedFunc to_close, ShimmerScope* _closed_scope) {
   params = to_close.params;
   tree = to_close.tree;
+  closed_scope = _closed_scope;
 }

@@ -8,6 +8,9 @@
 void pretty_print(ShimmerTree tree) {
   for (ShimmerExpr st : tree.get_tree()) {
     if (st.is_of_type(STATEMENT)) pretty_print(st.get_statement_val(), 0);
+    else {
+      pretty_print(st, 0);
+    }
   }
 }
 
@@ -40,9 +43,11 @@ void pretty_print(ShimmerExpr expr, int depth) {
       case IDENTIFIER:
         std::cout << expr.get_identifier_val().get_contents();
         break;
+
       case FUNCTION:
-        std::cout << "<function>";
+        pretty_print(expr.get_func_val(), depth);
         break;
+
       default:
         throw std::runtime_error("Illegal expr type!");
     }
@@ -68,13 +73,22 @@ void pretty_print(ShimmerLiteral lit, int depth) {
       break;
 
     case TypeFunc:
-      throw std::runtime_error("Hasn't been implemented yet: pretty printing funcs");
+      pretty_print(lit.get_func(), depth);
       break;
 
     case TypeId:
       std::cout << lit.get_id().get_contents();
       break;
   }
+}
+
+void pretty_print(ShimmerClosedFunc func, int depth) {
+  std::cout << "<function>\n";
+  pretty_print(func.tree);
+}
+void pretty_print(ShimmerUnclosedFunc func, int depth) {
+  std::cout << "<function>\n";
+  pretty_print(func.tree);
 }
 
 /*

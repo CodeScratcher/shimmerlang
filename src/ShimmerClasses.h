@@ -180,7 +180,7 @@ class ShimmerClosedFunc {
 		std::vector<ShimmerIdentifier> params;
     ShimmerTree tree;
     ShimmerScope* closed_scope;
-		ShimmerClosedFunc(ShimmerUnclosedFunc to_close, ShimmerScope* closed_scope);
+		ShimmerClosedFunc(ShimmerUnclosedFunc to_close, ShimmerScope* _closed_scope);
     ShimmerClosedFunc() {}
 };
 
@@ -197,7 +197,7 @@ class ShimmerLiteral {
     bool bool_value;
     std::string str_value;
     ShimmerIdentifier id_value;
-    ShimmerClosedFunc* func_value;
+    ShimmerClosedFunc func_value;
 
     int get_type();
     int get_int();

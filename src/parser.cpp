@@ -139,11 +139,45 @@ void Parser::name_or_literal_expectation() {
 
 void Parser::id_or_call_expectation() {
   if (this_token.is_of_type("ShimmerLParen")) {
-    expectation = PARAM;
-    first_param = true;
-    to_add.set_expr(expr);
+    bool call = true;
+    int new_id = this_token_id;
+    int fn_layer = 1;
+    ShimmerToken peek_token;
+
+    while (true) {
+      peek_token = tokens.at(++new_id);
+
+      if (peek_token.is_of_type("ShimmerLParen")) {
+        fn_layer++;
+      }
+      else if (peek_token.is_of_type("ShimmerRParen")) {
+        if (--fn_layer == 0) {
+          break;
+        }
+      }
+    }
+
+    if (new_id < tokens.size() - 1) {
+      peek_token = tokens.at(++new_id);
+
+      if (peek_token.is_of_type("ShimmerLBrace")) {
+        call = false;
+      }
+    }
+
+    if (call) {
+      first_param = true;
+      to_add.set_expr(expr);
+      expectation = PARAM;
+    }
+    else {
+      statements.push_back(ShimmerExpr(expr));
+      ShimmerUnclosedFunc fn = parse_fn();
+      expr = ShimmerExpr(fn);
+      expectation = ID_OR_CALL;
+    }
   }
-#warning line 144 parser.cpp is where we need to continue cleaning
+#                                                    warning Clean up here!
   else if (this_token.is_of_type("ShimmerInt")) {
     statements.push_back(ShimmerExpr(expr));
     ShimmerLiteral* literal_val = new ShimmerLiteral;
@@ -218,7 +252,7 @@ void Parser::further_func_expectation() {
       }
     }
     
-    statements.push_back(to_add);
+    expr = ShimmerExpr(to_add);
     params.clear();
     expectation = ID_OR_CALL;
     printf("address of to_add: %p\n", (void*) &to_add);
@@ -276,11 +310,11 @@ void Parser::further_func_expectation() {
 void Parser::param_expectation() {
   ShimmerLiteral lit;
   if (this_token.is_of_type("ShimmerRParen") && first_param) {
+    to_add.set_params(params);
     for (ShimmerExpr i : params) {
       std::cout << i.get_literal_val().get_str();
     }
-    to_add.set_params(params);
-    statements.push_back(to_add);
+    expr = ShimmerExpr(to_add);
     params.clear();
     expectation = ID_OR_CALL;
     to_add = ShimmerStatement();
