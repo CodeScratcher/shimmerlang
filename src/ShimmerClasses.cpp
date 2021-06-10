@@ -257,6 +257,10 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
     return LookupResult(ShimmerLiteral(func_call_line, p1->get_str()));
   }
+  else if (func_name == "bool") {
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool()));
+  }
   else if (func_name == "eq") {
     bool equal = false;
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
