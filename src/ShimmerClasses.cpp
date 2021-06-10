@@ -309,15 +309,15 @@ ShimmerLiteral ShimmerStatement::eval(ShimmerScope* scope) {
   }
   else {
     if (expr.is_of_type(FUNCTION)) {
-      return eval_tree(expr.get_func_val().tree, scope);
+      return eval_tree(expr.get_func_val().tree, scope, expr.get_func_val().params, params);
     }
     else if (expr.is_of_type(STATEMENT)) {
       ShimmerClosedFunc res = expr.get_statement_val().eval(scope).get_func();
-      return eval_tree(res.tree, res.closed_scope);
+      return eval_tree(res.tree, res.closed_scope, res.params, params);
     }
     else if (expr.is_of_type(IDENTIFIER)) {
       ShimmerClosedFunc res = scope->get_variable(expr.get_identifier_val().get_contents()).get_func();
-      return eval_tree(res.tree, res.closed_scope);
+      return eval_tree(res.tree, res.closed_scope, res.params, params);
     }
     else {
       throw_error(-1, "Function not found");

@@ -1,18 +1,7 @@
-
-
-def(
-  $test,
-  () {
-    def(
-      $test_func,
-      () {
-        print("hi there \n")
-      }
-    )
-    () {
-      test_func
-    }
+def($currying, (a){
+  (b) {
+    print(a, b, "\n")
   }
-)
-
-test()()()
+})
+def($greeter, currying("Hello"))
+greeter("world!")
