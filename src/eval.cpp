@@ -78,3 +78,30 @@ ShimmerLiteral eval_tree(ShimmerTree tree, ShimmerScope* above_scope, std::vecto
 
   return return_val;
 }
+
+std::tuple<ShimmerLiteral, ShimmerScope*> eval_and_get_scope(ShimmerTree tree) {
+  std::cout << "Pretty printing whole tree...\n";
+  pretty_print(tree);
+  std::cout << "Done!\n";
+
+  ShimmerScope* scope = new ShimmerScope(Scope());
+  ShimmerLiteral return_val;
+
+  for (ShimmerExpr i : tree.get_tree()) {
+    std::cout << "Pretty printing one expression...\n";
+    pretty_print(i);
+    std::cout << "Done.\nEvaluating...\n";
+
+    if      (i.is_of_type(STATEMENT))  return_val = i.get_statement_val().eval(scope);
+    else if (i.is_of_type(LITERAL))    return_val = i.get_literal_val();
+    else if (i.is_of_type(IDENTIFIER)) return_val = scope->get_variable(i.get_identifier_val().get_contents());
+    else if (i.is_of_type(FUNCTION))   { 
+      return_val = ShimmerLiteral(-1, ShimmerClosedFunc(i.get_func_val(), scope));
+      pretty_print(ShimmerExpr(return_val));
+    }
+  
+    std::cout << "Done.\n";
+  }
+
+  return std::tuple<ShimmerLiteral, ShimmerScope*>{return_val, scope};
+}

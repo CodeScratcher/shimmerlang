@@ -1,0 +1,34 @@
+def($done, false)
+
+def(
+  $main,
+  () {
+    def($val, read())
+
+    if(
+      lt(val, 10),
+      () {
+        print("Higher!\n")
+      },
+      () {
+        if(
+          gt(val, 10),
+          () {
+            print("Lower!\n")
+          },
+          () {
+            print("Nice!\n")
+            set(done, true)
+          }
+        )
+      }
+    )
+
+    if(
+      eq(done, false),
+      () {
+        main()
+      }
+    )
+  }
+)

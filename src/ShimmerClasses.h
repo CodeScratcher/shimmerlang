@@ -165,6 +165,7 @@ class ShimmerScope {
     void declare_variable(std::string var_name, ShimmerLiteral val);
     ShimmerLiteral get_variable(std::string var_name);
     void set_variable(std::string var_name, ShimmerLiteral val);
+    void cons_scope(ShimmerScope* _upper_scope);
 };
 
 class ShimmerUnclosedFunc {

@@ -272,59 +272,58 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     }
   }
   else if (func_name == "eq") {
-    bool equal = false
+    bool equal = false;
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
     ShimmerLiteral* p2 = get_params().at(0).literal_val;
     if (p1->get_type() != p2->get_type()) {
       return LookupResult(ShimmerLiteral(func_call_line, equal));
     }
-    switch(p1->get_type) {
-      case TypeBool:
-        equal = p1->get_bool() == p2->get_bool();
-        break;
-      case TypeString:
-        equal = p1->get_str() == p2->get_str();
-        break;
-      case TypeInt:
-        equal = p1->get_int() == p2->get_int();
-        break;
-      case TypeId:
-        equal = p1->get_id() == p2->get_id();
-        break;
-      case TypeFunc:
-        equal = p1->get_func() == p2->get_func();
-        break;
+
+    switch(p1->get_type()) {
+      case TypeBool:   equal = p1->get_bool() == p2->get_bool(); break;
+      case TypeString: equal = p1->get_str() == p2->get_str();   break;
+      case TypeInt:    equal = p1->get_int() == p2->get_int();   break;
+      //case TypeId:     equal = p1->get_id() == p2->get_id();     break;
+      //case TypeFunc:   equal = p1->get_func() == p2->get_func(); break;
     }
+
     return LookupResult(ShimmerLiteral(func_call_line, equal));
   }
-  else if (func_name == "lesser") {
+  else if (func_name == "lt") {
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
     ShimmerLiteral* p2 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, p1->get_int() < p2->get_int()))
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_int() < p2->get_int()));
   }
-  else if (func_name == "greater") {
+  else if (func_name == "gt") {
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
     ShimmerLiteral* p2 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, p1->get_int() > p2->get_int()))
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_int() > p2->get_int()));
   }
   else if (func_name == "and") {
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
     ShimmerLiteral* p2 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() && p2->get_bool()))
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() && p2->get_bool()));
   }
   else if (func_name == "or") {
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
     ShimmerLiteral* p2 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() || p2->get_bool()))
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() || p2->get_bool()));
   }
   else if (func_name == "not") {
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, !p1->get_bool()))
+    return LookupResult(ShimmerLiteral(func_call_line, !p1->get_bool()));
   }
-  else if (func_name == "or") {
+  else if (func_name == "xor") {
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
     ShimmerLiteral* p2 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() ^ p2->get_bool()))
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() ^ p2->get_bool()));
+  }
+  else if (func_name == "import") {
+    // steps:
+    // open library
+    // evaluate library, getting scope
+    // cons scope onto function (since it is a linked list)
+    // return function
   }
   else if (func_name == "__debug__") {
     _throw_error(
@@ -337,7 +336,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     //   345, "678"
     // );
 
-    return LookupResult(ShimmerLiteral(func_call_line, (int)0xDEADBEEF));
+    return LookupResult(ShimmerLiteral(func_call_line, (int) 0xDEADBEEF));
   }
 
   return LookupResult();
@@ -616,7 +615,14 @@ void ShimmerScope::declare_variable(std::string var_name, ShimmerLiteral val) {
   ShimmerLiteral* nval = new ShimmerLiteral(val);
   current_scope[var_name] = nval;
 }
-
+void ShimmerScope::cons_scope(ShimmerScope* _upper_scope) {
+  if (upper_scope != nullptr) {
+    upper_scope->cons_scope(_upper_scope);
+  }
+  else {
+    upper_scope = _upper_scope;
+  }
+}
 ShimmerUnclosedFunc::ShimmerUnclosedFunc(std::vector<ShimmerIdentifier> _params, ShimmerTree _tree) {
   params = _params;
   tree = _tree;
