@@ -251,11 +251,11 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
   }
   else if (func_name == "int") {
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, p1->get_int());
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_int()));
   }
   else if (func_name == "str") {
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, p1->get_str());
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_str()));
   }
   else if (func_name == "eq") {
     bool equal = false;
@@ -559,11 +559,20 @@ int ShimmerLiteral::get_int() {
 	 if (type == TypeString) {
     return std::stoi(str_value);
   }
+  else if (type == TypeBool) return bool_value ? 0 : 1;
   else return int_value;
 }
 
 bool ShimmerLiteral::get_bool() {
-  return bool_value;
+  if (type == TypeInt) {
+    return int_value != 0;
+  }
+  else if (type == TypeBool) {
+    return bool_value;
+  }
+  else {
+    return true;
+  }
 }
 
 std::string ShimmerLiteral::get_str() {
