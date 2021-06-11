@@ -96,6 +96,9 @@ ShimmerTree Parser::parse() {
     statements.push_back(ShimmerExpr(expr));
 
   }
+  else if (expectation != NAME_OR_LITERAL) {
+    throw_error(0, "Forgot ending parentheses");
+  }
 
   to_return = ShimmerTree(statements);
   return to_return;
