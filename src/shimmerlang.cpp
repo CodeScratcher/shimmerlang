@@ -72,7 +72,10 @@ void interpret_shell() {
   while (true) {
     std::cout << tc::reset;
     to_eval = linenoise(">>> ");
-
+    if (to_eval == (char*)-1) {
+      std::cout << "\n";
+      return;
+    }
     if (to_eval == nullptr || to_eval == NULL) {
       *to_eval = '\0';
       std::cout << "It was null!\n";
@@ -115,7 +118,9 @@ std::tuple<ShimmerLiteral, bool> execute(std::string str, std::string loc) {
   try {
     Parser parser(lex(str));
     ShimmerTree parsed = parser.parse();
-    return {eval_tree(parsed), true};
+    ShimmerLiteral evaled = eval_tree(parsed);
+
+    return {evaled, true};
   }
   catch (std::runtime_error& err) {
     std::cout << \
@@ -130,6 +135,6 @@ std::tuple<ShimmerLiteral, bool> execute(std::string str, std::string loc) {
     int line;
     sscanf(err.what(), "%d", &line);
 
-    return {ShimmerLiteral(line, "ERROR"), false};
+    return {ShimmerLiteral(line, std::string("ERROR")), false};
   }
 }

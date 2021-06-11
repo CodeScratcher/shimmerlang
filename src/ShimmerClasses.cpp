@@ -171,6 +171,8 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
 
   std::string func_name = expr.get_identifier_val().get_contents();
   int func_call_line = expr.get_identifier_val().get_line();
+  
+  // Misc
 
   if (func_name == "exit") {
     int status = (
@@ -183,6 +185,9 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
 
     return LookupResult(ShimmerLiteral(func_call_line, (double) status));
   }
+
+  // IO
+
   else if (func_name == "print") {
     int param_count = 0;
     bool first_param = true;
@@ -209,7 +214,12 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
       return LookupResult(ShimmerLiteral(func_call_line, val));
     }
     else if (get_params().size() == 1) {
-      throw_error(func_call_line, "Sorry, reading from files is not implemeted yet!");
+      std::ifstream file(get_params().at(0).literal_val->get_str());
+      if (!file) throw_error(func_call_line, "Error opening file ", get_params().at(0).literal_val->get_str());
+
+      std::stringstream buffer;
+      buffer << file.rdbuf();
+      return LookupResult(ShimmerLiteral(func_call_line, buffer.str()));
     }
     else {
       throw_error(
@@ -219,6 +229,32 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
       );
     }
   }
+  else if (func_name == "write") {
+    error_on_missing_params(
+      func_call_line, 2,
+      "write() expects at least 2 parameters, but recieved " + std::to_string(get_params().size())
+    );
+
+    std::ofstream file(get_params().at(0).literal_val->get_str());
+    file << get_params().at(1).literal_val->get_str();
+    file.close();
+
+    return LookupResult(ShimmerLiteral(-1, (double) 0));
+  }
+  else if (func_name == "append") {
+    error_on_missing_params(
+      func_call_line, 2,
+      "append() expects at least 2 parameters, but recieved " + std::to_string(get_params().size())
+    );
+    std::ofstream file(get_params().at(0).literal_val->get_str(), std::ios_base::app);
+    file << get_params().at(1).literal_val->get_str();
+    file.close();
+
+    return LookupResult(ShimmerLiteral(-1, (double) 0));
+  }
+
+  // Arithmetics
+
   else if (func_name == "add") {
     return math_func_var(func_name, func_call_line, 0, BuiltinFuncs::add());
   }
@@ -231,48 +267,71 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
   else if (func_name == "div") {
     return math_func_dya(func_name, func_call_line, get_params(), BuiltinFuncs::div());
   }
+
+  // Boolean logic
+
   else if (func_name == "and") {
+    error_on_missing_params(
+      func_call_line, 2,
+      "and() expects at least 2 parameters, but recieved " + std::to_string(get_params().size())
+    );
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
     ShimmerLiteral* p2 = get_params().at(0).literal_val;
     return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() && p2->get_bool()));
   }
   else if (func_name == "or") {
+    error_on_missing_params(
+      func_call_line, 2,
+      "or() expects at least 2 parameters, but recieved " + std::to_string(get_params().size())
+    );
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
     ShimmerLiteral* p2 = get_params().at(0).literal_val;
     return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool() || p2->get_bool()));
   }
   else if (func_name == "not") {
+    error_on_missing_params(
+      func_call_line, 1,
+      " not() expects at least 1 parameter, but recieved " + std::to_string(get_params().size())
+    );
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
     return LookupResult(ShimmerLiteral(func_call_line, !p1->get_bool()));
   }
   else if (func_name == "xor") {
+    error_on_missing_params(
+      func_call_line, 2,
+      "xor() expects at least 2 parameters, but recieved " + std::to_string(get_params().size())
+    );
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
     ShimmerLiteral* p2 = get_params().at(0).literal_val;
     return LookupResult(ShimmerLiteral(func_call_line, (bool)(p1->get_bool() ^ p2->get_bool())));
   }
+
+
+  // Comparisons
+
   else if (func_name == "lt") {
+    error_on_missing_params(
+      func_call_line, 2,
+      "lt() expects at least 2 parameters, but recieved " + std::to_string(get_params().size())
+    );
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
     ShimmerLiteral* p2 = get_params().at(1).literal_val;
     return LookupResult(ShimmerLiteral(func_call_line, p1->get_int() < p2->get_int()));
   }
   else if (func_name == "gt") {
+    error_on_missing_params(
+      func_call_line, 2,
+      "gt() expects at least 2 parameters, but recieved " + std::to_string(get_params().size())
+    );
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
     ShimmerLiteral* p2 = get_params().at(1).literal_val;
     return LookupResult(ShimmerLiteral(func_call_line, p1->get_int() > p2->get_int()));
   }
-  else if (func_name == "int") {
-    ShimmerLiteral* p1 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, p1->get_int()));
-  }
-  else if (func_name == "str") {
-    ShimmerLiteral* p1 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, p1->get_str()));
-  }
-  else if (func_name == "bool") {
-    ShimmerLiteral* p1 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool()));
-  }
   else if (func_name == "eq") {
+    error_on_missing_params(
+      func_call_line, 2,
+      "eq() expects at least 2 parameters, but recieved " + std::to_string(get_params().size())
+    );
     bool equal = false;
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
     ShimmerLiteral* p2 = get_params().at(1).literal_val;
@@ -291,9 +350,106 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
 
     return LookupResult(ShimmerLiteral(func_call_line, equal));
   }
-  else if (func_name == "get_char") {
+  
+  // Conversions
+
+  else if (func_name == "num") {
+    error_on_missing_params(
+      func_call_line, 1,
+      "num() expects at least 1 parameter, but recieved " + std::to_string(get_params().size())
+    );
     ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_int()));
   }
+  else if (func_name == "str") {
+    error_on_missing_params(
+      func_call_line, 1,
+      "str() expects at least 1 parameter, but recieved " + std::to_string(get_params().size())
+    );
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_str()));
+  }
+  else if (func_name == "bool") {
+    error_on_missing_params(
+      func_call_line, 2,
+      "bool() expects at least 1 parameter, but recieved " + std::to_string(get_params().size())
+    );
+    ShimmerLiteral* p1 = get_params().at(0).literal_val;
+    return LookupResult(ShimmerLiteral(func_call_line, p1->get_bool()));
+  }  
+
+  // String manipulation
+
+  else if (func_name == "get_char") {
+    error_on_missing_params(
+      func_call_line, 2,
+      "get_char() expects at least 2 parameters, but recieved " + std::to_string(get_params().size())
+    );
+
+    ShimmerLiteral* p0 = get_params().at(0).literal_val;
+    ShimmerLiteral* p1 = get_params().at(1).literal_val;
+
+    return LookupResult(ShimmerLiteral(func_call_line, std::string(1, p0->get_str().at(p1->get_int()))));
+  }
+  else if (func_name == "set_char") {
+    error_on_missing_params(
+      func_call_line, 3,
+      "replace() expects at least 3 parameters, but recieved " + std::to_string(get_params().size())
+    );
+
+    ShimmerLiteral* p0 = get_params().at(0).literal_val;
+    ShimmerLiteral* p1 = get_params().at(1).literal_val;
+    ShimmerLiteral* p2 = get_params().at(2).literal_val;
+
+    std::string str = p0->get_str();
+    str.at(p1->get_int()) = p2->get_str().at(0);
+
+    return LookupResult(ShimmerLiteral(func_call_line, str));
+  }
+  else if (func_name == "insert") {
+    error_on_missing_params(
+      func_call_line, 3,
+      "insert() expects at least 3 parameters, but recieved " + std::to_string(get_params().size())
+    );
+
+    ShimmerLiteral* search  = get_params().at(0).literal_val;
+    ShimmerLiteral* index   = get_params().at(1).literal_val;
+    ShimmerLiteral* replace = get_params().at(2).literal_val;
+
+    std::string str = search->get_str();
+    str.insert(index->get_int(), replace->get_str());
+
+    return LookupResult(ShimmerLiteral(func_call_line, str));
+  }
+  else if (func_name == "remove") {
+    error_on_missing_params(
+      func_call_line, 3,
+      "remove() expects at least 3 parameters, but recieved " + std::to_string(get_params().size())
+    );
+
+    ShimmerLiteral* search  = get_params().at(0).literal_val;
+    ShimmerLiteral* index1   = get_params().at(1).literal_val;
+    ShimmerLiteral* index2 = get_params().at(2).literal_val;
+
+    std::string str = search->get_str();
+    str.erase((int) index1->get_int(), (int) index2->get_int());
+
+    return LookupResult(ShimmerLiteral(func_call_line, str));
+  }
+  else if (func_name == "concat") {
+    error_on_missing_params(
+      func_call_line, 2, 
+      "concat() expects at least 2 parameters, but recieved " + std::to_string(get_params().size())
+    );
+
+    ShimmerLiteral* str1 = get_params().at(0).literal_val;
+    ShimmerLiteral* str2 = get_params().at(1).literal_val;
+
+    return LookupResult(ShimmerLiteral(func_call_line, str1->get_str() + str2->get_str()));
+  }
+
+  // Variables
+
   else if (func_name == "def") {
     ShimmerLiteral* p0 = get_params().at(0).literal_val;
     ShimmerLiteral* p1 = get_params().at(1).literal_val;
@@ -317,6 +473,9 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     ShimmerLiteral res = scope->get_variable(p0->get_id().get_contents());
     return LookupResult(res);
   }
+  
+  // Control flow 
+
   else if (func_name == "if") {
     ShimmerLiteral* p0 = get_params().at(0).literal_val;
     ShimmerLiteral* p1 = get_params().at(1).literal_val;
@@ -329,9 +488,10 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
       return LookupResult(*p2);
     }
   }
+
+  // Libraries
+
   else if (func_name == "import") {
-    // steps:
-    // open library
     ShimmerLiteral* p0 = get_params().at(0).literal_val;
     std::string lib_name = p0->get_str();
 
@@ -379,6 +539,9 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     // return function
     return LookupResult(ShimmerLiteral(func_call_line, *func));
   }
+
+  // DEBUG
+
   else if (func_name == "__debug__") {
     _throw_error(
       987, "FOO WAS CALLED WITH: %s, %s",
@@ -412,6 +575,11 @@ LookupResult ShimmerStatement::math_func_var(std::string name, int line, double 
 }
 
 LookupResult ShimmerStatement::math_func_dya(std::string name, int line, std::vector<ShimmerExpr> params, BIFCalcFunc calc) {
+  error_on_missing_params(
+    line, 2,
+    name + "() expects at least 2 parameters, but recieved " + std::to_string(get_params().size())
+  );
+
   ShimmerLiteral* op1 = params.at(0).literal_val;
   ShimmerLiteral* op2 = params.at(1).literal_val;
 
@@ -497,8 +665,11 @@ void ShimmerStatement::error_on_wrong_num_params(int line, int min, int max, std
 }
 
 void ShimmerStatement::error_on_missing_params(int line, int min, std::string msg) {
+#ifdef DEBUG
   pretty_print(*this);
+
   std::cout << "\n";
+#endif
 
   if (params.size() < min) {
     //throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);
@@ -507,9 +678,11 @@ void ShimmerStatement::error_on_missing_params(int line, int min, std::string ms
 }
 
 void ShimmerStatement::error_on_extra_params(int line, int max, std::string msg) {
+#ifdef DEBUG
   pretty_print(*this);
-  std::cout << "\n";
 
+  std::cout << "\n";
+#endif
   if (params.size() > max) {
     //throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);
     throw_error(line, msg);
@@ -577,7 +750,12 @@ int ShimmerLiteral::get_type() {
 
 double ShimmerLiteral::get_int() {
 	 if (type == TypeString) {
-    return std::stod(str_value);
+    try {
+      return std::stod(str_value);
+    }
+    catch (const std::invalid_argument& ia) {
+      throw_error(-1, "String \""+ str_value + "\" can't be converted to a number");
+    }
   }
   else if (type == TypeBool) return bool_value ? 0 : 1;
   else return int_value;
@@ -603,7 +781,7 @@ std::string removeZero(std::string str)
   
     // The erase function removes i characters
     // from given index (0 here)
-    str.erase(i, str.length());
+    str.erase(i + 2, str.length());
   
     return str;
 }

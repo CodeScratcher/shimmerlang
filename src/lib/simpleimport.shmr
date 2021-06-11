@@ -1,0 +1,9 @@
+; PROTIP: Use library("simpleimport", (lib) {
+; require(lib)
+;})
+; That way you can just call that function to import stuff easily
+define($require, (lib){
+  library(lib, (x){
+    get(x)
+  })
+})

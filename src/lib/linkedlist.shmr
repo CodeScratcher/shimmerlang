@@ -1,0 +1,38 @@
+def(
+  $cons_cell,
+  (head, tail) {
+    def($h, head)
+    def($t, tail)
+
+    def(
+      $car,
+      () {
+        h
+      }
+    )
+
+    def(
+      $cdr,
+      () {
+        t
+      }
+    )
+
+    def(
+      $cons,
+      (new) {
+        if(
+          t, 
+          t($cons), 
+          (n) {
+            set($t, n)
+          }
+        )(new)
+      }
+    )
+
+    (id) {
+      get(id)
+    }
+  }
+)

@@ -852,8 +852,9 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
             }
             return (int)l.len;
         case CTRL_C:     /* ctrl-c */
+            printf("\r\n");
             errno = EAGAIN;
-            return -1;
+            exit(0);
         case BACKSPACE:   /* backspace */
         case 8:     /* ctrl-h */
             linenoiseEditBackspace(&l);
@@ -865,7 +866,8 @@ static int linenoiseEdit(int stdin_fd, int stdout_fd, char *buf, size_t buflen, 
             } else {
                 history_len--;
                 free(history[history_len]);
-                return -1;
+                printf("\r\n");
+                exit(0);
             }
             break;
         case CTRL_T:    /* ctrl-t, swaps current character with previous. */
