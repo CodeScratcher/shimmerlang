@@ -16,238 +16,6 @@
 #include "text_effects.h"
 #include "utility.h"
 
-/*
-std::vector<ShimmerToken> lex(std::string str) {
-  std::vector<ShimmerToken> to_return;
-  ShimmerToken this_token;
-
-  std::string current_token_contents = "";
-
-  chtype string_watch_out_for;
-  State now_in = NONE;
-  int current_line = 1;
-
-  for (int i = 0; i < str.length(); i++) {
-    chtype ch = str.at(i);
-
-    if (now_in == NONE) {
-      if (ch == '/') {
-        now_in = CMNT1;
-        continue;
-      }
-      else if (ch == '"' || ch == '\'') {
-        now_in = STR;
-        string_watch_out_for = ch;
-        continue;
-      }
-      else if (std::regex_search(std::string(1, ch), std::regex("[a-zA-Z_]"))) {
-        std::cout << "FOUND IDENTIFIER!!!\n";
-        now_in = ID;
-        current_token_contents.push_back(ch);
-        continue;
-      }
-    }
-    else if (now_in == CMNT1) {
-      if (ch == '*') {
-        now_in = CMNT2;
-        continue;
-      }
-      else {
-        throw_error(current_line, "Missing asterisk at comment starting delimiter.");
-      }
-    }
-    else if (now_in == CMNT2) {
-      if (ch == '*') {
-        now_in = CMNT3;
-        continue;
-      }
-    }
-    else if (now_in == CMNT3) {
-      if (ch == '/') {
-        now_in = NONE;
-        continue;
-      }
-      else {
-        throw_error(current_line, "Missing slash at comment ending delimiter.");
-      }
-    }
-    else if (now_in == STR) {
-      if (ch == string_watch_out_for) {
-        this_token = make_token(now_in, current_token_contents, current_line);
-        now_in = NONE;
-        current_token_contents = "";
-        to_return.push_back(this_token);
-      }
-      else if (ch == '\\') {
-        current_token_contents.push_back(esc_seq(str.at(++i)));
-      }
-      else {
-        current_token_contents.push_back(ch);
-      }
-    }
-    else if (ch == ' ' || ch == '\t' || ch == '\n') {
-      if (ch == '\n') {
-        ++current_line;
-      }
-
-      if (current_token_contents != " ") {
-        now_in = NONE;
-        this_token = make_token(now_in, current_token_contents, current_line);
-        to_return.push_back(this_token);
-      }
-
-      current_token_contents = "";
-      continue;
-    }
-    else if (ch == '(') {
-      
-    }
-    else if (now_in == ID) {
-      std::cout << "CONTINUING IDENTIFIER!!!\n";
-      if (std::regex_search(std::string(1, ch), std::regex("[a-zA-Z0-9_]"))) {
-        current_token_contents.push_back(ch);
-      }
-    }
-    else {
-      now_in = NONE;
-
-      if (current_token_contents != "") {
-        this_token = make_token(now_in, current_token_contents, current_line);
-        now_in = NONE;
-        to_return.push_back(this_token);
-      }
-
-      current_token_contents = "";
-      continue;
-    }
-
-    // if (ch == '\'' || ch == '"') {
-    //   if (now_in == NONE) {
-    //     now_in = STR;
-    //     string_watch_out_for = ch;
-    //   }
-    //   else if (now_in == STR && ch == string_watch_out_for) {
-
-    //     this_token = make_token(now_in, current_token_contents, current_line);
-    //     now_in = NONE;
-    //     current_token_contents = "";
-    //     to_return.push_back(this_token);
-    //   }
-    //   else {
-    //     current_token_contents.push_back(ch);
-    //   }
-    // }
-    // else if (ch == '(') {
-    //   if (current_token_contents != "") {
-    //     this_token = make_token(now_in, current_token_contents, current_line);
-    //     now_in = NONE;
-    //     to_return.push_back(this_token);
-    //   }
-
-    //   current_token_contents = "";
-    //   this_token = ShimmerLParen(current_line);
-    //   to_return.push_back(this_token);
-    // }
-    // else if (ch == ')') {
-    //   if (current_token_contents != "") {
-    //     this_token = make_token(now_in, current_token_contents, current_line);
-    //     now_in = NONE;
-    //     to_return.push_back(this_token);
-    //   }
-  
-    //   current_token_contents = "";
-    //   this_token = ShimmerRParen(current_line);
-    //   to_return.push_back(this_token);
-    // }
-    // else if (std::regex_search(std::string(1, ch), std::regex("[a-zA-Z_]")) && now_in == NONE) {
-    //   now_in = ID;
-    //   current_token_contents.push_back(ch);
-    // }
-    // else if (std::regex_search(std::string(1, ch), std::regex("[a-zA-Z0-9_]")) && now_in == ID) {
-    //   //std::cout << "Continuing identifier with char: " << ch << "\n";
-    //   current_token_contents.push_back(ch);
-    //   //std::cout << "Current contents: " << current_token_contents << "\n";
-    // }
-    // else if (std::regex_search(std::string(1, ch), std::regex("[0-9]")) && now_in != STR && now_in != ID) {
-    //   now_in = INT;
-    //   current_token_contents.push_back(ch);
-    // }
-    // else if (ch == '$') {
-    //   if (current_token_contents != "") {
-    //     this_token = make_token(now_in, current_token_contents, current_line);
-    //     now_in = NONE;
-    //     to_return.push_back(this_token);
-    //   }
-
-    //   current_token_contents = "";
-    //   this_token = ShimmerIDLiteralSign(current_line);
-    //   to_return.push_back(this_token);
-    // }
-    // else if (ch == '{') {
-    //   if (current_token_contents != "") {
-    //     this_token = make_token(now_in, current_token_contents, current_line);
-    //     now_in = NONE;
-    //     to_return.push_back(this_token);
-    //   }
-
-    //   current_token_contents = "";
-    //   this_token = ShimmerLBrace(current_line);
-    //   to_return.push_back(this_token);
-    // }
-    // else if (ch == '}') {
-    //   if (current_token_contents != "") {
-    //     this_token = make_token(now_in, current_token_contents, current_line);
-    //     now_in = NONE;
-    //     to_return.push_back(this_token);
-    //   }
-
-    //   current_token_contents = "";
-    //   this_token = ShimmerRBrace(current_line);
-    //   to_return.push_back(this_token);
-    // }
-    // else if (ch == ',') {
-    //   if (current_token_contents != "") {
-    //     this_token = make_token(now_in, current_token_contents, current_line);
-    //     now_in = NONE;
-    //     to_return.push_back(this_token);
-    //   }
-
-    //   current_token_contents = "";
-    //   this_token = ShimmerComma(current_line);
-    //   to_return.push_back(this_token);
-    // }
-    // else {
-    //   std::string suspect;
-
-    //   if (ch < ' ') {
-    //     suspect = "char code in DEC: \"" + std::to_string((int) ch) + "\"";
-    //   }
-    //   else {
-    //     suspect = "\"" + std::string(1, ch) + "\"";
-    //   }
-
-    //   throw_error(current_line, "Unknown or unexpected character: ", suspect);
-    // }
-  }
-
-  if (now_in == STR) {
-    throw_error(current_line, "Unclosed string: ", current_token_contents);
-  }
-  else if (now_in == CMNT1) {
-    throw_error(current_line, "Missing asterisk at comment starting delimiter.");
-  }
-  else if (now_in == CMNT2) {
-    throw_error(current_line, "Missing comment ending delimiter.");
-  }
-  else if (now_in == CMNT3) {
-    throw_error(current_line, "Missing slash at comment ending delimiter.");
-  }
-
-  lex_to_str(to_return);
-
-  return to_return;
-}*/
-
 std::vector<ShimmerToken> lex(std::string str) {
   str.push_back(' '); // For closing tokens
 
@@ -260,7 +28,6 @@ std::vector<ShimmerToken> lex(std::string str) {
   std::vector<ShimmerToken> tokens;
 
   for (long i = 0; i < str.length(); i++) {
-
     chtype ch = str.at(i);
 
     if (now_in == UNKNOWN) {
@@ -302,8 +69,8 @@ std::vector<ShimmerToken> lex(std::string str) {
         now_in = ID;
         this_token_contents.push_back(ch);
       }
-      else if (std::regex_search(std::string(1, ch), std::regex("[0-9]"))) { // TODO: add hexadecimal support
-        now_in = INT;
+      else if (std::regex_search(std::string(1, ch), std::regex("[0-9.]"))) {
+        now_in = NUMBER;
         this_token_contents.push_back(ch);
       }
       else if (ch == '(') {
@@ -343,10 +110,7 @@ std::vector<ShimmerToken> lex(std::string str) {
         tokens.push_back(ShimmerString(current_line, this_token_contents));
       }
       else if (ch == '\\') {
-
-        this_token_contents.push_back(esc_seq(str.at(i + 1)));
-
-        i += 1;
+        this_token_contents.push_back(escape(str.at(++i)));
         continue;
       }
       else {
@@ -366,12 +130,12 @@ std::vector<ShimmerToken> lex(std::string str) {
         continue;
       }
     }
-    else if (now_in == INT) {
-      if (std::regex_search(std::string(1, ch), std::regex("[0-9]"))) {
+    else if (now_in == NUMBER) {
+      if (std::regex_search(std::string(1, ch), std::regex("[0-9.]"))) {
         this_token_contents.push_back(ch);
       }
       else {
-        tokens.push_back(ShimmerInt(current_line, this_token_contents));
+        tokens.push_back(ShimmerNumber(current_line, this_token_contents));
         this_token_contents = "";
 
         now_in = NONE;
@@ -388,8 +152,8 @@ std::vector<ShimmerToken> lex(std::string str) {
         tokens.push_back(ShimmerIdentifier(current_line, this_token_contents));
         this_token_contents = "";
       }
-      else if (now_in == INT) {
-        tokens.push_back(ShimmerInt(current_line, this_token_contents));
+      else if (now_in == NUMBER) {
+        tokens.push_back(ShimmerNumber(current_line, this_token_contents));
         this_token_contents = "";
       }
 
@@ -408,45 +172,22 @@ std::vector<ShimmerToken> lex(std::string str) {
     throw_error(current_line, "Unclosed string: ", this_token_contents);
   }
 
-
   return tokens;
 }
 
-ShimmerToken make_token(LexerState now_in, std::string current_token_contents, int current_line) {
-  if (now_in == STR)   return ShimmerString(current_line, current_token_contents);
-  if (now_in == INT)   return ShimmerInt(current_line, current_token_contents);
-  if (now_in == ID)    return ShimmerIdentifier(current_line, current_token_contents);
-  if (now_in == NONE)  return ShimmerString(current_line, "");
-  throw_error(current_line, "Internal error: Illegal state: ", str_repr(now_in));
-}
+
 
 std::string str_repr(LexerState ls) {
   switch (ls) {
-    case NONE: return "NONE";
-    case ID:   return "ID";
-    case INT:  return "INT";
-    case STR:  return "STR";
-    default:   throw_error(
+    case NONE:   return "NONE";
+    case ID:     return "ID";
+    case NUMBER: return "NUMBER";
+    case STR:    return "STR";
+    default:     throw_error(
       -1,
       "Internal error: Cannot find str repr of illegal lexer state: ", 
       std::to_string(ls)
     );
-  }
-}
-
-chtype esc_seq(chtype ch) {
-  switch (ch) {
-    case 'n':  return '\n';
-    case 'r':  return '\r';
-    case '\\': return '\\';
-    case 't':  return '\t';
-    case 'b':  return '\b';
-    case 'f':  return '\f';
-    case 'v':  return '\v';
-    case 'a':  return '\a';
-    case '\'': return '\'';
-    case '"':  return '"';
-    default:   throw_error(-1, "Invalid escape sequence: \\", std::string(1, ch));
   }
 }
 

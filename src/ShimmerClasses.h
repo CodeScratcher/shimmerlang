@@ -1,5 +1,6 @@
 #ifndef SHIMMER_CLASSES_H
 #define SHIMMER_CLASSES_H
+
 // #define DEBUG
 
 /* TODO: make data structures into structs and remove accessors and mutators */
@@ -12,7 +13,7 @@
 
 enum ShimmerTypes {
   TypeString,
-  TypeInt,
+  TypeNumber,
   TypeBool,
   TypeFunc,
   TypeId
@@ -32,20 +33,20 @@ typedef std::unordered_map<std::string, ShimmerLiteral*> Scope;
 // typedef int (*BIFNextFunc)(int line, int res, ShimmerExpr param);
 // typedef int (*BIFCalcFunc)(int line, int op1, int op2);
 
-typedef std::function<int(int, int, ShimmerLiteral*)>             BIFNextFunc;
-typedef std::function<int(int, ShimmerLiteral*, ShimmerLiteral*)> BIFCalcFunc;
+typedef std::function<double(int, double, ShimmerLiteral*)>             BIFNextFunc;
+typedef std::function<double(int, ShimmerLiteral*, ShimmerLiteral*)> BIFCalcFunc;
 
 class ShimmerToken {
   public:
     ShimmerToken();
     int line;
     std::string contents;
-    int parsed_contents;
+    double parsed_contents;
     std::string token_type;
 
     int get_line();
     std::string get_contents();
-    int get_parsed_contents();
+    double get_parsed_contents();
     std::string get_token_type();
 
     bool is_of_type(std::string type);
@@ -83,9 +84,9 @@ class ShimmerComma : public ShimmerToken  {
     ShimmerComma(int line);
 };
 
-class ShimmerInt : public ShimmerToken {
+class ShimmerNumber : public ShimmerToken {
   public:
-    ShimmerInt(int line, std::string content);
+    ShimmerNumber(int line, std::string content);
 };
 
 class ShimmerString : public ShimmerToken {
@@ -148,7 +149,7 @@ class ShimmerStatement {
     void error_on_missing_params(int line, int min, std::string msg);
     void error_on_extra_params(int line, int max, std::string msg);
 
-    LookupResult math_func_var(std::string name, int line, int start,                       BIFNextFunc next);
+    LookupResult math_func_var(std::string name, int line, double start,                       BIFNextFunc next);
     LookupResult math_func_dya(std::string name, int line, std::vector<ShimmerExpr> params, BIFCalcFunc calc);
 
     // template<typename... Types> void __error_on_wrong_num_params(int line, int min, int max, Types... args);
@@ -207,21 +208,21 @@ class ShimmerClosedFunc {
 class ShimmerLiteral {
   public:
     explicit ShimmerLiteral();
-    explicit ShimmerLiteral(int line, int val);
+    explicit ShimmerLiteral(int line, double val);
     explicit ShimmerLiteral(int line, std::string val);
     explicit ShimmerLiteral(int line, ShimmerClosedFunc val);
     explicit ShimmerLiteral(int line, ShimmerIdentifier val);
     explicit ShimmerLiteral(int line, bool val);
 
     int type;
-    int int_value;
+    double int_value;
     bool bool_value;
     std::string str_value;
     ShimmerIdentifier id_value;
     ShimmerClosedFunc func_value;
 
     int get_type();
-    int get_int();
+    double get_int();
     bool get_bool();
     std::string get_str();
     ShimmerIdentifier get_id();

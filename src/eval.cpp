@@ -3,7 +3,7 @@
 
 #include "ShimmerClasses.h"
 #include "errors.h"
-#include "tree_print.h"
+#include "pretty_print.h"
 
 ShimmerLiteral eval_tree(ShimmerTree tree) {
 #ifdef DEBUG

@@ -14,9 +14,7 @@
 #include "linenoise.h"
 #include "parser.h"
 #include "text_effects.h"
-#include "tree_print.h"
-
-#define DEVELOPMENT
+#include "pretty_print.h"
 
 bool interpret_program(char* program_name);
 void interpret_shell();
@@ -26,14 +24,6 @@ std::tuple<ShimmerLiteral, bool> execute(std::string str, std::string loc);
 std::string easteregg = GET_THE_EASTEREGG;
 
 int main(int argc, char* argv[]) {
-#ifdef DEVELOPMENT
-  std::cout << "=== TODO LIST ===\n";
-  std::cout << "> fix the segfault issues (superrecursion and ^C-ing)\n";
-  std::cout << "> clean up code, starting with parser.cpp\n";
-  std::cout << "> get rid of duplicate code in eval.cpp\n";
-  std::cout << "\n";
-#endif
-
   if (argc > 1) {
     if (!interpret_program(argv[1])) {
       return 1;

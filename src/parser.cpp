@@ -127,7 +127,7 @@ void Parser::name_or_literal_expectation() {
       expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
     }
   }
-  else if (this_token.is_of_type("ShimmerInt")) {
+  else if (this_token.is_of_type("ShimmerNumber")) {
     statements.push_back(
       ShimmerExpr(ShimmerLiteral(this_token.get_line(), this_token.get_parsed_contents()))
     );
@@ -188,7 +188,7 @@ void Parser::id_or_call_expectation() {
     }
   }
 #                                                    warning Clean up here!
-  else if (this_token.is_of_type("ShimmerInt")) {
+  else if (this_token.is_of_type("Shimmer")) {
     statements.push_back(ShimmerExpr(expr));
     ShimmerLiteral* literal_val = new ShimmerLiteral;
     literal_val = new ShimmerLiteral(this_token.get_line(), this_token.get_parsed_contents());
@@ -309,8 +309,9 @@ void Parser::further_func_expectation() {
 
     if (tok.is_of_type("ShimmerRParen")) {
       sub_expr_layer--;
+#ifdef DEBUG
       std::cout << "Encountered ShimmerRParen. New sub_expr_layer: " << sub_expr_layer << "\n";
-
+#endif
       if (sub_expr_layer == 0) {
         break;
       }
@@ -318,7 +319,9 @@ void Parser::further_func_expectation() {
 
     if (tok.is_of_type("ShimmerLParen")) {
       sub_expr_layer++;
+#ifdef DEBUG
       std::cout << "Encountered ShimmerLParen. New sub_expr_layer: " << sub_expr_layer << "\n";
+#endif
     }
 
     j++;
@@ -327,14 +330,18 @@ void Parser::further_func_expectation() {
       throw_error(this_token.get_line(), "Expected closing parentheses but got: ", this_token.get_contents());
     }
   }
+#ifdef DEBUG
 
   lex_to_str(tokens_for_recursion);
+#endif
 
   this_token_id = j;
 
   Parser sub_parser = Parser(tokens_for_recursion, current_expr);
   ShimmerTree* parsed = new ShimmerTree(sub_parser.parse());
+#ifdef DEBUG
   std::cout << "=== end sub-parser ===\n";
+#endif
   current_expr = ShimmerExpr(parsed->get_tree().at(0));
   expectation = FURTHER_FUNC;
 }
@@ -344,7 +351,9 @@ void Parser::param_expectation() {
   if (this_token.is_of_type("ShimmerRParen") && first_param) {
     to_add.set_params(params);
     for (ShimmerExpr i : params) {
+#ifdef DEBUG
       std::cout << i.get_literal_val().get_str();
+#endif
     }
     expr = ShimmerExpr(to_add);
     params.clear();
@@ -385,12 +394,12 @@ void Parser::param_expectation() {
     return;
   }
   else if (
-    this_token.is_of_type("ShimmerInt") ||
+    this_token.is_of_type("ShimmerNumber") ||
     this_token.is_of_type("ShimmerString")
   ) {
     ShimmerLiteral* literal_val = new ShimmerLiteral;
 
-    if (this_token.is_of_type("ShimmerInt")) {
+    if (this_token.is_of_type("ShimmerNumber")) {
       literal_val = new ShimmerLiteral(this_token.get_line(), this_token.get_parsed_contents());
     }
     else if (this_token.is_of_type("ShimmerString")) {
@@ -483,7 +492,7 @@ if (separated) {
 const char* param_recursive_str(ShimmerExpr to_convert) {
   if (to_convert.get_param_type() == LITERAL) {
     ShimmerLiteral liter = to_convert.get_literal_val();
-    if (liter.type == TypeString || liter.type == TypeInt) {
+    if (liter.type == TypeString || liter.type == TypeNumber) {
       return liter.get_str().c_str();
     }
   }

@@ -10,6 +10,10 @@ file(GLOB SRC
 )
 
 set(VERSION ${BUILD_NUMBER})
+
+set(CMAKE_CXX_FLAGS "-Wall -Wextra  -O2")
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+
 configure_file(CMakeConfig.h.in CMakeConfig.h @ONLY)
 
 include_directories(${PROJECT_SOURCE_DIR})

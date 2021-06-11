@@ -1,7 +1,24 @@
 #include <string>
 
+#include "errors.h"
 #include "lexer.h"
 #include "utility.h"
+
+chtype escape(chtype ch) {
+  switch (ch) {
+    case 'n':  return '\n';
+    case 'r':  return '\r';
+    case '\\': return '\\';
+    case 't':  return '\t';
+    case 'b':  return '\b';
+    case 'f':  return '\f';
+    case 'v':  return '\v';
+    case 'a':  return '\a';
+    case '\'': return '\'';
+    case '"':  return '"';
+    default:   throw_error(-1, "Invalid escape sequence: \\", std::string(1, ch));
+  }
+}
 
 chtype escape_ch(chtype esc) {
   switch (esc) {

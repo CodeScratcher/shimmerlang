@@ -5,6 +5,8 @@
 
 #include "lexer.h"
 
+chtype escape(chtype esc);
+
 chtype escape_ch(chtype esc);
 std::string unescape(chtype esc);
 std::string unescape(std::string esc);
