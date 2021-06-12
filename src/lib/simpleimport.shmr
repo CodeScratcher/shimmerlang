@@ -2,8 +2,8 @@
 ; require(lib)
 ;})
 ; That way you can just call that function to import stuff easily
-define($require, (lib){
-  library(lib, (x){
+def($require, (lib){
+  import(lib, (x){
     get(x)
   })
 })

@@ -1,5 +1,5 @@
 def(
-  $cons_cell,
+  $cons,
   (head, tail) {
     def($h, head)
     def($t, tail)
@@ -19,11 +19,11 @@ def(
     )
 
     def(
-      $cons,
+      $cat,
       (new) {
         if(
           t, 
-          t($cons), 
+          t($cat), 
           (n) {
             set($t, n)
           }

@@ -7,6 +7,7 @@ All done!
 ### Minor (features)
 All done!
 ### Patch
+* std::out_of_range
 * clean up code, starting with parser.cpp
   * continue where left off, line ~= 160
 

@@ -90,13 +90,14 @@ ShimmerTree Parser::parse() {
     this_token = tokens.at(this_token_id);
     handle_expectation(expectation);
   }
-
+  std::cout << get_expectation_name << "\n";
   if (expectation == ID_OR_CALL) {
     
     statements.push_back(ShimmerExpr(expr));
 
   }
   else if (expectation != NAME_OR_LITERAL) {
+    
     throw_error(0, "Forgot ending parentheses");
   }
 
