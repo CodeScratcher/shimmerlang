@@ -9,19 +9,18 @@ compile () {
   if [ ! -d build ]; then mkdir build; fi;
   cd build;
   read -p "What version? " VER;
-  cmake -DBUILD_NUMBER="$VER" ../src;
-  make;
-  export BASE=$?
-  cd ..;
-  return $BASE;
-}
 
-d_compile () {
-  export CXX=/usr/bin/clang++
-  if [ ! -d build ]; then mkdir build; fi;
-  cd build;
-  read -p "What version? " VER;
-  cmake -DBUILD_NUMBER="$VER" -DCMAKE_BUILD_TYPE=Debug ../src;
+  if [ "$1" == "D" ]; then
+    echo "=== Compiling in 'Debug' mode ==="
+    sleep 1
+    cmake -DBUILD_NUMBER="$VER" -DCMAKE_BUILD_TYPE=Debug ../src;
+
+  else
+    echo "=== Compiling normally ==="
+    sleep 1
+    cmake -DBUILD_NUMBER="$VER" ../src;
+  fi
+
   make;
   export BASE=$?
   cd ..;
@@ -33,13 +32,7 @@ if [[ $answer == "c" ]] || [[ $answer == "C" ]]; then
 
 else
   if [[ $answer =~ [A-Z] ]]; then
-    if [[ $answer == "D" ]]; then
-      d_compile
-
-    else
-      compile
-
-    fi
+    compile "$answer"
   fi
 
   answer="$(tr [A-Z] [a-z] <<< "$answer")"
