@@ -2,56 +2,63 @@
 ; everything is a function
 ; function literals = (args) {code}
 
-define(
-  makePrinter,
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; This file should print:    ;;
+;;                            ;;
+;; correct                    ;;
+;; 8                          ;;
+;; Hello world!               ;;
+;; 54321done                  ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+def(
+  $make_printer,
   (txt) {
-    return () {print(txt)}
+    () {print(txt)}
   }
 )
 
-; if statements =
-;   if(condfunc, true)
-;   ifElse(condfunc, true, false)
+; if statements = ternary operators
+;   if(cond, true)
+;   if_else(cond, true, false)
 
-ifElse(
-  () {true},
+if_else(
+  true,
   () {
-    print("correct")
+    print("correct\n")
   }, 
   (){
-    print("uh oh")
+    print("uh oh\n")
   }
-)
+)()
 
 ; no operators, only functions
 
-define(x, 5)
-print(add(x, 3)) ; prints 8
-define(hello, makePrinter("Hello world!"))
-hello()
+def($x, 5)
+print(add(x, 3), "\n") ; prints 8
+def($hello, make_printer("Hello world!\n"))
+hello() ; prints Hello world!
 
-/* no loops, only recursion */
-define(
-  recurse,
+; no loops, only recursion
+def(
+  $recurse,
   (numTimes) {
-    ifElse(
+    if_else(
+      lt(numTimes, 1),
       () {
-        less(numTimes,1)
-      },
-      () {
-        print("done")
+        print("done\n")
       },
       () {
         print(numTimes)
-        recurse(subtract(numTimes, 1))
+        recurse(sub(numTimes, 1))
       }
-    )
+    )()
   }
 )
 
-recurse(15)
 recurse(5)
 
+# Not implemented yet...
 define(array, [1, 2, 3, 4, 5, 6, 7, 8, 9])
 
 define(forInBackend, (array, callback, start){ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; END OF REFACTORED CODE
@@ -91,7 +98,9 @@ define(AwardDogConstructor, (age,breed,awards){
   objectSet(base, awards, $(awards))
   return(base)
 })
+
 define(Harper, DogConstructor(11, "Lab Mix"))
 define(Stanley, DogConstructor(2, "Standard Poodle"))
 define(SomeAwardDog, AwardDogConstructor(4, "Lab", ["Best Lab", "Most Obedient Dog"]))
 define(iCanHazObjectArrays, [$(Harper), $(Stanley), $(SomeAwardDog)])
+#

@@ -6,7 +6,7 @@
 
 #include "ShimmerClasses.h"
 
-typedef enum {UNKNOWN = -1, NONE, COMMENT, ID, NUMBER, STR} LexerState;
+typedef enum {UNKNOWN = -1, NONE, COMMENT, BLCKCMNT_1, BLCKCMNT_2, BLCKCMNT_3, ID, NUMBER, STR} LexerState;
 std::string str_repr(LexerState ls);
 
 typedef char chtype;

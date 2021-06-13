@@ -100,7 +100,7 @@ ShimmerComma::ShimmerComma(int line) {
   contents = ",";
 }
 
-/* Constructor for an integer token */
+/* Constructor for an number token */
 ShimmerNumber::ShimmerNumber(int line, std::string content) {
   this->line = line;
   token_type = "ShimmerNumber";
@@ -177,7 +177,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
   if (func_name == "exit") {
     int status = (
       get_params().size() == 0 ? 0 :
-      get_params().at(0).literal_val->get_int()
+      get_params().at(0).literal_val->get_num()
     );
 
     std::cout << "exit with status " << std::to_string(status) << "\n";
@@ -330,7 +330,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     ShimmerLiteral* val1 = get_params().at(0).literal_val;
     ShimmerLiteral* val2 = get_params().at(1).literal_val;
 
-    return LookupResult(ShimmerLiteral(func_call_line, val1->get_int() < val2->get_int()));
+    return LookupResult(ShimmerLiteral(func_call_line, val1->get_num() < val2->get_num()));
   }
   else if (func_name == "gt") {
     error_on_missing_params(
@@ -341,7 +341,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     ShimmerLiteral* val1 = get_params().at(0).literal_val;
     ShimmerLiteral* val2 = get_params().at(1).literal_val;
 
-    return LookupResult(ShimmerLiteral(func_call_line, val1->get_int() > val2->get_int()));
+    return LookupResult(ShimmerLiteral(func_call_line, val1->get_num() > val2->get_num()));
   }
   else if (func_name == "eq") {
     error_on_missing_params(
@@ -361,7 +361,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     switch (val1->get_type()) {
       case TypeBool:   equal = val1->get_bool() == val2->get_bool();  break;
       case TypeString: equal = val1->get_str()  == val2->get_str();   break;
-      case TypeNumber: equal = val1->get_int()  == val2->get_int();   break;
+      case TypeNumber: equal = val1->get_num()  == val2->get_num();   break;
       //case TypeId:     equal = val1->get_id()   == val2->get_id();   break;
       //case TypeFunc:   equal = val1->get_func() == val2->get_func(); break;
     }
@@ -378,7 +378,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     );
 
     ShimmerLiteral* val = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, val->get_int()));
+    return LookupResult(ShimmerLiteral(func_call_line, val->get_num()));
   }
   else if (func_name == "str") {
     error_on_missing_params(
@@ -410,7 +410,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     ShimmerLiteral* string = get_params().at(0).literal_val;
     ShimmerLiteral* index  = get_params().at(1).literal_val;
 
-    std::string str = std::string(1, string->get_str().at(index->get_int()));
+    std::string str = std::string(1, string->get_str().at(index->get_num()));
 
     return LookupResult(ShimmerLiteral(func_call_line, str));
   }
@@ -425,7 +425,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     ShimmerLiteral* char_  = get_params().at(2).literal_val;
 
     std::string str = string->get_str();
-    str.at(index->get_int()) = char_->get_str().at(0);
+    str.at(index->get_num()) = char_->get_str().at(0);
 
     return LookupResult(ShimmerLiteral(func_call_line, str));
   }
@@ -440,7 +440,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     ShimmerLiteral* substring = get_params().at(2).literal_val;
 
     std::string str = string->get_str();
-    str.insert(index->get_int(), substring->get_str());
+    str.insert(index->get_num(), substring->get_str());
 
     return LookupResult(ShimmerLiteral(func_call_line, str));
   }
@@ -455,7 +455,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     ShimmerLiteral* index2 = get_params().at(2).literal_val;
 
     std::string str = search->get_str();
-    str.erase((int) index1->get_int(), (int) index2->get_int());
+    str.erase((int) index1->get_num(), (int) index2->get_num());
 
     return LookupResult(ShimmerLiteral(func_call_line, str));
   }
@@ -624,27 +624,27 @@ LookupResult ShimmerStatement::math_func_dya(std::string name, int line, std::ve
 }
 
 BIFNextFunc BuiltinFuncs::add() {
-  return [](int line, double res, ShimmerLiteral* param) -> double { return (double)res + param->get_int(); };
+  return [](int line, double res, ShimmerLiteral* param) -> double { return (double)res + param->get_num(); };
 }
 
 BIFCalcFunc BuiltinFuncs::sub() {
-  return [](int line, ShimmerLiteral* op1, ShimmerLiteral* op2) -> double { return (double)op1->get_int() - op2->get_int(); };
+  return [](int line, ShimmerLiteral* op1, ShimmerLiteral* op2) -> double { return (double)op1->get_num() - op2->get_num(); };
 }
 
 BIFNextFunc BuiltinFuncs::mul() {
-  return [](int line, double res, ShimmerLiteral* param) -> double { return (double)res * param->get_int(); };
+  return [](int line, double res, ShimmerLiteral* param) -> double { return (double)res * param->get_num(); };
 }
 
 BIFCalcFunc BuiltinFuncs::div() {
   return [](int line, ShimmerLiteral* op1, ShimmerLiteral* op2) -> double {
-    if (op2->get_int() == 0) throw_error(line, "Division by 0 is illegal");
-    return (double)op1->get_int() / op2->get_int();
+    if (op2->get_num() == 0) throw_error(line, "Division by 0 is illegal");
+    return (double)op1->get_num() / op2->get_num();
   };
 }
 
 // Evaluate a single thing
 ShimmerLiteral ShimmerStatement::eval(ShimmerScope* scope) {
-  for (int i = 0; i < params.size(); i++) {
+  for (std::vector<ShimmerExpr>::size_type i = 0; i < params.size(); i++) {
 #ifdef DEBUG
     std::cout << "On param #" << i << "\n";
 #endif
@@ -692,16 +692,16 @@ ShimmerLiteral ShimmerStatement::eval(ShimmerScope* scope) {
     }
   }
   
-
-  return ShimmerLiteral(-1, (double)0); // line is -1 because we can't figure out the line number
+#warning try to fix this -1 line
+  return ShimmerLiteral(-1, (double) 0); // line is -1 because we can't figure out the line number
 }
 
-void ShimmerStatement::error_on_wrong_num_params(int line, int min, int max, std::string msg) {
+void ShimmerStatement::error_on_wrong_num_params(int line, unsigned int min, unsigned int max, std::string msg) {
   error_on_missing_params(line, min, msg);
   error_on_extra_params(line, max, msg);
 }
 
-void ShimmerStatement::error_on_missing_params(int line, int min, std::string msg) {
+void ShimmerStatement::error_on_missing_params(int line, unsigned int min, std::string msg) {
 #ifdef DEBUG
   pretty_print(*this);
 
@@ -709,19 +709,17 @@ void ShimmerStatement::error_on_missing_params(int line, int min, std::string ms
 #endif
 
   if (params.size() < min) {
-    //throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);
     throw_error(line, msg);
   }
 }
 
-void ShimmerStatement::error_on_extra_params(int line, int max, std::string msg) {
+void ShimmerStatement::error_on_extra_params(int line, unsigned int max, std::string msg) {
 #ifdef DEBUG
   pretty_print(*this);
 
   std::cout << "\n";
 #endif
   if (params.size() > max) {
-    //throw std::runtime_error(std::to_string(line) + std::string(":\n\t") + msg);
     throw_error(line, msg);
   }
 }
@@ -785,7 +783,7 @@ int ShimmerLiteral::get_type() {
   return type;
 }
 
-double ShimmerLiteral::get_int() {
+double ShimmerLiteral::get_num() {
 	 if (type == TypeString) {
     try {
       return std::stod(str_value);

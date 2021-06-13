@@ -65,7 +65,7 @@ void pretty_print(ShimmerLiteral lit, int depth) {
       break;
 
     case TypeNumber:
-      std::cout << std::to_string(lit.get_int());
+      std::cout << std::to_string(lit.get_num());
       break;
 
     case TypeBool:

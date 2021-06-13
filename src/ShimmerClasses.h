@@ -145,9 +145,9 @@ class ShimmerStatement {
     LookupResult lookup_tables(ShimmerScope* scope);
 
   private:
-    void error_on_wrong_num_params(int line, int min, int max, std::string msg);
-    void error_on_missing_params(int line, int min, std::string msg);
-    void error_on_extra_params(int line, int max, std::string msg);
+    void error_on_wrong_num_params(int line, unsigned int min, unsigned int max, std::string msg);
+    void error_on_missing_params(int line, unsigned int min, std::string msg);
+    void error_on_extra_params(int line, unsigned int max, std::string msg);
 
     LookupResult math_func_var(std::string name, int line, double start,                       BIFNextFunc next);
     LookupResult math_func_dya(std::string name, int line, std::vector<ShimmerExpr> params, BIFCalcFunc calc);
@@ -222,7 +222,7 @@ class ShimmerLiteral {
     ShimmerClosedFunc func_value;
 
     int get_type();
-    double get_int();
+    double get_num();
     bool get_bool();
     std::string get_str();
     ShimmerIdentifier get_id();

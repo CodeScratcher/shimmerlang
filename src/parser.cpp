@@ -90,7 +90,10 @@ ShimmerTree Parser::parse() {
     this_token = tokens.at(this_token_id);
     handle_expectation(expectation);
   }
-  std::cout << get_expectation_name << "\n";
+
+#warning fix this line
+  //std::cout << get_expectation_name() << "\n";
+
   if (expectation == ID_OR_CALL) {
     
     statements.push_back(ShimmerExpr(expr));
@@ -154,7 +157,7 @@ void Parser::name_or_literal_expectation() {
 void Parser::id_or_call_expectation() {
   if (this_token.is_of_type("ShimmerLParen")) {
     bool call = true;
-    int new_id = this_token_id;
+    std::vector<ShimmerToken>::size_type new_id = this_token_id;
     int fn_layer = 1;
     ShimmerToken peek_token;
 
@@ -302,7 +305,7 @@ void Parser::further_func_expectation() {
   std::vector<ShimmerToken> tokens_for_recursion;
 
   int sub_expr_layer = 0;
-  int j = this_token_id;
+  std::vector<ShimmerToken>::size_type j = this_token_id;
 #ifdef DEBUG
   std::cout << "=== sub-parser === \n";
 #endif
@@ -436,7 +439,7 @@ void Parser::symbol_expectation() {
 }
 
 void Parser::print_tokens() {
-  for (int i = 0; i < tokens.size(); ++i) {
+  for (std::vector<ShimmerToken>::size_type i = 0; i < tokens.size(); ++i) {
     print_token(i);
   }
 }

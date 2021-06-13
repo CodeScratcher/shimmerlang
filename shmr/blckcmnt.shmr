@@ -1,0 +1,13 @@
+*#
+Hi there
+I am a block comment!!!
+
+This is commented out code:
+
+print("Yo mama so dumb\n")
+print("She got hit by a parked car!\n")
+#*
+
+; ^^ That was the end of the block comment
+
+print("Hello, world!\n")

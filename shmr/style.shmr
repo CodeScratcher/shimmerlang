@@ -1,3 +1,11 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; THIS FILE SHOULD PRINT:      ;;
+;;                              ;;
+;; Function body                ;;
+;; 42                           ;;
+;; OMG member function!!!       ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ; A comment
 
 ; print("This is commented out code.")
@@ -9,11 +17,11 @@ def($var, 42)
 def(
   $func,
   (this_param, that_param, another_param) {
-    print("Function body")
+    print("Function body\n")
   }
 )
 
-func()
+func("a", "b", "c")
 ; prints "Function body"
 
 def(
@@ -22,14 +30,14 @@ def(
     <
       things: [input_1, input_2],
       m_func: (params, on, same, line, as, function, name) {
-        print("OMG member function!!!")
+        print("OMG member function!!!\n")
       }
     >
   }
 )
 
-define($object, obj_ctor("foo", 42))
-print(get_elem(get_prop(object, $things), 1))
+define($object, obj_ctor("foo", var)) ; var = 42 from before
+print(get_elem(get_prop(object, $things), 1), "\n")
 ; prints 42
 
 get_prop(object, $m_func)(1, 2, 3, 4, 5, 6, 7)

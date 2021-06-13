@@ -32,7 +32,7 @@ class Parser {
     ShimmerStatement to_add;
     ShimmerExpr expr;
 
-    int this_token_id;
+    std::vector<ShimmerToken>::size_type this_token_id;
     bool first_param;
     ShimmerToken this_token;
     ShimmerToken next_token;

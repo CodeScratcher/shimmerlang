@@ -14,7 +14,9 @@ ShimmerLiteral eval_tree(ShimmerTree tree) {
 
   ShimmerScope* scope = new ShimmerScope(Scope());
   ShimmerLiteral return_val;
-  int j = 0;
+
+  unsigned int j = 0;
+
   for (ShimmerExpr i : tree.get_tree()) {
     j++;
 
@@ -74,7 +76,7 @@ ShimmerLiteral eval_tree(ShimmerTree tree, ShimmerScope* above_scope, std::vecto
   ShimmerScope* scope = new ShimmerScope(above_scope, s);
   ShimmerLiteral return_val;
   
-  int j = 0;
+  unsigned int j = 0;
 
   for (ShimmerExpr i : tree.get_tree()) {
     j++;
@@ -118,7 +120,9 @@ std::tuple<ShimmerLiteral, ShimmerScope*> eval_and_get_scope(ShimmerTree tree) {
 
   ShimmerScope* scope = new ShimmerScope(Scope());
   ShimmerLiteral return_val;
-  int j = 0;
+
+  unsigned int j = 0;
+
   for (ShimmerExpr i : tree.get_tree()) {
     j++;
 

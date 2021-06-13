@@ -17,17 +17,18 @@
 #include "utility.h"
 
 std::vector<ShimmerToken> lex(std::string str) {
-  str.push_back(' '); // For closing tokens
+  str.push_back(' '); // For closing tokens at the end
 
   int current_line = 1;
   LexerState now_in = NONE;
   chtype str_delim;
+  int block_comment_start = -1;
 
   ShimmerToken this_token;
   std::string this_token_contents;
   std::vector<ShimmerToken> tokens;
 
-  for (long i = 0; i < str.length(); i++) {
+  for (std::string::size_type i = 0; i < str.length(); i++) {
     chtype ch = str.at(i);
 
     if (now_in == UNKNOWN) {
@@ -47,7 +48,33 @@ std::vector<ShimmerToken> lex(std::string str) {
         current_line++;
         this_token_contents = "";
         now_in = NONE;
-        continue; // These continues are currently unnecessary, but we keep them there just in case
+        continue;
+      }
+    }
+    else if (now_in == BLCKCMNT_1) {
+      this_token_contents = "";
+
+      if (ch != '#') {
+        throw_error(current_line, "Expected '#' character at block comment start delimiter");
+      }
+      else {
+        now_in = BLCKCMNT_2;
+      }
+    }
+    else if (now_in == BLCKCMNT_2) {
+      if (ch == '\n') {
+        current_line++;
+      }
+      else if (ch == '#') {
+        now_in = BLCKCMNT_3;
+      }
+    }
+    else if (now_in == BLCKCMNT_3) {
+      if (ch == '*') {
+        now_in = NONE;
+      }
+      else {
+        now_in = BLCKCMNT_2;
       }
     }
     else if (now_in == NONE) {
@@ -60,6 +87,10 @@ std::vector<ShimmerToken> lex(std::string str) {
       }
       else if (ch == ';') {
         now_in = COMMENT;
+      }
+      else if (ch == '*') {
+        now_in = BLCKCMNT_1;
+        block_comment_start = current_line;
       }
       else if (ch == '"' || ch == '\'') {
         now_in = STR;
@@ -171,11 +202,12 @@ std::vector<ShimmerToken> lex(std::string str) {
   if (now_in == STR) {
     throw_error(current_line, "Unclosed string: ", this_token_contents);
   }
+  else if (now_in == BLCKCMNT_2) {
+    throw_error(block_comment_start, "Unclosed block comment");
+  }
 
   return tokens;
 }
-
-
 
 std::string str_repr(LexerState ls) {
   switch (ls) {
