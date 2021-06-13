@@ -1,0 +1,3 @@
+def($counter, num(read("test.txt")))
+set($counter, add(counter, 1))
+write("test.txt", counter)

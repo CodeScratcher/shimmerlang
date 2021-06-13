@@ -30,36 +30,47 @@ d_compile () {
 
 if [[ $answer == "c" ]] || [[ $answer == "C" ]]; then
   compile
-  #g++ -Isrc -c -Wall -Werror -fpic src/DotClasses.cpp -o dot.o
-  #g++ -shared dot.o -o build/libdot.so
-  
-elif [[ $answer == "d" ]]; then
-  gdb build/shimmerlang
-  
-elif [[ $answer == "D" ]]; then
-  if d_compile; then
+
+else
+  if [[ $answer =~ [A-Z] ]]; then
+    if [[ $answer == "D" ]]; then
+      d_compile
+
+    else
+      compile
+
+    fi
+  fi
+
+  answer="$(tr [A-Z] [a-z] <<< "$answer")"
+
+  if [[ $answer == "d" ]]; then
     gdb build/shimmerlang
+
+  elif [[ $answer == "t" ]]; then
+    build/shimmerlang shmr/test.shmr
+
+  elif [[ $answer == "r" ]]; then
+    build/shimmerlang
+
+  elif [[ $answer == "e" ]]; then
+    read -p "Which file? " thefile
+    build/shimmerlang $thefile
+
+    if [ "$?" -ne "0" ]; then
+      echo "Could not find file $thefile, trying shmr/$thefile..."
+      sleep 1
+
+      build/shimmerlang "shmr/$thefile"
+    fi
+
+    if [ "$?" -ne "0" ]; then
+      echo "main.sh: error: could not find the file specified."
+
+    fi
+
+  else
+    echo "main.sh: error: unknown command: $answer."
+
   fi
-
-elif [[ $answer == "t" ]]; then
-    build/shimmerlang test.shmr;
-
-elif [[ $answer == "T" ]]; then
-  if compile; then
-    build/shimmerlang test.shmr;
-  fi
-
-elif [[ $answer == "r" ]]; then
-    build/shimmerlang;
-
-elif [[ $answer == "R" ]]; then
-  if compile; then
-    build/shimmerlang;
-  fi
-
-elif [[ $answer == "e" ]]; then
-  build/shimmerlang;
-
-elif [[ $answer == "E" ]]; then
-  build/shimmerlang;
 fi
