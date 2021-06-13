@@ -1,8 +1,8 @@
 #!/bin/bash
 
-
 /bin/bash print_options.sh
-read -p "Which option? [cC/dD/tT/rR] " answer
+echo "ATTENTION: I MAY HAVE BROKEN SOMETHING, TRY RUNNING NG.SHMR"
+read -p "Which option? [cC/dD/tT/rR/eE] " answer
 
 compile () {
   export CXX=/usr/bin/clang++
@@ -33,32 +33,33 @@ if [[ $answer == "c" ]] || [[ $answer == "C" ]]; then
   #g++ -Isrc -c -Wall -Werror -fpic src/DotClasses.cpp -o dot.o
   #g++ -shared dot.o -o build/libdot.so
   
-  elif [[ $answer == "d" ]]; then
+elif [[ $answer == "d" ]]; then
   gdb build/shimmerlang
   
-  elif [[ $answer == "D" ]]; then
+elif [[ $answer == "D" ]]; then
   if d_compile; then
     gdb build/shimmerlang
   fi
-  
-else
-  if [[ $answer == "t" ]]; then
+
+elif [[ $answer == "t" ]]; then
+    build/shimmerlang test.shmr;
+
+elif [[ $answer == "T" ]]; then
+  if compile; then
     build/shimmerlang test.shmr;
   fi
-  
-  if [[ $answer == "T" ]]; then
-    if compile; then
-      build/shimmerlang test.shmr;
-    fi
-  fi
-  
-  if [[ $answer == "r" ]]; then
+
+elif [[ $answer == "r" ]]; then
+    build/shimmerlang;
+
+elif [[ $answer == "R" ]]; then
+  if compile; then
     build/shimmerlang;
   fi
-  
-  if [[ $answer == "R" ]]; then
-    if compile; then
-      build/shimmerlang;
-    fi
-  fi
+
+elif [[ $answer == "e" ]]; then
+  build/shimmerlang;
+
+elif [[ $answer == "E" ]]; then
+  build/shimmerlang;
 fi

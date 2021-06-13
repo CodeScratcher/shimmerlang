@@ -1,16 +1,19 @@
 def($done, false)
-def($loop, (){
+
+def($main, () {
   print("Guess? ")
   def($val, read())
-  if(
-    eq(int(val), 10), 
-    (){
+  def($the_guess, num(val))
+
+  if_else(
+    eq(the_guess, 10), 
+    () {
       print("Great! \n")
       set($done, true)
     },
-    (){
-      if(
-        lt(int(val), 10),
+    () {
+      if_else(
+        lt(the_guess, 10),
         () {
           print("It's greater than that! \n")
         },
@@ -20,14 +23,13 @@ def($loop, (){
       )()
     }
   )()
+
   if(
-    done,
-    (){
-      
-    },
-    (){
-      loop()
+    not(done),
+    () {
+      main()
     }
   )()
 })
-loop()
+
+main()
