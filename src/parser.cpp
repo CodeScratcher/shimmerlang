@@ -199,38 +199,39 @@ void Parser::id_or_call_expectation() {
       expectation = ID_OR_CALL;
     }
   }
-#                                                    warning Clean up here!
-  else if (this_token.is_of_type("Shimmer")) {
+#warning Clean up here!
+  else if (this_token.is_of_type("ShimmerNumber")) {
     statements.push_back(ShimmerExpr(expr));
-    ShimmerLiteral* literal_val = new ShimmerLiteral;
-    literal_val = new ShimmerLiteral(this_token.get_line(), this_token.get_parsed_contents());
-    statements.push_back(ShimmerExpr(*literal_val));
+    statements.push_back(
+      ShimmerExpr(ShimmerLiteral(this_token.get_line(), this_token.get_parsed_contents()))
+    );
+
     expectation = NAME_OR_LITERAL;
   }
   else if (this_token.is_of_type("ShimmerString")) {
     statements.push_back(ShimmerExpr(expr));
-    ShimmerLiteral* literal_val = new ShimmerLiteral;
-    literal_val = new ShimmerLiteral(this_token.get_line(), this_token.get_contents());
-    statements.push_back(ShimmerExpr(*literal_val));
+    statements.push_back(
+      ShimmerExpr(ShimmerLiteral(this_token.get_line(), this_token.get_contents()))
+    );
+
     expectation = NAME_OR_LITERAL;
   }
   else if (this_token.is_of_type("ShimmerIdentifier")) {
     statements.push_back(ShimmerExpr(expr));
-    if (this_token.get_contents() == "true") {
+
+    std::string tkct = this_token.get_contents();
+
+    if (tkct == "true" || tkct == "false") {
       statements.push_back(
-        ShimmerExpr(ShimmerLiteral(-1, true))
-      );
-      expectation = NAME_OR_LITERAL;
-    }
-    else if (this_token.get_contents() == "false") {
-      statements.push_back(
-        ShimmerExpr(ShimmerLiteral(-1, false))
+        ShimmerExpr(
+          ShimmerLiteral(-1, (tkct == "true" ? true : false))
+        )
       );
       expectation = NAME_OR_LITERAL;
     }
     else {
       expectation = ID_OR_CALL;
-      expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), this_token.get_contents()));
+      expr = ShimmerExpr(ShimmerIdentifier(this_token.get_line(), tkct));
     }
   }
   else {
@@ -273,8 +274,7 @@ void Parser::comma_expectation() {
 
 void Parser::further_func_expectation() {
   if (this_token.is_of_type("ShimmerComma")) {
-    ShimmerExpr* param = new ShimmerExpr(current_expr);
-    params.push_back(*param);
+    params.push_back(ShimmerExpr(current_expr));
     expectation = PARAM;
     return;
   }
@@ -286,13 +286,13 @@ void Parser::further_func_expectation() {
     params.push_back(*param);
     to_add.set_params(params);
 
+#ifdef DEBUG
     for (ShimmerExpr i : to_add.get_params()) {
       if (i.get_param_type() == STATEMENT) {
-#ifdef DEBUG
         printf("address of param: %p\n", (void*) i.statement_val);
-#endif
       }
     }
+#endif
     
     expr = ShimmerExpr(to_add);
     params.clear();
@@ -516,6 +516,7 @@ const char* param_recursive_str(ShimmerExpr to_convert) {
     return "Param recursive";
   }
 }
+
 
 void print_statement_info(ShimmerStatement i) {
 	std::cout << i.get_expr().get_identifier_val().get_contents() << "->";

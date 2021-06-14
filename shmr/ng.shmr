@@ -1,36 +1,40 @@
 def($done, false)
+def($correct, 10)
 
-def($main, () {
-  print("Guess? ")
-  def($val, read())
-  def($the_guess, num(val))
+def(
+  $main,
+  () {
+    print("Guess? ")
+    def($val, read())
+    def($the_guess, num(val))
 
-  if_else(
-    eq(the_guess, 10), 
-    () {
-      print("Correct! \n")
-      set($done, true)
-    },
-    () {
-      if_else(
-        lt(the_guess, 10),
-        () {
-          print("Try higher! \n")
-        },
-        () {
-          print("Try lower! \n")
-        }
-      )()
-    }
-  )()
+    if_else(
+      eq(the_guess, correct), 
+      () {
+        print("Correct! \n")
+        set($done, true)
+      },
+      () {
+        if_else(
+          lt(the_guess, correct),
+          () {
+            print("Try higher! \n")
+          },
+          () {
+            print("Try lower! \n")
+          }
+        )()
+      }
+    )()
 
-  if_else(
-    not(done),
-    () {
-      main()
-    },
-    (){}
-  )()
-})
+    if_else(
+      not(done),
+      () {
+        main()
+      },
+      (){}
+    )()
+  }
+)
 
 main()

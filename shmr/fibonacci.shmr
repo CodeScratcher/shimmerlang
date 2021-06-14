@@ -1,0 +1,30 @@
+def(
+  $fib,
+  (n) {
+    if_else(
+      lt(n, 2),
+      () {1},
+      () {
+        add(
+          fib(sub(n, 2)),
+          fib(sub(n, 1))
+        )
+      }
+    )()
+  }
+)
+
+def(
+  $loop,
+  (y, max) {
+    print("fib(", y, ") = ", fib(y), "\n")
+
+    if_else(
+      eq(y, max),
+      () {-1},
+      () {loop(add(y, 1), max)}
+    )()
+  }
+)
+
+loop(1, 100)

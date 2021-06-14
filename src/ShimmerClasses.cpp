@@ -188,7 +188,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
 
   // IO
 
-  else if (func_name == "print") {
+  else if (func_name == "log") {
     int param_count = 0;
     bool first_param = true;
 
@@ -200,6 +200,16 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
         first_param = false;
       }
 
+      std::cout << p.get_literal_val().get_str();
+      param_count++;
+    }
+
+    return LookupResult(ShimmerLiteral(-1, (double) param_count));
+  }
+  else if (func_name == "print") {
+    int param_count = 0;
+
+    for (auto p : get_params()) {
       std::cout << p.get_literal_val().get_str();
       param_count++;
     }

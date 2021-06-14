@@ -1,15 +1,17 @@
 def(
   $factorial,
   (n) {
-    if(
+    if_else(
       eq(n, 1),
-      1,
-      mul(
-        n,
-        factorial(sub(n, 1))
-      )
-    )
+      () {1},
+      () {
+        mul(
+          n,
+          factorial(sub(n, 1))
+        )
+      }
+    )()
   }
 )
 
-print("Result:", factorial(5), "\n")
+print("Result:", factorial(120), "\n")

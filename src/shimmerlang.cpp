@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
       tc::bold << \
       "Shimmerlang version " << \
       std::string(VERSION) << \
-      " licensed under the MIT license." <<\
+      " licensed under the MIT license. See LICENSE.txt" <<\
       tc::reset << "\n";
 
     std::cout << \

@@ -99,11 +99,11 @@ std::vector<ShimmerToken> lex(std::string str) {
         now_in = STR;
         str_delim = ch;
       }
-      else if (std::regex_search(std::string(1, ch), std::regex("[a-zA-Z_\\-]"))) {
+      else if (std::regex_search(std::string(1, ch), std::regex("[a-zA-Z_]"))) {
         now_in = ID;
         this_token_contents.push_back(ch);
       }
-      else if (std::regex_search(std::string(1, ch), std::regex("[0-9.]"))) {
+      else if (std::regex_search(std::string(1, ch), std::regex("[\\-0-9.]"))) {
         now_in = NUMBER;
         this_token_contents.push_back(ch);
       }

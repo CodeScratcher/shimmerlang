@@ -10,12 +10,11 @@
     * Done
 
   * ### Patch
-    * `std::out_of_range` errors
-    * clean up code, starting with parser.cpp
-      * continue where left off, line ~= 210
+    * Done because we said so
 
 * ## For 0.2 release
   * ### Major
+    * negative number literals
     * split ShimmerClasses into 3
       * tokens.cpp
         * for ShimmerToken and its children
@@ -33,6 +32,8 @@
         * `< key1: value1, key2: () { "value2" } >`
 
   * ### Minor
+    * clean up code, starting with parser.cpp
+      * continue where left off, line ~= 225
     * hex and binary support
     * split
     * bitwise operators
