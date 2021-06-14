@@ -1,3 +1,4 @@
+#if defined(__linux__) || defined(__unix__) || defined(__linux) || defined(__unix) || defined(_POSIX_VERSION)
 /* linenoise.h -- VERSION 1.0
  *
  * Guerrilla line editing library against the idea that a line editing lib
@@ -73,3 +74,4 @@ void linenoiseMaskModeDisable(void);
 #endif
 
 #endif /* __LINENOISE_H */
+#endif

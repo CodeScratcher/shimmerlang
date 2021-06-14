@@ -15,6 +15,7 @@
 #include "parser.h"
 #include "text_effects.h"
 #include "pretty_print.h"
+#include "prompt.h"
 
 bool interpret_program(char* program_name);
 void interpret_shell();
@@ -35,7 +36,7 @@ int main(int argc, char* argv[]) {
       tc::bold << \
       "Shimmerlang version " << \
       std::string(VERSION) << \
-      " licensed under the MIT license. See LICENSE.txt" <<\
+      " licensed under the MIT license. See LICENSE.txt for more information." << \
       tc::reset << "\n";
 
     std::cout << \
@@ -72,14 +73,17 @@ bool interpret_program(char* program_name) {
 }
 
 void interpret_shell() {
+#ifdef USE_LINENOISE
   linenoiseSetMultiLine(1);
   linenoiseHistoryLoad("~/.shmr_history");
+#endif
 
   char* to_eval;
 
   while (true) {
     std::cout << tc::reset;
-    to_eval = linenoise(">>> ");
+  
+    to_eval = prompt(">>> ");
 
     if (to_eval == (char*) - 1) {
       std::cout << "\n";
@@ -89,11 +93,14 @@ void interpret_shell() {
       *to_eval = '\0';
     }
     else if (to_eval[0] != '\0' && to_eval[0] != '/') {
+#ifdef USE_LINENOISE
       linenoiseHistoryAdd(to_eval);
       linenoiseHistorySave("~/.shmr_history");
+#endif
 
       std::cout << "\n=> " + std::get<0>(execute(to_eval, "<repl>")).get_str() + "\n";
     }
+#ifdef USE_LINENOISE
     else if (strncmp(to_eval, "/setmaxhistlen", 14) == 0) {
       int len = atoi(to_eval + 14);
       linenoiseHistorySetMaxLen(len);
@@ -107,6 +114,7 @@ void interpret_shell() {
       linenoiseMaskModeDisable();
       std::cout << "Mask mode disabled.\n";
     }
+#endif
     else if (strncmp(to_eval, "/easteregg", 10) == 0) {
       std::cout << easteregg << "\n";
     }

@@ -1,3 +1,4 @@
+#if defined(__linux__) || defined(__unix__) || defined(__linux) || defined(__unix) || defined(_POSIX_VERSION)
 /* linenoise.c -- guerrilla line editing library against the idea that a
  * line editing lib needs to be 20,000 lines of C code.
  *
@@ -1225,3 +1226,4 @@ int linenoiseHistoryLoad(const char *filename) {
     fclose(fp);
     return 0;
 }
+#endif
