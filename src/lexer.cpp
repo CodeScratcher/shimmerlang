@@ -54,8 +54,11 @@ std::vector<ShimmerToken> lex(std::string str) {
     else if (now_in == BLCKCMNT_1) {
       this_token_contents = "";
 
-      if (ch != '#') {
-        throw_error(current_line, "Expected '#' character at block comment start delimiter");
+      if (ch != BLCKCMNT_DELIM_B) {
+        throw_error(
+          current_line,
+          "Expected '" + std::string(1, BLCKCMNT_DELIM_B) + "' character at block comment start delimiter"
+        );
       }
       else {
         now_in = BLCKCMNT_2;
@@ -65,12 +68,12 @@ std::vector<ShimmerToken> lex(std::string str) {
       if (ch == '\n') {
         current_line++;
       }
-      else if (ch == '#') {
+      else if (ch == BLCKCMNT_DELIM_B) {
         now_in = BLCKCMNT_3;
       }
     }
     else if (now_in == BLCKCMNT_3) {
-      if (ch == '*') {
+      if (ch == BLCKCMNT_DELIM_A) {
         now_in = NONE;
       }
       else {
@@ -85,10 +88,10 @@ std::vector<ShimmerToken> lex(std::string str) {
 
         continue;
       }
-      else if (ch == ';') {
+      else if (ch == LINECMNT_DELIM) {
         now_in = COMMENT;
       }
-      else if (ch == '*') {
+      else if (ch == BLCKCMNT_DELIM_A) {
         now_in = BLCKCMNT_1;
         block_comment_start = current_line;
       }

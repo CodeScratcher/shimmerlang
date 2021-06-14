@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <tuple>
+#include <stdlib.h>
 
 #include "ShimmerClasses.h"
 #include "errors.h"
@@ -180,8 +181,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
       get_params().at(0).literal_val->get_num()
     );
 
-    std::cout << "exit with status " << std::to_string(status) << "\n";
-    std::cout << "You'll have to use [Ctrl-C] until the devs implement this function.\n";
+    exit(status);
 
     return LookupResult(ShimmerLiteral(func_call_line, (double) status));
   }
@@ -207,8 +207,6 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     return LookupResult(ShimmerLiteral(-1, (double) param_count));
   }
   else if (func_name == "read") {
-    ShimmerLiteral* fname = get_params().at(0).literal_val;
-
     if (get_params().size() == 0) {
       std::string val;
       std::getline(std::cin, val);
@@ -216,6 +214,8 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
       return LookupResult(ShimmerLiteral(func_call_line, val));
     }
     else if (get_params().size() == 1) {
+      ShimmerLiteral* fname = get_params().at(0).literal_val;
+
       std::ifstream file(fname->get_str());
       if (!file) throw_error(func_call_line, "Error opening file ", fname->get_str());
 
@@ -277,7 +277,7 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     return math_func_dya(func_name, func_call_line, get_params(), BuiltinFuncs::div());
   }
 
-  // Boolean logic
+  // Simple boolean logic
 
   else if (func_name == "and") {
     error_on_missing_params(
@@ -307,16 +307,6 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
 
     ShimmerLiteral* val1 = get_params().at(0).literal_val;
     return LookupResult(ShimmerLiteral(func_call_line, !val1->get_bool()));
-  }
-  else if (func_name == "xor") {
-    error_on_missing_params(
-      func_call_line, 2,
-      "xor() expects at least 2 parameters, but recieved " + std::to_string(get_params().size())
-    );
-
-    ShimmerLiteral* val1 = get_params().at(0).literal_val;
-    ShimmerLiteral* val2 = get_params().at(0).literal_val;
-    return LookupResult(ShimmerLiteral(func_call_line, (bool) (val1->get_bool() ^ val2->get_bool())));
   }
 
   // Comparisons
@@ -471,9 +461,26 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
     return LookupResult(ShimmerLiteral(func_call_line, str1->get_str() + str2->get_str()));
   }
   else if (func_name == "slice") {
-    std::cout << "slice() hasn't been implemented yet.\n";
+    error_on_missing_params(
+      func_call_line, 2,
+      "slice() expects at least 2 parameters, but recieved " + std::to_string(get_params().size())
+    );
 
-    return LookupResult(ShimmerLiteral(func_call_line, "blah"));
+    ShimmerLiteral* str   = get_params().at(0).literal_val;
+    ShimmerLiteral* start = get_params().at(1).literal_val;
+
+    std::string result;
+    
+    if (get_params().size() >= 3) {
+      ShimmerLiteral* stop = get_params().at(2).literal_val;
+
+      result = str->get_str().substr(start->get_num(), stop->get_num() - start->get_num());
+    }
+    else {
+      result = str->get_str().substr(start->get_num());
+    }
+
+    return LookupResult(ShimmerLiteral(func_call_line, result));
   }
 
   // Variables
@@ -506,14 +513,6 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
   
   // Control flow 
 
-  else if (func_name == "if") {
-    ShimmerLiteral* cond = get_params().at(0).literal_val;
-    ShimmerLiteral* body = get_params().at(1).literal_val;
-    
-    if (cond->get_bool() == true) {
-      return LookupResult(*body);
-    }
-  }
   else if (func_name == "if_else") {
     ShimmerLiteral* cond     = get_params().at(0).literal_val;
     ShimmerLiteral* if_true  = get_params().at(1).literal_val;
@@ -680,11 +679,19 @@ ShimmerLiteral ShimmerStatement::eval(ShimmerScope* scope) {
       return eval_tree(expr.get_func_val().tree, scope, expr.get_func_val().params, params);
     }
     else if (expr.is_of_type(STATEMENT)) {
-      ShimmerClosedFunc res = expr.get_statement_val().eval(scope).get_func();
+      ShimmerLiteral lres =  expr.get_statement_val().eval(scope);
+      if (lres.type != TypeFunc) {
+        throw_error(-1, "Not a function.");
+      }
+      ShimmerClosedFunc res = lres.get_func();
       return eval_tree(res.tree, res.closed_scope, res.params, params);
     }
     else if (expr.is_of_type(IDENTIFIER)) {
-      ShimmerClosedFunc res = scope->get_variable(expr.get_identifier_val().get_contents()).get_func();
+      ShimmerLiteral lres = scope->get_variable(expr.get_identifier_val().get_contents());
+      if (lres.type != TypeFunc) {
+        throw_error(-1, "Not a function.");
+      }
+      ShimmerClosedFunc res = lres.get_func();
       return eval_tree(res.tree, res.closed_scope, res.params, params);
     }
     else {
@@ -807,19 +814,22 @@ bool ShimmerLiteral::get_bool() {
     return true;
   }
 }
-std::string removeZero(std::string str)
-{
-    // Count trailing zeros
-    int i = str.length() - 1;
-    while (str[i] == '0')
-       i--;
-  
-    // The erase function removes i characters
-    // from given index (0 here)
-    str.erase(i + 2, str.length());
-  
-    return str;
+
+std::string removeZero(std::string str) {
+  // Count trailing zeros
+  int i = str.length() - 1;
+
+  while (str[i] == '0') i--;
+
+  if (str[i] == '.') i--;
+
+  // The erase function removes i characters
+  // from given index (0 here)
+  str.erase(i + 1, str.length());
+
+  return str;
 }
+
 std::string ShimmerLiteral::get_str() {
   if (type == TypeNumber) {
     return removeZero(std::to_string(int_value));

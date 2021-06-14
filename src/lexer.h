@@ -6,6 +6,11 @@
 
 #include "ShimmerClasses.h"
 
+#define LINECMNT_DELIM ';'
+
+#define BLCKCMNT_DELIM_A '*'
+#define BLCKCMNT_DELIM_B '#'
+
 typedef enum {UNKNOWN = -1, NONE, COMMENT, BLCKCMNT_1, BLCKCMNT_2, BLCKCMNT_3, ID, NUMBER, STR} LexerState;
 std::string str_repr(LexerState ls);
 

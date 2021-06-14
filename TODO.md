@@ -1,23 +1,31 @@
 # TODO
 
+* rename .h to .hpp
+
 * ## For 0.1 release
   * ### Major
     * All done!
 
   * ### Minor
-    * string slicing: `slice(str, start[, end][, step])`
+    * Done
 
   * ### Patch
     * `std::out_of_range` errors
-    * fsr `slice()` returns `true` when it should return `"blah"`
     * clean up code, starting with parser.cpp
       * continue where left off, line ~= 160
     * make it stop printing unnecessary x.0's
-      * includes pretty printing
+      * includes pretty printing ()
         * it shouldn't print: add\n\t3.000000\n\t4.000000
 
 * ## For 0.2 release
   * ### Major
+    * split ShimmerClasses into 3
+      * tokens.cpp
+        * for ShimmerToken and its children
+      * parts.cpp
+        * ShimmerStatement ShimmerExpr ShimmerTree ShimmerLiteral
+      * builtins.cpp
+        * BIF LookupResult and class splitted from ShimmerStatement
     * TCO
     * Foreign functions
     * arrays: turn strings into arrays to reduce duplication??
@@ -31,6 +39,9 @@
     * hex and binary support
     * split
     * bitwise operators
+    * maybe add `[, step]` param to `slice()`
+    * reduce the large amount of duplication 
+      * like wtf SC.h is almost 1000 lines long
 
   * ### Patch
     * better table lookup

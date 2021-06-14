@@ -32,8 +32,16 @@ int main(int argc, char* argv[]) {
   else {
     std::cout << \
       tc::cyan << \
-      "Shimmerlang version " + std::string(VERSION) << \
-      " licensed under the MIT license." << tc::reset << "\n";
+      tc::bold << \
+      "Shimmerlang version " << \
+      std::string(VERSION) << \
+      " licensed under the MIT license." <<\
+      tc::reset << "\n";
+
+    std::cout << \
+      tc::blue << \
+      "Use Ctrl-C, Ctrl-D, exit(status), or /quit to exit.\n" << \
+      tc::reset << "\n";
 
     interpret_shell();
   }
@@ -72,13 +80,13 @@ void interpret_shell() {
   while (true) {
     std::cout << tc::reset;
     to_eval = linenoise(">>> ");
-    if (to_eval == (char*)-1) {
+
+    if (to_eval == (char*) - 1) {
       std::cout << "\n";
       return;
     }
     if (to_eval == nullptr || to_eval == NULL) {
       *to_eval = '\0';
-      std::cout << "It was null!\n";
     }
     else if (to_eval[0] != '\0' && to_eval[0] != '/') {
       linenoiseHistoryAdd(to_eval);
@@ -103,8 +111,10 @@ void interpret_shell() {
       std::cout << easteregg << "\n";
     }
     else if (strncmp(to_eval, "/shrug", 6) == 0) {
-      std::cout << "_        _\n";
-      std::cout << " \\_(\u30C4)_/\n";
+      std::cout << "\u203E\\_(\u30C4)_/\u203E\n";
+    }
+    else if (strncmp(to_eval, "/quit", 5) == 0) {
+      return;
     }
     else if (to_eval[0] == '/') {
       std::cout << "Unrecognized command: " << to_eval << "\n";

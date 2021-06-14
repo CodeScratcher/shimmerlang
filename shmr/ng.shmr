@@ -8,27 +8,28 @@ def($main, () {
   if_else(
     eq(the_guess, 10), 
     () {
-      print("Great! \n")
+      print("Correct! \n")
       set($done, true)
     },
     () {
       if_else(
         lt(the_guess, 10),
         () {
-          print("It's greater than that! \n")
+          print("Try higher! \n")
         },
         () {
-          print("It's less than that! \n")
+          print("Try lower! \n")
         }
       )()
     }
   )()
 
-  if(
+  if_else(
     not(done),
     () {
       main()
-    }
+    },
+    (){}
   )()
 })
 

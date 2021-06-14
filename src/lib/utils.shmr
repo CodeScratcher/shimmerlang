@@ -1,1 +1,6 @@
-bloop
+def($if, (cond, func){
+  if_else(cond, func, (){})()
+})
+def($xor, (b1, b2){
+  and(or(b1, b2), not(and(b1, b2)))
+})

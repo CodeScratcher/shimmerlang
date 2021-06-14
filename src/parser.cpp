@@ -100,8 +100,8 @@ ShimmerTree Parser::parse() {
 
   }
   else if (expectation != NAME_OR_LITERAL) {
-    
-    throw_error(0, "Forgot ending parentheses");
+#warning try to fix this -1 line
+    throw_error(-1, "Missing closing parenthesis");
   }
 
   to_return = ShimmerTree(statements);
@@ -162,6 +162,11 @@ void Parser::id_or_call_expectation() {
     ShimmerToken peek_token;
 
     while (true) {
+      if (new_id == tokens.size() - 1) {
+#warning try to fix this -1 line
+        throw_error(-1, "Missing closing parenthesis");
+      }
+
       peek_token = tokens.at(++new_id);
 
       if (peek_token.is_of_type("ShimmerLParen")) {

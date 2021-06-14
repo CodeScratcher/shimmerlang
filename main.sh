@@ -25,7 +25,7 @@ compile () {
   make;
   export BASE=$?
   cd ..;
-  return $BASE;
+  return "$BASE";
 }
 
 if [[ $answer == "" ]]; then
@@ -34,6 +34,11 @@ if [[ $answer == "" ]]; then
 elif [[ $answer == "c" ]] || [[ $answer =~ [A-Z] ]]; then
   echo "=== Compiling Shimmerlang ==="
   compile
+
+  if [ "$?" != "0" ]; then
+    echo "=== Failed! ==="
+    exit 1
+  fi
 
   if [[ $answer == "c" ]]; then
     exit 0
