@@ -12,10 +12,7 @@
   * ### Patch
     * `std::out_of_range` errors
     * clean up code, starting with parser.cpp
-      * continue where left off, line ~= 160
-    * make it stop printing unnecessary x.0's
-      * includes pretty printing ()
-        * it shouldn't print: add\n\t3.000000\n\t4.000000
+      * continue where left off, line ~= 210
 
 * ## For 0.2 release
   * ### Major

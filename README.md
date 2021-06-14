@@ -4,10 +4,21 @@ programming language.
 See src/src.md for more details.
 
 ## About
-TODO
+Shimmer is a language that revolves around functions.
+Almost everything is a function in Shimmer - even operators!
+Consider the following:
+```python
+print("Hello, world!\n")
+print(add(sub(10, mul(3, div(8, 2))), 5)) ; 10 - (3 * 8 / 2) + 5
 
-## TODO
-TODO
+*#
+ # This is a block comment
+ # It starts with *# and ends with # and *
+ # ;;; Line comment inside block comment
+ #*
+
+;; ^ End of block comment (I am a line comment BTW)
+```
 
 ## Building
 The main.sh file should handle it.
