@@ -1,20 +1,10 @@
 # TODO
 
-* rename .h to .hpp
-
-* ## For 0.1 release
-  * ### Major
-    * All done!
-
-  * ### Minor
-    * Done
-
-  * ### Patch
-    * Done because we said so
+* rename .h to .hpp?
 
 * ## For 0.2 release
   * ### Major
-    * negative number literals
+    * fix weird `segfaults` and `std::out_of_range`s if they exist
     * split ShimmerClasses into 3
       * tokens.cpp
         * for ShimmerToken and its children
@@ -32,6 +22,10 @@
         * `< key1: value1, key2: () { "value2" } >`
 
   * ### Minor
+    * more escapes
+      * "\xnn"
+      * "\XNNNN"
+      * "\o(oo)"
     * clean up code, starting with parser.cpp
       * continue where left off, line ~= 225
     * hex and binary support
@@ -43,3 +37,8 @@
 
   * ### Patch
     * better table lookup
+
+* ## For 0.3 release
+  * ### Major
+  * ### Minor
+  * ### Patch

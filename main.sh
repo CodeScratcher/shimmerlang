@@ -40,6 +40,8 @@ elif [[ $answer == "c" ]] || [[ $answer =~ [A-Z] ]]; then
     exit 1
   fi
 
+  chmod +x build/shimmerlang
+
   if [[ $answer == "c" ]]; then
     exit 0
 

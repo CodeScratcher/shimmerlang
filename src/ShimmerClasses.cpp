@@ -204,6 +204,8 @@ LookupResult ShimmerStatement::lookup_tables(ShimmerScope* scope) {
       param_count++;
     }
 
+    std::cout << "\n";
+
     return LookupResult(ShimmerLiteral(-1, (double) param_count));
   }
   else if (func_name == "print") {

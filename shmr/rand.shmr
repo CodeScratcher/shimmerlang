@@ -1,0 +1,56 @@
+print("=== Random Number Generator ===\n")
+
+def($_rand_next, 1)
+
+def(
+  $mod,
+  (x, y) {
+    if_else(
+      gt(y, x),
+      () {
+        sub(x, y)
+      },
+      () {
+        mod(sub(x, y), y)
+      }
+    )()
+  }
+)
+
+def(
+  $rand,
+  () {
+    set(
+      $_rand_next,
+      add(12345, mul(_rand_next, 1103515245))
+    )
+
+    mod(div(_rand_next, 65536), 32768)
+  }
+)
+
+def(
+  $seed,
+  (n) {
+    set(
+      $_rand_next,
+      n
+    )
+  }
+)
+
+def(
+  $loop,
+  (n, max) {
+    if_else(
+      lt(n, max),
+      () {
+        print("#1: ", rand(), "\n")
+        loop(add(n, 1), max)
+      },
+      () {}
+    )()
+  }
+)
+
+loop(0, 10)
